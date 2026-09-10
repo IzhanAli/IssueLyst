@@ -1,5 +1,3 @@
-"use client";
-
 import { AnimatePresence, motion } from "motion/react";
 import { X, Trash2, CircleDot, UserRound } from "lucide-react";
 import { StatusPicker, AssigneePicker } from "./pickers";

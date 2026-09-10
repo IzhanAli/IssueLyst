@@ -1,8 +1,17 @@
 import { ISSUES, ROUTES, USERS, expect, gotoList, sidebar, test } from "./helpers";
 
 test.describe("shell navigation", () => {
-  test("the root URL lands on the project list", async ({ page }) => {
+  // The root route is the marketing landing page; `/app` is the app entry
+  // point that redirects to the default project view. This spec asserted the
+  // pre-landing-page behaviour, where `/` redirected straight into the app.
+  test("the root URL shows the landing page", async ({ page }) => {
     await page.goto("/");
+    await expect(page).toHaveURL(/\/$/);
+    await expect(page.getByRole("heading", { name: /One clear flow/ })).toBeVisible();
+  });
+
+  test("the /app entry point lands on the project list", async ({ page }) => {
+    await page.goto("/app");
     await expect(page).toHaveURL(/\/app\/project\/engineering\/list$/);
     await expect(page.getByRole("heading", { name: "Engineering" })).toBeVisible();
   });

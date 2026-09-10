@@ -1,5 +1,3 @@
-"use client";
-
 import { useMemo, useRef, useState } from "react";
 import { SendHorizontal, AtSign } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";

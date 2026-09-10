@@ -25,7 +25,7 @@ test.describe("attachments", () => {
   });
 
   test("uploads a local file and removes it again", async ({ page }) => {
-    const file = path.join(os.tmpdir(), `projex-e2e-${Date.now()}.txt`);
+    const file = path.join(os.tmpdir(), `issuelyst-e2e-${Date.now()}.txt`);
     await writeFile(file, "stack trace goes here\n");
 
     await gotoList(page);

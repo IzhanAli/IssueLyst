@@ -1,5 +1,3 @@
-"use client";
-
 import { Check, Plus } from "lucide-react";
 import { Popover } from "@/components/ui/popover";
 import { CommandList, type CommandItem } from "@/components/ui/command-list";

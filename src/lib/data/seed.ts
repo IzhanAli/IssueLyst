@@ -37,7 +37,7 @@ export const project: Project = {
 
 /* ── Team ────────────────────────────────────────────────────────── */
 export const users: User[] = [
-  { id: "u_izhan", name: "Izhan Ali", email: "izhan.ali@wavemaker.com", avatarUrl: null, color: "#34597f", role: "admin", createdAt: ago(300 * DAY) },
+  { id: "u_izhan", name: "Izhan Ali", email: "izhan.ali@win.com", avatarUrl: null, color: "#34597f", role: "admin", createdAt: ago(300 * DAY) },
   { id: "u_ahmed", name: "Ahmed Raza", email: "ahmed@meridian.dev", avatarUrl: null, color: "#2f7d55", role: "admin", createdAt: ago(300 * DAY) },
   { id: "u_sara", name: "Sara Whitfield", email: "sara@meridian.dev", avatarUrl: null, color: "#b23b32", role: "member", createdAt: ago(280 * DAY) },
   { id: "u_lena", name: "Lena Vogel", email: "lena@meridian.dev", avatarUrl: null, color: "#7a52a3", role: "member", createdAt: ago(260 * DAY) },

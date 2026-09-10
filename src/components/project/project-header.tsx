@@ -1,7 +1,4 @@
-"use client";
-
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { Link, useLocation, type LinkProps } from "@tanstack/react-router";
 import { Box, Star, List as ListIcon, Columns3, Plus } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { Tooltip } from "@/components/ui/tooltip";
@@ -13,10 +10,12 @@ import { useUI } from "@/lib/store/ui";
 import { useOnlineUsers } from "@/lib/store/hooks";
 import { cn } from "@/lib/utils/cn";
 
-const BASE = "/app/project/engineering";
+import { DEFAULT_PROJECT_KEY } from "@/lib/constants";
+
+const projectParams = { key: DEFAULT_PROJECT_KEY };
 
 export function ProjectHeader({ showControls = true }: { showControls?: boolean }) {
-  const pathname = usePathname();
+  const pathname = useLocation({ select: (l) => l.pathname });
   const online = useOnlineUsers();
   const project = useStore((s) => s.project);
   const favorites = useUI((s) => s.favorites);
@@ -62,8 +61,8 @@ export function ProjectHeader({ showControls = true }: { showControls?: boolean 
       <div className="flex h-[42px] items-center gap-1 border-t border-border px-3">
         {/* view tabs */}
         <div className="flex items-center gap-0.5">
-          <ViewTab href={`${BASE}/list`} active={!isBoard} icon={<ListIcon size={14} />}>List</ViewTab>
-          <ViewTab href={`${BASE}/board`} active={isBoard} icon={<Columns3 size={14} />}>Board</ViewTab>
+          <ViewTab to="/app/project/$key/list" params={projectParams} active={!isBoard} icon={<ListIcon size={14} />}>List</ViewTab>
+          <ViewTab to="/app/project/$key/board" params={projectParams} active={isBoard} icon={<Columns3 size={14} />}>Board</ViewTab>
         </div>
 
         {showControls && (
@@ -108,10 +107,15 @@ function ActiveFilterChipsWrapper() {
   );
 }
 
-function ViewTab({ href, active, icon, children }: { href: string; active: boolean; icon: React.ReactNode; children: React.ReactNode }) {
+function ViewTab({
+  active,
+  icon,
+  children,
+  ...link
+}: { active: boolean; icon: React.ReactNode; children: React.ReactNode } & LinkProps) {
   return (
     <Link
-      href={href}
+      {...link}
       className={cn(
         "flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[12.5px] font-medium transition-colors",
         active ? "bg-surface-active text-text" : "text-text-muted hover:bg-surface-hover hover:text-text",

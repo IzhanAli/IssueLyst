@@ -1,5 +1,3 @@
-"use client";
-
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
@@ -489,7 +487,7 @@ export const useStore = create<EntityState>()(
       };
     }),
     {
-      name: "projex.data.v4",
+      name: "issuelyst.data.v4",
       version: 4,
       storage: createJSONStorage(() => localStorage),
       partialize: (s) => ({

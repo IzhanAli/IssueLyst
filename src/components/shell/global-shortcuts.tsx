@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect } from "react";
 import { useUI } from "@/lib/store/ui";
 import { isTypingTarget } from "@/lib/utils/platform";

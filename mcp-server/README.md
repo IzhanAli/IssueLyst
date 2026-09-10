@@ -1,7 +1,7 @@
-# Projex MCP Server
+# IssueLyst MCP Server
 
 A [Model Context Protocol](https://modelcontextprotocol.io) server that exposes
-the Projex issue tracker to AI clients (Claude Code, Claude Desktop, etc.).
+the IssueLyst issue tracker to AI clients (Claude Code, Claude Desktop, etc.).
 
 It speaks the same domain model as the web app and persists to a local JSON
 file (`data/store.json`, seeded on first run) — the natural seam toward the
@@ -37,7 +37,7 @@ npm run dev
 ## Register with Claude Code
 
 ```bash
-claude mcp add projex -- node /absolute/path/to/projex-app/mcp-server/dist/index.js
+claude mcp add issuelyst -- node /absolute/path/to/projex-app/mcp-server/dist/index.js
 ```
 
 ## Register with Claude Desktop
@@ -47,7 +47,7 @@ Add to `claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
-    "projex": {
+    "issuelyst": {
       "command": "node",
       "args": ["/absolute/path/to/projex-app/mcp-server/dist/index.js"]
     }

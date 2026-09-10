@@ -113,15 +113,20 @@ test.describe("notifications", () => {
   });
 
   test("marking one notification read leaves the others alone", async ({ page }) => {
+    const unread = async () =>
+      ((await readData(page)).notifications ?? []).filter((n) => !n.readAt).length;
+
     await page.goto(ROUTES.inbox);
-    const before = (await readData(page)).notifications.filter((n) => !n.readAt).length;
+    // The store persists on the client, so wait for the inbox to render before
+    // reading localStorage rather than assuming `goto` means "ready".
+    await expect(page.getByText("mentioned you").first()).toBeVisible();
+    const before = await unread();
 
     await page.getByText("mentioned you").click();
     await expect(drawer(page)).toBeVisible();
     await page.goto(ROUTES.inbox);
 
-    const after = (await readData(page)).notifications.filter((n) => !n.readAt).length;
-    expect(after).toBe(before - 1);
+    await expect.poll(unread).toBe(before - 1);
     await expect(page.getByText("Unread")).toBeVisible();
   });
 });

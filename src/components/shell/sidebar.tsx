@@ -1,7 +1,4 @@
-"use client";
-
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { Link, useLocation, type LinkProps } from "@tanstack/react-router";
 import {
   Home,
   Inbox,
@@ -15,7 +12,6 @@ import {
   PanelLeft,
   List as ListIcon,
   Columns3,
-  Plus,
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils/cn";
@@ -29,11 +25,13 @@ import { useUI } from "@/lib/store/ui";
 import { useTheme } from "@/components/theme/use-theme";
 import { signOut } from "@/lib/auth/session";
 import { UserMenu } from "./user-menu";
+import { DEFAULT_PROJECT_KEY } from "@/lib/constants";
 
-const PROJECT_BASE = `/app/project/engineering`;
+const PROJECT_BASE = `/app/project/${DEFAULT_PROJECT_KEY}`;
+const projectParams = { key: DEFAULT_PROJECT_KEY };
 
 export function Sidebar() {
-  const pathname = usePathname();
+  const pathname = useLocation({ select: (l) => l.pathname });
   const collapsed = useUI((s) => s.sidebarCollapsed);
   const toggleSidebar = useUI((s) => s.toggleSidebar);
   const favorites = useUI((s) => s.favorites);
@@ -77,7 +75,7 @@ export function Sidebar() {
                   <Check size={15} className="ml-auto text-primary" />
                 </div>
                 <div className="my-1 h-px bg-border" />
-                <MenuLink href="/app/settings">Workspace settings</MenuLink>
+                <MenuLink to="/app/settings">Workspace settings</MenuLink>
                 <div className="px-2 py-1.5 text-[12px] text-text-subtle">Adding workspaces arrives with multi-tenant.</div>
               </div>
             )}
@@ -109,14 +107,15 @@ export function Sidebar() {
           </Tooltip>
         )}
 
-        <NavItem href="/app/home" icon={<Home size={16} />} label="Home" collapsed={collapsed} active={pathname === "/app/home"} />
-        <NavItem href="/app/inbox" icon={<Inbox size={16} />} label="Inbox" collapsed={collapsed} active={pathname.startsWith("/app/inbox")} badge={unread || undefined} />
-        <NavItem href="/app/my-issues" icon={<UserRound size={16} />} label="My Issues" collapsed={collapsed} active={pathname.startsWith("/app/my-issues")} />
+        <NavItem to="/app/home" icon={<Home size={16} />} label="Home" collapsed={collapsed} active={pathname === "/app/home"} />
+        <NavItem to="/app/inbox" icon={<Inbox size={16} />} label="Inbox" collapsed={collapsed} active={pathname.startsWith("/app/inbox")} badge={unread || undefined} />
+        <NavItem to="/app/my-issues" icon={<UserRound size={16} />} label="My Issues" collapsed={collapsed} active={pathname.startsWith("/app/my-issues")} />
 
         {isFav && (
           <Section label="Favorites" collapsed={collapsed}>
             <NavItem
-              href={`${PROJECT_BASE}/list`}
+              to="/app/project/$key/list"
+              params={projectParams}
               icon={<Star size={15} className="fill-warning text-warning" />}
               label={project.name}
               collapsed={collapsed}
@@ -133,7 +132,7 @@ export function Sidebar() {
 
       {/* Footer: settings + user */}
       <div className="border-t border-border p-2">
-        <NavItem href="/app/settings" icon={<Settings size={16} />} label="Settings" collapsed={collapsed} active={pathname.startsWith("/app/settings")} />
+        <NavItem to="/app/settings" icon={<Settings size={16} />} label="Settings" collapsed={collapsed} active={pathname.startsWith("/app/settings")} />
         <UserFooter collapsed={collapsed} />
       </div>
     </aside>
@@ -149,7 +148,8 @@ function ProjectTree({ collapsed, pathname, openIssues }: { collapsed: boolean; 
     return (
       <Tooltip content={project.name} placement="right">
         <Link
-          href={`${PROJECT_BASE}/list`}
+          to="/app/project/$key/list"
+          params={projectParams}
           className={cn(
             "mx-auto flex h-8 w-8 items-center justify-center rounded-md text-text-muted hover:bg-surface-hover hover:text-text",
             active && "bg-surface-active text-text",
@@ -167,7 +167,7 @@ function ProjectTree({ collapsed, pathname, openIssues }: { collapsed: boolean; 
         <button onClick={() => setOpen((v) => !v)} className="rounded p-0.5 text-text-subtle hover:text-text" aria-label="Toggle project">
           <ChevronDown size={13} className={cn("transition-transform", !open && "-rotate-90")} />
         </button>
-        <Link href={`${PROJECT_BASE}/list`} className="flex min-w-0 flex-1 items-center gap-2">
+        <Link to="/app/project/$key/list" params={projectParams} className="flex min-w-0 flex-1 items-center gap-2">
           <Box size={15} className="text-text-muted" />
           <span className="truncate text-[13px] font-medium">{project.name}</span>
         </Link>
@@ -175,18 +175,23 @@ function ProjectTree({ collapsed, pathname, openIssues }: { collapsed: boolean; 
       </div>
       {open && (
         <div className="ml-[18px] mt-0.5 space-y-0.5 border-l border-border pl-2">
-          <SubLink href={`${PROJECT_BASE}/list`} icon={<ListIcon size={14} />} label="List" active={pathname.startsWith(`${PROJECT_BASE}/list`)} />
-          <SubLink href={`${PROJECT_BASE}/board`} icon={<Columns3 size={14} />} label="Board" active={pathname.startsWith(`${PROJECT_BASE}/board`)} />
+          <SubLink to="/app/project/$key/list" params={projectParams} icon={<ListIcon size={14} />} label="List" active={pathname.startsWith(`${PROJECT_BASE}/list`)} />
+          <SubLink to="/app/project/$key/board" params={projectParams} icon={<Columns3 size={14} />} label="Board" active={pathname.startsWith(`${PROJECT_BASE}/board`)} />
         </div>
       )}
     </div>
   );
 }
 
-function SubLink({ href, icon, label, active }: { href: string; icon: React.ReactNode; label: string; active: boolean }) {
+function SubLink({
+  icon,
+  label,
+  active,
+  ...link
+}: { icon: React.ReactNode; label: string; active: boolean } & LinkProps) {
   return (
     <Link
-      href={href}
+      {...link}
       className={cn(
         "flex items-center gap-2 rounded-md px-2 py-1 text-[12.5px] text-text-muted transition-colors hover:bg-surface-hover hover:text-text",
         active && "bg-primary-soft font-medium text-primary",
@@ -210,25 +215,24 @@ function Section({ label, collapsed, children }: { label: string; collapsed: boo
 }
 
 function NavItem({
-  href,
   icon,
   label,
   collapsed,
   active,
   badge,
   small,
+  ...link
 }: {
-  href: string;
   icon: React.ReactNode;
   label: string;
   collapsed: boolean;
   active: boolean;
   badge?: number;
   small?: boolean;
-}) {
+} & LinkProps) {
   const inner = (
     <Link
-      href={href}
+      {...link}
       className={cn(
         "group relative flex items-center gap-2.5 rounded-md text-text-muted transition-colors hover:bg-surface-hover hover:text-text",
         collapsed ? "mx-auto h-8 w-8 justify-center" : "px-2 py-1.5",
@@ -258,9 +262,9 @@ function NavItem({
   return inner;
 }
 
-function MenuLink({ href, children }: { href: string; children: React.ReactNode }) {
+function MenuLink({ children, ...link }: { children: React.ReactNode } & LinkProps) {
   return (
-    <Link href={href} className="block rounded-md px-2 py-1.5 text-[13px] text-text hover:bg-surface-hover">
+    <Link {...link} className="block rounded-md px-2 py-1.5 text-[13px] text-text hover:bg-surface-hover">
       {children}
     </Link>
   );

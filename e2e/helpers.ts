@@ -2,13 +2,13 @@ import { test as base, expect, type Locator, type Page } from "@playwright/test"
 
 /* ── App constants mirrored from the seed data ───────────────────── */
 
-export const SESSION_KEY = "projex.session.v1";
-export const DATA_KEY = "projex.data.v4";
-export const UI_KEY = "projex.ui.v1";
-export const THEME_KEY = "projex.theme";
+export const SESSION_KEY = "issuelyst.session.v1";
+export const DATA_KEY = "issuelyst.data.v4";
+export const UI_KEY = "issuelyst.ui.v1";
+export const THEME_KEY = "issuelyst.theme";
 
 export const USERS = {
-  admin: { id: "u_izhan", name: "Izhan Ali", first: "Izhan", email: "izhan.ali@wavemaker.com", role: "admin" },
+  admin: { id: "u_izhan", name: "Izhan Ali", first: "Izhan", email: "izhan.ali@win.com", role: "admin" },
   admin2: { id: "u_ahmed", name: "Ahmed Raza", first: "Ahmed", email: "ahmed@meridian.dev", role: "admin" },
   member: { id: "u_sara", name: "Sara Whitfield", first: "Sara", email: "sara@meridian.dev", role: "member" },
   member2: { id: "u_lena", name: "Lena Vogel", first: "Lena", email: "lena@meridian.dev", role: "member" },
@@ -61,16 +61,6 @@ export const test = base.extend<Options>({
   userId: [USERS.admin.id, { option: true }],
   page: async ({ page, userId }, use) => {
     if (userId) {
-      // Hide the Next dev-overlay indicator: it floats over the bottom-left of
-      // the sidebar (right on top of the user menu button) and swallows clicks.
-      await page.addInitScript(() => {
-        document.addEventListener("DOMContentLoaded", () => {
-          const style = document.createElement("style");
-          style.textContent = "nextjs-portal{display:none!important}";
-          document.head.appendChild(style);
-        });
-      });
-
       // Seed the session on the FIRST document load of the context only, so a
       // test that signs out stays signed out across later navigations.
       await page.addInitScript(
@@ -175,8 +165,8 @@ export function bulkBar(page: Page): Locator {
   return page.locator('div[class*="bottom-5"][class*="z-40"]').first();
 }
 
-/** Toasts, scoped to the toast viewport — Next's route announcer also uses
- *  role="status" and would otherwise be counted as a toast. */
+/** Toasts, scoped to the toast viewport, so any other role="status" region on
+ *  the page can't be miscounted as a toast. */
 export function toast(page: Page, text?: string | RegExp): Locator {
   const t = page.locator('div[class*="z-[200]"]').getByRole("status");
   return text ? t.filter({ hasText: text }) : t;

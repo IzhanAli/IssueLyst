@@ -1,9 +1,10 @@
 import type { FullConfig } from "@playwright/test";
 
 /**
- * Next dev compiles a route the first time it is requested, which can push a
- * cold navigation past the assertion timeout. Warm every route the suite uses
- * once, up front, so the specs measure the app and not the bundler.
+ * The Vite dev server transforms a route's modules the first time they are
+ * requested, which can push a cold navigation past the assertion timeout. Warm
+ * every route the suite uses once, up front, so the specs measure the app and
+ * not the bundler.
  */
 const PATHS = [
   "/login",
@@ -18,7 +19,7 @@ const PATHS = [
 ];
 
 export default async function globalSetup(config: FullConfig) {
-  const baseURL = config.projects[0]?.use?.baseURL ?? "http://localhost:3000";
+  const baseURL = config.projects[0]?.use?.baseURL ?? "http://localhost:3100";
   for (const path of PATHS) {
     try {
       await fetch(new URL(path, baseURL), { redirect: "follow" });

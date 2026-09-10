@@ -16,7 +16,7 @@ export function Wordmark({ className, markSize = 22 }: { className?: string; mar
   return (
     <span className={cn("inline-flex items-center gap-2", className)}>
       <LogoMark size={markSize} />
-      <span className="font-serif text-[17px] font-semibold tracking-[-0.01em] text-text">Projex</span>
+      <span className="font-serif text-[17px] font-semibold tracking-[-0.01em] text-text">IssueLyst</span>
     </span>
   );
 }

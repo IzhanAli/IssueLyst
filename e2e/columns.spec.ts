@@ -48,8 +48,10 @@ test.describe("list columns", () => {
     await expect.poll(async () => (await columnOrder(page))[0]).toBe("Environment");
 
     await page.reload();
-    expect(await columnOrder(page)).toEqual(["Environment", "Squad", "Product Feature", "Severity"]);
-    expect((await readUI(page)).columnOrder).toBeTruthy();
+    await expect
+      .poll(async () => columnOrder(page))
+      .toEqual(["Environment", "Squad", "Product Feature", "Severity"]);
+    await expect.poll(async () => (await readUI(page)).columnOrder).toBeTruthy();
   });
 
   test("visibility changes survive a reload", async ({ page }) => {
@@ -64,7 +66,9 @@ test.describe("list columns", () => {
     await expect(page.getByText("Points", { exact: true })).toBeVisible();
 
     await page.reload();
-    expect(await columnOrder(page)).toEqual(["Squad", "Environment", "Product Feature", "Points"]);
+    await expect
+      .poll(async () => columnOrder(page))
+      .toEqual(["Squad", "Environment", "Product Feature", "Points"]);
   });
 
   test("the Columns menu shows how many columns are on", async ({ page }) => {
@@ -108,6 +112,6 @@ test.describe("list columns", () => {
 
     await page.goto("/app/my-issues");
     await expect(drawer(page)).toHaveCount(0);
-    expect((await columnOrder(page))[0]).toBe("Environment");
+    await expect.poll(async () => (await columnOrder(page))[0]).toBe("Environment");
   });
 });

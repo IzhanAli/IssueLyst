@@ -1,5 +1,3 @@
-"use client";
-
 import { create } from "zustand";
 import { useEffect } from "react";
 import { CheckCircle2, AlertCircle, Info, X } from "lucide-react";

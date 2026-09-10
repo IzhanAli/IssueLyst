@@ -42,3 +42,9 @@ next-env.d.ts
 
 # playwright e2e artifacts
 /e2e/.artifacts/
+
+# TanStack Start / Vite
+.tanstack/
+.nitro/
+.output/
+dist/

@@ -1,5 +1,3 @@
-"use client";
-
 import { useCallback, useEffect, useState } from "react";
 import { THEME_KEY } from "@/lib/constants";
 

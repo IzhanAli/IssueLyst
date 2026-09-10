@@ -34,7 +34,6 @@ export function Avatar({
       aria-label={user.name}
     >
       {user.avatarUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
         <img src={user.avatarUrl} alt={user.name} className="h-full w-full rounded-full object-cover" />
       ) : (
         initials(user.name)

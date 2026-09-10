@@ -1,18 +1,17 @@
-"use client";
-
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useNavigate } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
 import { FloatingPortal } from "@floating-ui/react";
 import { IssueDetail } from "./issue-detail";
 import { useIssueDrawer } from "@/lib/hooks/use-drawer";
 import { useStore } from "@/lib/store/store";
 import { useHydrated } from "@/lib/store/hooks";
+import { DEFAULT_PROJECT_KEY } from "@/lib/constants";
 
 /** Renders the issue drawer as an overlay driven by the `?issue=` param. */
 export function DrawerHost() {
   const { openKey, close } = useIssueDrawer();
-  const router = useRouter();
+  const navigate = useNavigate();
   const hydrated = useHydrated();
   const issues = useStore((s) => s.issues);
 
@@ -61,7 +60,13 @@ export function DrawerHost() {
                 issueId={issue.id}
                 variant="drawer"
                 onClose={close}
-                onNavigateFull={() => router.push(`/app/project/engineering/issue/${issue.number}`)}
+                onNavigateFull={() =>
+                  navigate({
+                    to: "/app/project/$key/issue/$issueKey",
+                    params: { key: DEFAULT_PROJECT_KEY, issueKey: String(issue.number) },
+                    search: {},
+                  })
+                }
               />
             </motion.div>
           </>

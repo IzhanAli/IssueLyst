@@ -1,5 +1,3 @@
-"use client";
-
 import { Search, Inbox } from "lucide-react";
 import { ProjectHeader } from "./project-header";
 import { IssueList } from "@/components/issues/issue-list";

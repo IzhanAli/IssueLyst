@@ -1,8 +1,5 @@
-"use client";
-
 import { Search, Plus, Bell } from "lucide-react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { Link, useLocation } from "@tanstack/react-router";
 import { Kbd } from "@/components/ui/kbd";
 import { Tooltip } from "@/components/ui/tooltip";
 import { useUI } from "@/lib/store/ui";
@@ -13,7 +10,7 @@ export function TopBar() {
   const setCommandOpen = useUI((s) => s.setCommandOpen);
   const openCreate = useUI((s) => s.openCreate);
   const unread = useUnreadCount();
-  const pathname = usePathname();
+  const pathname = useLocation({ select: (l) => l.pathname });
   const mod = isMac() ? "⌘" : "Ctrl";
 
   return (
@@ -33,7 +30,7 @@ export function TopBar() {
       <div className="ml-auto flex items-center gap-1.5">
         <Tooltip content="Inbox">
           <Link
-            href="/app/inbox"
+            to="/app/inbox"
             className="relative flex h-8 w-8 items-center justify-center rounded-md text-text-muted transition-colors hover:bg-surface-hover hover:text-text"
             aria-label="Inbox"
             data-active={pathname.startsWith("/app/inbox")}

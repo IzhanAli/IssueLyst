@@ -27,7 +27,7 @@ test.describe("CSV export", () => {
       menu(page).getByRole("button", { name: /Export current view/ }).click(),
     ]);
 
-    expect(download.suggestedFilename()).toBe(`projex-engineering-${TODAY}.csv`);
+    expect(download.suggestedFilename()).toBe(`issuelyst-engineering-${TODAY}.csv`);
     const csv = await csvFrom(download);
     const lines = csv.trim().split("\r\n");
     expect(lines[0]).toBe(
@@ -76,7 +76,7 @@ test.describe("CSV export", () => {
       menu(page).getByRole("button", { name: /Export current view/ }).click(),
     ]);
 
-    expect(download.suggestedFilename()).toBe(`projex-my-issues-${TODAY}.csv`);
+    expect(download.suggestedFilename()).toBe(`issuelyst-my-issues-${TODAY}.csv`);
     const lines = (await csvFrom(download)).trim().split("\r\n");
     expect(lines).toHaveLength(5);
   });
@@ -90,7 +90,7 @@ test.describe("CSV export", () => {
       palette(page).getByRole("button", { name: "Export all issues to CSV" }).click(),
     ]);
 
-    expect(download.suggestedFilename()).toBe(`projex-issues-${TODAY}.csv`);
+    expect(download.suggestedFilename()).toBe(`issuelyst-issues-${TODAY}.csv`);
     expect((await csvFrom(download)).trim().split("\r\n")).toHaveLength(SEEDED_ISSUE_COUNT + 1);
   });
 

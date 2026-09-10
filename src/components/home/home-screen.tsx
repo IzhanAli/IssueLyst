@@ -1,7 +1,4 @@
-"use client";
-
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { Link, useNavigate, type LinkProps } from "@tanstack/react-router";
 import { ArrowRight, CircleDot, Timer, UserRound, AlertTriangle } from "lucide-react";
 import { StatusIcon } from "@/components/issues/status-icon";
 import { PriorityIcon } from "@/components/issues/priority-icon";
@@ -11,12 +8,13 @@ import { useHydrated, useCurrentUser } from "@/lib/store/hooks";
 import { allIssueViews } from "@/lib/store/selectors";
 import { relativeTime, isOverdue } from "@/lib/utils/format";
 import type { IssueView } from "@/lib/types";
+import { DEFAULT_PROJECT_KEY } from "@/lib/constants";
 
 export function HomeScreen() {
   const hydrated = useHydrated();
   const store = useStore();
   const me = useCurrentUser();
-  const router = useRouter();
+  const navigate = useNavigate();
 
   if (!hydrated || !me) return null;
 
@@ -29,7 +27,12 @@ export function HomeScreen() {
   const recent = [...views].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)).slice(0, 6);
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
-  const openIssue = (v: IssueView) => router.push(`/app/project/engineering/list?issue=${v.issueKey}`);
+  const openIssue = (v: IssueView) =>
+    navigate({
+      to: "/app/project/$key/list",
+      params: { key: DEFAULT_PROJECT_KEY },
+      search: { issue: v.issueKey },
+    });
 
   return (
     <div className="h-full overflow-y-auto">
@@ -45,14 +48,14 @@ export function HomeScreen() {
         </div>
 
         <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <Stat icon={<UserRound size={15} />} label="Assigned to you" value={mine.length} href="/app/my-issues" />
-          <Stat icon={<CircleDot size={15} />} label="Open" value={open.length} href="/app/project/engineering/list" />
-          <Stat icon={<Timer size={15} />} label="In progress" value={inProgress.length} href="/app/project/engineering/board" />
+          <Stat icon={<UserRound size={15} />} label="Assigned to you" value={mine.length} link={{ to: "/app/my-issues" }} />
+          <Stat icon={<CircleDot size={15} />} label="Open" value={open.length} link={{ to: "/app/project/$key/list", params: { key: DEFAULT_PROJECT_KEY } }} />
+          <Stat icon={<Timer size={15} />} label="In progress" value={inProgress.length} link={{ to: "/app/project/$key/board", params: { key: DEFAULT_PROJECT_KEY } }} />
           <Stat icon={<AlertTriangle size={15} />} label="Overdue" value={overdue.length} tone={overdue.length ? "danger" : undefined} />
         </div>
 
         <div className="mt-7 grid grid-cols-1 gap-5 lg:grid-cols-2">
-          <Panel title="Assigned to you" href="/app/my-issues">
+          <Panel title="Assigned to you" link={{ to: "/app/my-issues" }}>
             {mine.length === 0 ? (
               <Empty>Nothing assigned right now.</Empty>
             ) : (
@@ -68,7 +71,7 @@ export function HomeScreen() {
   );
 }
 
-function Stat({ icon, label, value, href, tone }: { icon: React.ReactNode; label: string; value: number; href?: string; tone?: "danger" }) {
+function Stat({ icon, label, value, link, tone }: { icon: React.ReactNode; label: string; value: number; link?: LinkProps; tone?: "danger" }) {
   const body = (
     <div className="rounded-xl border border-border bg-surface p-3.5 transition-colors hover:border-border-strong">
       <div className="flex items-center gap-1.5 text-text-subtle">
@@ -80,16 +83,16 @@ function Stat({ icon, label, value, href, tone }: { icon: React.ReactNode; label
       </div>
     </div>
   );
-  return href ? <Link href={href}>{body}</Link> : body;
+  return link ? <Link {...link}>{body}</Link> : body;
 }
 
-function Panel({ title, href, children }: { title: string; href?: string; children: React.ReactNode }) {
+function Panel({ title, link, children }: { title: string; link?: LinkProps; children: React.ReactNode }) {
   return (
     <div className="rounded-xl border border-border bg-surface">
       <div className="flex items-center justify-between border-b border-border px-3.5 py-2.5">
         <h2 className="text-[13px] font-semibold text-text">{title}</h2>
-        {href && (
-          <Link href={href} className="flex items-center gap-0.5 text-[12px] text-text-muted hover:text-text">
+        {link && (
+          <Link {...link} className="flex items-center gap-0.5 text-[12px] text-text-muted hover:text-text">
             View all <ArrowRight size={12} />
           </Link>
         )}

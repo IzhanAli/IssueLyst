@@ -1,4 +1,4 @@
-# Projex — Issue Tracker
+# IssueLyst — Issue Tracker (TanStack Start)
 
 A focused, desktop-grade issue tracker for engineering teams, inspired by the
 interaction quality of ClickUp/Linear but with its own visual identity. Built
@@ -6,22 +6,27 @@ frontend-first as a polished, fully interactive prototype whose data layer is
 deliberately isolated behind a clean seam, so it can be swapped for a real
 Neon/Postgres backend without touching the UI.
 
+This is the TanStack Start port of `projex-app`. Same product and components;
+the router, the build and the URL-state layer are different. See `AGENTS.md`
+for the two non-obvious details (where the search schema lives, and why the
+search-param codec is customised).
+
 ## Stack
 
-- **Next.js 16** (App Router, Turbopack) · **React 19** · **TypeScript**
+- **TanStack Start v1** (TanStack Router, file-based routes, Vite 8) · **React 19** · **TypeScript**
 - **Tailwind CSS v4** with a semantic design-token system (light + dark)
 - **Zustand** (+ immer, persist) — optimistic client store, seeded with demo data
 - **Floating UI** — popovers, menus, tooltips, dialogs
 - **@dnd-kit** — board drag-and-drop
 - **Motion** — subtle drawer / reorder transitions
-- Type: **Source Serif 4** (UI) · **IBM Plex Mono** (ids, timestamps, shortcuts)
+- Type: **Roboto** (UI) · **IBM Plex Mono** (ids, timestamps, shortcuts), self-hosted via `@fontsource`
 
 ## Run
 
 ```bash
 npm install
 npm run dev
-# http://localhost:3000  → sign in with any demo account
+# http://localhost:3100  → sign in with any demo account
 ```
 
 Data persists in the browser (localStorage). Reset it any time from
@@ -34,9 +39,9 @@ Data persists in the browser (localStorage). Reset it any time from
   editing of status, priority, assignee, labels; multi-select + bulk actions
 - **Board view** — kanban with drag-and-drop between statuses (optimistic)
 - **Issue drawer** — right-side detail that keeps the list underneath, is
-  deep-linkable (`?issue=ENG-142`), and survives browser back/forward. Inline
+  deep-linkable (`?issue=142`), and survives browser back/forward. Inline
   title/description editing, activity timeline, comments with `@mentions`,
-  attachments. A dedicated full page lives at `/issue/ENG-142`.
+  attachments. A dedicated full page lives at `/issue/142`.
 - **Create issue** — instant modal, keyboard-first (`C`, `⌘↵` to submit)
 - **Search** — `⌘K` command palette across issues, people, labels, comments
 - **Filters** — status / priority / assignee / label / created / updated,
@@ -57,8 +62,8 @@ Issues can attach files from Google Drive via the Google Picker — entirely
 client-side, no backend. Copy `.env.local.example` to `.env.local` and set:
 
 ```
-NEXT_PUBLIC_GOOGLE_CLIENT_ID=...
-NEXT_PUBLIC_GOOGLE_API_KEY=...
+VITE_GOOGLE_CLIENT_ID=...
+VITE_GOOGLE_API_KEY=...
 ```
 
 Until those are set, the **Drive** button offers a demo attachment so the flow

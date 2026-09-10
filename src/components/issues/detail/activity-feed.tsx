@@ -1,5 +1,3 @@
-"use client";
-
 import { useMemo, useState } from "react";
 import { GitCommitHorizontal, Pencil, Trash2, Check, X } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";

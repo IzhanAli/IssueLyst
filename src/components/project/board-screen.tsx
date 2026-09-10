@@ -1,5 +1,3 @@
-"use client";
-
 import { ProjectHeader } from "./project-header";
 import { Board } from "./board";
 import { BoardSkeleton } from "@/components/issues/skeletons";

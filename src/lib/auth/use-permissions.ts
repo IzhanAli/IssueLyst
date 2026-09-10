@@ -1,5 +1,3 @@
-"use client";
-
 import { useCurrentUser } from "@/lib/store/hooks";
 import { can, canEditIssue, canDeleteIssue, type Permission } from "./permissions";
 import type { Issue } from "@/lib/types";

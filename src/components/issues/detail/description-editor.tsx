@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useRef, useState } from "react";
 import { Markdown } from "@/components/ui/markdown";
 import { cn } from "@/lib/utils/cn";

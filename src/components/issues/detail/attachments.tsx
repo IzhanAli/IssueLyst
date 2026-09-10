@@ -1,5 +1,3 @@
-"use client";
-
 import { useRef, useState } from "react";
 import {
   Paperclip,
@@ -165,7 +163,7 @@ function DriveDemoButton({ onPick }: { onPick: () => void }) {
           </div>
           <p className="mb-2 flex gap-1.5 text-[11.5px] leading-relaxed text-text-muted">
             <Info size={13} className="mt-0.5 shrink-0 text-text-subtle" />
-            Live Drive picker activates once <code className="font-mono text-[10.5px]">NEXT_PUBLIC_GOOGLE_CLIENT_ID</code> and <code className="font-mono text-[10.5px]">NEXT_PUBLIC_GOOGLE_API_KEY</code> are set.
+            Live Drive picker activates once <code className="font-mono text-[10.5px]">VITE_GOOGLE_CLIENT_ID</code> and <code className="font-mono text-[10.5px]">VITE_GOOGLE_API_KEY</code> are set.
           </p>
           <button
             onClick={() => { onPick(); close(); }}

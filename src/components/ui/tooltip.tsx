@@ -1,5 +1,3 @@
-"use client";
-
 import { cloneElement, isValidElement, useState } from "react";
 import {
   useFloating,

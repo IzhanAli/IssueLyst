@@ -51,7 +51,7 @@ test.describe("My Issues", () => {
     await gotoMyIssues(page);
     // unassign everything that is mine, then reload
     await page.evaluate(() => {
-      const key = "projex.data.v4";
+      const key = "issuelyst.data.v4";
       const raw = JSON.parse(localStorage.getItem(key)!);
       raw.state.issues = raw.state.issues.map((i: Record<string, unknown>) => ({ ...i, assigneeId: null }));
       localStorage.setItem(key, JSON.stringify(raw));
