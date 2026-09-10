@@ -1,9 +1,76 @@
-<!-- BEGIN:nextjs-agent-rules -->
+# IssueLyst — TanStack Start
 
-# This is NOT the Next.js you know
+This is the TanStack Start port of `projex-app` (Next 16 App Router). Same
+product, same components, same store; different router and build.
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+Nothing here is Next. There is no `app/` directory, no server components, no
+`"use client"`, no `next/*` imports. If you find one, it's a leftover.
 
-This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+## Stack
 
-<!-- END:nextjs-agent-rules -->
+- **TanStack Start v1** + **TanStack Router** (file-based routes), Vite 8
+- React 19, Tailwind v4 via `@tailwindcss/vite`
+- Zustand (+immer, persist) — all app data lives in `localStorage`
+- `@dnd-kit`, `@floating-ui/react`, `motion`, `lucide-react`
+- Fonts self-hosted through `@fontsource` (Roboto + IBM Plex Mono)
+
+## Layout
+
+```
+src/routes/          file-based routes; routeTree.gen.ts is generated, never edit it
+src/components/      unchanged from projex-app
+src/lib/             unchanged, except store/query.ts, store/search.ts, hooks/use-drawer.ts
+src/styles/          globals.css (design tokens) + fonts.css
+scripts/             optimize-images.mjs — pre-generates AVIF/WebP for the landing shots
+e2e/                 Playwright suite, self-contained; delete the folder to remove it
+mcp-server/          separate package, untouched by the migration
+```
+
+## Two things to know before editing routes
+
+**1. The whole app's search schema lives on one route.** `/app`
+(`src/routes/app.tsx`) declares `validateSearch: validateAppSearch`, and every
+screen below it inherits the result. That's deliberate: the detail drawer's
+`?issue=` deep link has to work from My Issues, the Inbox and Home, not just
+the project views. Read params with `useSearch({ from: "/app" })`.
+
+**2. Search params are raw strings, by configuration.** `src/router.tsx`
+installs an identity `parseSearch`/`stringifySearch`. Router's default codec
+JSON-parses anything that looks like JSON — and its test matches any value
+starting with a digit — which would turn `?issue=142` into the number `142` on
+read and write it back as `?issue=%22142%22`. Independently, Router's `qss`
+decoder coerces numeric strings to numbers and `true`/`false` to booleans
+*before* any parser runs, so `validateAppSearch` normalises primitives back to
+strings. Between them, the URL format is byte-identical to the Next app's.
+Don't "simplify" either piece without re-reading `src/lib/store/search.ts`.
+
+## Commands
+
+```bash
+npm run dev         # Vite dev server on :3100 (strictPort — projex-app owns :3000)
+npm run build       # production build
+npm run typecheck   # tsc --noEmit; catches bad route paths and params
+npm run lint
+npm run images      # regenerate AVIF/WebP after re-capturing screenshots
+npm run test:e2e    # Playwright, 225 tests, uses the machine's Chrome
+```
+
+`npm run typecheck` is the load-bearing check: route paths, params and search
+params are all statically typed, so a wrong `to=` or a missing `params` fails
+there rather than at runtime.
+
+## Auth
+
+The prototype session is a user id in `localStorage` (plus a cookie that
+nothing reads yet). `beforeLoad` on `/app` and `/onboarding` redirects
+signed-out visitors, but only in the browser — there is no session to read
+during SSR — so the layout component keeps its own client-side guard for cold
+loads. When auth moves server-side, the component guard is what to delete.
+
+## Gotcha when verifying by hand
+
+Animations are driven by `requestAnimationFrame`. In a hidden or backgrounded
+browser tab, rAF never fires and every `motion` element sits frozen at its
+`initial` value — a blank-looking landing page and an invisible drawer. That is
+the tab, not the app. Verify animation in a real visible window, or via the
+Playwright suite.

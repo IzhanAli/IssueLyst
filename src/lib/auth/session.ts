@@ -1,9 +1,7 @@
-"use client";
-
 import { useEffect, useState } from "react";
 import { useStore } from "@/lib/store/store";
 
-const SESSION_KEY = "projex.session.v1";
+const SESSION_KEY = "issuelyst.session.v1";
 
 /**
  * Prototype auth: a client-held session pointing at a seeded user id.

@@ -1,7 +1,5 @@
-"use client";
-
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useNavigate } from "@tanstack/react-router";
 import { CalendarDays, X } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
 import { Kbd } from "@/components/ui/kbd";
@@ -14,7 +12,7 @@ import { StatusPicker, PriorityPicker, AssigneePicker, LabelPicker } from "./pic
 import { FieldEditor, FieldValueDisplay } from "@/components/fields/field-controls";
 import { useStore } from "@/lib/store/store";
 import { useUI } from "@/lib/store/ui";
-import { PRIORITY_META } from "@/lib/constants";
+import { DEFAULT_PROJECT_KEY, PRIORITY_META } from "@/lib/constants";
 import { shortDate } from "@/lib/utils/format";
 import { toast } from "@/components/ui/toast";
 import type { FieldValue, Priority } from "@/lib/types";
@@ -27,7 +25,7 @@ export function CreateIssueModal() {
   const open = useUI((s) => s.createOpen);
   const defaults = useUI((s) => s.createDefaults);
   const close = useUI((s) => s.closeCreate);
-  const router = useRouter();
+  const navigate = useNavigate();
 
   const statuses = useStore((s) => s.statuses);
   const users = useStore((s) => s.users);
@@ -79,7 +77,12 @@ export function CreateIssueModal() {
     const key = String(issue.number);
     toast.success(`${key} created`, {
       label: "View",
-      onClick: () => router.push(`/app/project/engineering/list?issue=${key}`),
+      onClick: () =>
+        navigate({
+          to: "/app/project/$key/list",
+          params: { key: DEFAULT_PROJECT_KEY },
+          search: { issue: key },
+        }),
     });
     if (createMore) {
       reset();

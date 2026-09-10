@@ -108,7 +108,7 @@ test.describe("runtime health", () => {
   test("the login screen has its own h1", async ({ page }) => {
     await page.context().clearCookies();
     await page.goto(ROUTES.login);
-    await page.evaluate(() => window.localStorage.removeItem("projex.session.v1"));
+    await page.evaluate(() => window.localStorage.removeItem("issuelyst.session.v1"));
     await page.goto(ROUTES.login);
 
     await expect(page.locator("h1")).toHaveCount(1);
@@ -117,7 +117,7 @@ test.describe("runtime health", () => {
 
   test("the document title identifies the app", async ({ page }) => {
     await gotoList(page);
-    await expect(page).toHaveTitle(/Projex/);
+    await expect(page).toHaveTitle(/IssueLyst/);
   });
 
   test("no request 404s or 500s while walking the app", async ({ page }) => {

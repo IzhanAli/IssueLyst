@@ -1,5 +1,3 @@
-"use client";
-
 import { Columns2, Check } from "lucide-react";
 import { Popover } from "@/components/ui/popover";
 import { useStore } from "@/lib/store/store";

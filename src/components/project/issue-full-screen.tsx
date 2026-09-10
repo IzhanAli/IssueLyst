@@ -1,6 +1,5 @@
-"use client";
-
-import { useParams, useRouter } from "next/navigation";
+import { useNavigate, useParams } from "@tanstack/react-router";
+import { DEFAULT_PROJECT_KEY } from "@/lib/constants";
 import { ArrowLeft } from "lucide-react";
 import { IssueDetail } from "@/components/issues/detail/issue-detail";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -9,8 +8,8 @@ import { useStore } from "@/lib/store/store";
 import { useHydrated } from "@/lib/store/hooks";
 
 export function IssueFullScreen() {
-  const params = useParams<{ issueKey: string }>();
-  const router = useRouter();
+  const params = useParams({ from: "/app/project/$key/issue/$issueKey" });
+  const navigate = useNavigate();
   const hydrated = useHydrated();
   const issues = useStore((s) => s.issues);
 
@@ -23,7 +22,7 @@ export function IssueFullScreen() {
     return (
       <div className="flex h-full flex-col">
         <div className="flex h-11 items-center border-b border-border px-3">
-          <Button variant="ghost" size="sm" onClick={() => router.push("/app/project/engineering/list")}>
+          <Button variant="ghost" size="sm" onClick={() => navigate({ to: "/app/project/$key/list", params: { key: DEFAULT_PROJECT_KEY }, search: {} })}>
             <ArrowLeft size={15} /> Back to issues
           </Button>
         </div>
@@ -37,7 +36,7 @@ export function IssueFullScreen() {
   return (
     <div className="flex h-full flex-col">
       <div className="flex h-11 shrink-0 items-center border-b border-border px-3">
-        <Button variant="ghost" size="sm" onClick={() => router.push("/app/project/engineering/list")}>
+        <Button variant="ghost" size="sm" onClick={() => navigate({ to: "/app/project/$key/list", params: { key: DEFAULT_PROJECT_KEY }, search: {} })}>
           <ArrowLeft size={15} /> Issues
         </Button>
       </div>

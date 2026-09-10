@@ -1,5 +1,3 @@
-"use client";
-
 import { ChevronDown, Copy, SquareTerminal, Code2, ClipboardCheck } from "lucide-react";
 import { ClaudeMark } from "@/components/brand/claude-mark";
 import { Popover } from "@/components/ui/popover";

@@ -75,7 +75,7 @@ function header(issue: Issue, store: EntityState, origin?: string): string {
   const key = `${store.project.key}-${issue.number}`;
   const link = origin ? `${origin}/app/project/engineering/issue/${issue.number}` : null;
   return [
-    `Here is issue ${key} from Projex (${store.project.name} project in the ${store.workspace.name} workspace), with all of its fields.`,
+    `Here is issue ${key} from IssueLyst (${store.project.name} project in the ${store.workspace.name} workspace), with all of its fields.`,
     "",
     `# ${key} · ${issue.title}`,
     link ? `Tracker link: ${link}` : null,
@@ -222,7 +222,7 @@ function fit(sections: string[], budget: number): string {
       out += s;
       continue;
     }
-    const note = "\n… (truncated — open the issue in Projex for the rest)\n";
+    const note = "\n… (truncated — open the issue in IssueLyst for the rest)\n";
     if (left > note.length + 200) out += s.slice(0, left - note.length).trimEnd() + note;
     break;
   }

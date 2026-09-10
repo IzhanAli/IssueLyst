@@ -1,20 +1,25 @@
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { defineConfig, devices } from "@playwright/test";
 
+// The app's package.json is `"type": "module"` (TanStack Start requires it),
+// so this config loads as ESM, where `__dirname` does not exist.
+const here = path.dirname(fileURLToPath(import.meta.url));
+
 /**
- * Self-contained Playwright config for the Projex e2e suite.
+ * Self-contained Playwright config for the IssueLyst e2e suite.
  *
  * Everything the suite needs lives inside this `e2e/` folder — delete the
  * folder (plus the two npm scripts and the @playwright/test devDependency)
  * and the app is exactly as it was. See e2e/README.md.
  */
-const PORT = Number(process.env.PW_PORT ?? 3000);
+const PORT = Number(process.env.PW_PORT ?? 3100);
 const baseURL = process.env.PW_BASE_URL ?? `http://localhost:${PORT}`;
 
 export default defineConfig({
-  testDir: __dirname,
-  globalSetup: path.join(__dirname, "global-setup.ts"),
-  outputDir: path.join(__dirname, ".artifacts", "test-results"),
+  testDir: here,
+  globalSetup: path.join(here, "global-setup.ts"),
+  outputDir: path.join(here, ".artifacts", "test-results"),
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   workers: process.env.CI ? 2 : 4,
@@ -23,7 +28,7 @@ export default defineConfig({
   expect: { timeout: 15_000 },
   reporter: [
     ["list"],
-    ["html", { outputFolder: path.join(__dirname, ".artifacts", "report"), open: "never" }],
+    ["html", { outputFolder: path.join(here, ".artifacts", "report"), open: "never" }],
   ],
   use: {
     baseURL,
@@ -43,7 +48,7 @@ export default defineConfig({
     ? undefined
     : {
         command: "npm run dev",
-        cwd: path.join(__dirname, ".."),
+        cwd: path.join(here, ".."),
         url: baseURL,
         reuseExistingServer: true,
         timeout: 180_000,

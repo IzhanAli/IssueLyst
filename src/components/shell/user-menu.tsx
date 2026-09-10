@@ -1,7 +1,5 @@
-"use client";
-
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useNavigate } from "@tanstack/react-router";
 import { Sun, Moon, LogOut, Repeat, Check, UserCog } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { useCurrentUser } from "@/lib/store/hooks";
@@ -20,7 +18,7 @@ export function UserMenu({
   onToggleTheme: () => void;
   onSignOut: () => void;
 }) {
-  const router = useRouter();
+  const navigate = useNavigate();
   const user = useCurrentUser();
   const users = useStore((s) => s.users);
   const setCurrentUser = useStore((s) => s.setCurrentUser);
@@ -72,7 +70,7 @@ export function UserMenu({
       <Row icon={theme === "dark" ? <Sun size={15} /> : <Moon size={15} />} onClick={onToggleTheme}>
         {theme === "dark" ? "Light mode" : "Dark mode"}
       </Row>
-      <Row icon={<UserCog size={15} />} onClick={() => { onNavigate(); router.push("/app/settings"); }}>
+      <Row icon={<UserCog size={15} />} onClick={() => { onNavigate(); navigate({ to: "/app/settings" }); }}>
         Settings
       </Row>
       <div className="my-1 h-px bg-border" />
@@ -82,7 +80,7 @@ export function UserMenu({
         onClick={() => {
           onSignOut();
           onNavigate();
-          router.replace("/login");
+          navigate({ to: "/login", replace: true });
         }}
       >
         Sign out

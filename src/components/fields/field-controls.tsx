@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import { Check, Minus, Hash, Calendar } from "lucide-react";
 import { Popover } from "@/components/ui/popover";
@@ -120,7 +118,8 @@ export function FieldEditor({
       onSelect: () => {
         if (multi) {
           const next = new Set(selected);
-          next.has(o.id) ? next.delete(o.id) : next.add(o.id);
+          if (next.has(o.id)) next.delete(o.id);
+          else next.add(o.id);
           onChange([...next]);
         } else {
           onChange(selected.has(o.id) ? null : o.id);

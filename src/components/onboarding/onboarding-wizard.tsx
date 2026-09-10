@@ -1,7 +1,5 @@
-"use client";
-
 import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useNavigate } from "@tanstack/react-router";
 import { nanoid } from "nanoid";
 import {
   Check,
@@ -27,6 +25,7 @@ import { OptionPill } from "@/components/fields/field-controls";
 import { toast } from "@/components/ui/toast";
 import type { FieldDef, FieldType, Label, Status } from "@/lib/types";
 import { cn } from "@/lib/utils/cn";
+import { DEFAULT_PROJECT_KEY } from "@/lib/constants";
 
 const PALETTE = ["#c02219", "#c6551a", "#a37c13", "#0d774c", "#0f6b5f", "#1f57a6", "#2749c4", "#6a2f9e", "#9a2f6e", "#5b6270"];
 const STATUS_ICONS: Status["icon"][] = ["backlog", "open", "progress", "review", "done", "closed"];
@@ -49,7 +48,7 @@ const STEPS = [
 ] as const;
 
 export function OnboardingWizard() {
-  const router = useRouter();
+  const navigate = useNavigate();
   const perms = usePermissions();
   const setProject = useStore((s) => s.setProject);
   const replaceStatuses = useStore((s) => s.replaceStatuses);
@@ -78,7 +77,11 @@ export function OnboardingWizard() {
     replaceFields(fields);
     replaceLabels(labels);
     toast.success(`${project.name} is ready`);
-    router.push("/app/project/engineering/list");
+    navigate({
+      to: "/app/project/$key/list",
+      params: { key: DEFAULT_PROJECT_KEY },
+      search: {},
+    });
   };
 
   if (!perms.isAdmin) {
@@ -88,7 +91,7 @@ export function OnboardingWizard() {
           <Lock size={20} className="mx-auto mb-2 text-text-subtle" />
           <h2 className="font-serif text-[16px] font-semibold">Admins only</h2>
           <p className="mt-1 text-[13px] text-text-muted">Project setup is limited to workspace admins. Switch to an admin account to continue.</p>
-          <button onClick={() => router.push("/app")} className="mt-4 rounded-md bg-primary px-3 py-1.5 text-[13px] font-medium text-primary-fg hover:bg-primary-hover">Back to app</button>
+          <button onClick={() => navigate({ to: "/app" })} className="mt-4 rounded-md bg-primary px-3 py-1.5 text-[13px] font-medium text-primary-fg hover:bg-primary-hover">Back to app</button>
         </div>
       </div>
     );
@@ -161,7 +164,7 @@ export function OnboardingWizard() {
         {/* Footer nav */}
         <div className="flex shrink-0 items-center justify-between border-t border-border bg-surface px-6 py-3">
           <button
-            onClick={() => (step === 0 ? router.push("/app") : setStep((s) => s - 1))}
+            onClick={() => (step === 0 ? navigate({ to: "/app" }) : setStep((s) => s - 1))}
             className="flex h-8 items-center gap-1.5 rounded-md px-2.5 text-[13px] text-text-muted hover:bg-surface-hover hover:text-text"
           >
             <ChevronLeft size={15} /> {step === 0 ? "Cancel" : "Back"}

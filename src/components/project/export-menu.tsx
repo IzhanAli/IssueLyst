@@ -1,5 +1,3 @@
-"use client";
-
 import { Download, FileDown, Table2 } from "lucide-react";
 import { Popover } from "@/components/ui/popover";
 import { useStore } from "@/lib/store/store";
@@ -20,7 +18,7 @@ export function ExportMenu({ scopeLabel = "issues", baseViews }: { scopeLabel?: 
     const views = onlyFiltered ? sortIssues(filterIssues(base(), filters), sort) : sortIssues(base(), sort);
     const csv = issuesToCsv(views, store.users);
     const stamp = new Date().toISOString().slice(0, 10);
-    downloadCsv(`projex-${scopeLabel}-${stamp}.csv`, csv);
+    downloadCsv(`issuelyst-${scopeLabel}-${stamp}.csv`, csv);
     toast.success(`Exported ${views.length} issue${views.length === 1 ? "" : "s"} to CSV`);
   };
 

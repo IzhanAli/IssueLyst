@@ -5,7 +5,7 @@ import { z } from "zod";
 import { Store } from "./store.js";
 
 const store = new Store();
-const server = new McpServer({ name: "projex", version: "0.1.0" });
+const server = new McpServer({ name: "issuelyst", version: "0.1.0" });
 
 const json = (data: unknown) => ({ content: [{ type: "text" as const, text: JSON.stringify(data, null, 2) }] });
 const text = (t: string) => ({ content: [{ type: "text" as const, text: t }] });
@@ -111,4 +111,4 @@ server.tool("reset_data", "Reset the dataset back to the seeded demo data.", {},
 
 const transport = new StdioServerTransport();
 await server.connect(transport);
-console.error("projex-mcp server running on stdio");
+console.error("issuelyst-mcp server running on stdio");

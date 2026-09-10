@@ -1,5 +1,3 @@
-"use client";
-
 import { useMemo, useState } from "react";
 import {
   DndContext,
@@ -41,7 +39,8 @@ export function Board() {
   const groups = useMemo<Group[]>(() => {
     const views = sortIssues(filterIssues(allIssueViews(store), filters), sort);
     return groupIssues(views, groupBy === "none" ? "status" : groupBy, store);
-  }, [store, filters, sort, groupBy]); // eslint-disable-line react-hooks/exhaustive-deps
+    // `store` is the whole state object, so the derived deps are deliberate.
+  }, [store, filters, sort, groupBy]);
 
   const activeView = activeId ? allIssueViews(store).find((v) => v.id === activeId) ?? null : null;
   const fieldId = groupBy.startsWith("field:") ? groupBy.slice(6) : null;

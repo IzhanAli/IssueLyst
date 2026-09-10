@@ -1,13 +1,11 @@
-"use client";
-
 /**
  * Google Drive attachment pipeline (client-side, no backend required).
  *
  * Uses Google Identity Services for the OAuth token and the Google Picker
  * API to let the user choose files. Configure with public env vars:
- *   NEXT_PUBLIC_GOOGLE_CLIENT_ID   OAuth 2.0 Web client id
- *   NEXT_PUBLIC_GOOGLE_API_KEY     Browser API key (Picker API enabled)
- *   NEXT_PUBLIC_GOOGLE_APP_ID      (optional) Cloud project number
+ *   VITE_GOOGLE_CLIENT_ID   OAuth 2.0 Web client id
+ *   VITE_GOOGLE_API_KEY     Browser API key (Picker API enabled)
+ *   VITE_GOOGLE_APP_ID      (optional) Cloud project number
  *
  * When unset, `isDriveConfigured()` returns false and the UI offers a
  * demo flow instead — so the pipeline is fully wired and demonstrable
@@ -16,9 +14,9 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-const CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? "";
-const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_API_KEY ?? "";
-const APP_ID = process.env.NEXT_PUBLIC_GOOGLE_APP_ID ?? "";
+const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID ?? "";
+const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY ?? "";
+const APP_ID = import.meta.env.VITE_GOOGLE_APP_ID ?? "";
 const SCOPE = "https://www.googleapis.com/auth/drive.readonly";
 
 export interface DrivePickedFile {

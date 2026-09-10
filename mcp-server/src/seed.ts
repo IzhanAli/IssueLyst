@@ -4,7 +4,7 @@ const now = Date.now();
 const ago = (mins: number) => new Date(now - mins * 60_000).toISOString();
 const DAY = 1440;
 
-/** Mirrors the Projex web app's seed so the MCP server speaks the same data. */
+/** Mirrors the IssueLyst web app's seed so the MCP server speaks the same data. */
 export function seedDataset(): Dataset {
   const issues = [
     { number: 142, title: "Authentication redirect loops after session expiry", description: "Users are redirected incorrectly after their session expires, bouncing between /login and /app.", statusId: "st_progress", priority: "urgent", assigneeId: "u_izhan", createdById: "u_ahmed", labelIds: ["lb_bug", "lb_auth", "lb_regression"], dueDate: ago(-2 * DAY), c: 3 * DAY, u: 40 },
@@ -26,7 +26,7 @@ export function seedDataset(): Dataset {
   return {
     project: { id: "prj_eng", key: "ENG", name: "Engineering" },
     users: [
-      { id: "u_izhan", name: "Izhan Ali", email: "izhan.ali@wavemaker.com", role: "admin" },
+      { id: "u_izhan", name: "Izhan Ali", email: "izhan.ali@win.com", role: "admin" },
       { id: "u_ahmed", name: "Ahmed Raza", email: "ahmed@meridian.dev", role: "admin" },
       { id: "u_sara", name: "Sara Whitfield", email: "sara@meridian.dev", role: "member" },
       { id: "u_lena", name: "Lena Vogel", email: "lena@meridian.dev", role: "member" },

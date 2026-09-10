@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronDown, Plus, GripVertical } from "lucide-react";
 import {
@@ -94,14 +92,16 @@ export function IssueList({ views, empty }: { views: IssueView[]; empty?: React.
   const toggleSelect = (id: string) =>
     setSelected((s) => {
       const next = new Set(s);
-      next.has(id) ? next.delete(id) : next.add(id);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
       return next;
     });
 
   const toggleGroup = (key: string) =>
     setCollapsed((s) => {
       const next = new Set(s);
-      next.has(key) ? next.delete(key) : next.add(key);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
       return next;
     });
 

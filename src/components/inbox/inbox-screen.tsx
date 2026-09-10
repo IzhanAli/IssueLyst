@@ -1,6 +1,4 @@
-"use client";
-
-import { useRouter } from "next/navigation";
+import { useNavigate } from "@tanstack/react-router";
 import { Bell, CheckCheck, AtSign, UserPlus, CircleDot, MessageSquare, Inbox as InboxIcon } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -10,6 +8,7 @@ import { relativeTime } from "@/lib/utils/format";
 import type { Notification, NotificationType } from "@/lib/types";
 import type { EntityState } from "@/lib/store/store";
 import { cn } from "@/lib/utils/cn";
+import { DEFAULT_PROJECT_KEY } from "@/lib/constants";
 
 const typeIcon: Record<NotificationType, React.ReactNode> = {
   assigned: <UserPlus size={12} />,
@@ -23,7 +22,7 @@ export function InboxScreen() {
   const hydrated = useHydrated();
   const store = useStore();
   const me = useCurrentUser();
-  const router = useRouter();
+  const navigate = useNavigate();
   const markRead = useStore((s) => s.markNotificationRead);
   const markAll = useStore((s) => s.markAllNotificationsRead);
 
@@ -36,7 +35,13 @@ export function InboxScreen() {
   const openNotification = (n: Notification) => {
     markRead(n.id);
     const issue = store.issues.find((i) => i.id === n.issueId);
-    if (issue) router.push(`/app/project/engineering/list?issue=${issue.number}`);
+    if (issue) {
+      navigate({
+        to: "/app/project/$key/list",
+        params: { key: DEFAULT_PROJECT_KEY },
+        search: { issue: String(issue.number) },
+      });
+    }
   };
 
   return (

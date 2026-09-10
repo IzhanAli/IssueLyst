@@ -1,11 +1,11 @@
 {
-  "name": "projex-mcp",
+  "name": "issuelyst-mcp",
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Model Context Protocol server for the Projex issue tracker.",
+  "description": "Model Context Protocol server for the IssueLyst issue tracker.",
   "bin": {
-    "projex-mcp": "dist/index.js"
+    "issuelyst-mcp": "dist/index.js"
   },
   "scripts": {
     "build": "tsc",

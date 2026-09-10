@@ -1,6 +1,6 @@
-# Projex end-to-end tests
+# IssueLyst end-to-end tests
 
-Playwright coverage for the Projex prototype — 220 tests across auth, shell
+Playwright coverage for the IssueLyst prototype — 220 tests across auth, shell
 navigation, list and board views, the issue drawer, issue creation, the command
 palette, bulk actions, custom fields, columns, settings, RBAC, onboarding, CSV
 export, attachments, comments, notifications, persistence, data integrity,
@@ -9,7 +9,7 @@ responsive layout and runtime health.
 ## Run
 
 ```bash
-npm run test:e2e            # headless, starts `npm run dev` if nothing is on :3000
+npm run test:e2e            # headless, starts `npm run dev` if nothing is on :3100
 npm run test:e2e:ui         # Playwright UI mode
 npx playwright test -c e2e/playwright.config.ts list-view      # one file
 npx playwright test -c e2e/playwright.config.ts --headed -g "drag"
@@ -59,13 +59,12 @@ Reports and traces land in `e2e/.artifacts/` (git-ignored).
 ## How it works
 
 * **Session** — `e2e/helpers.ts` exports a `test` fixture that writes the
-  prototype's session key (`projex.session.v1`) into `localStorage` before the
-  first navigation, and hides the Next dev-overlay indicator (it floats over the
-  sidebar user menu and swallows clicks). The session is seeded once per browser
+  prototype's session key (`issuelyst.session.v1`) into `localStorage` before the
+  first navigation. The session is seeded once per browser
   context, so a test that signs out stays signed out. Override the acting user
   with `test.use({ userId: USERS.member.id })`, or `null` for signed out.
 * **Data isolation** — the app persists issues in `localStorage`
-  (`projex.data.v4`). Every test gets a fresh browser context, so every test
+  (`issuelyst.data.v4`). Every test gets a fresh browser context, so every test
   starts from the untouched seed; no cleanup needed. `readData()`, `readIssues()`
   and `readUI()` read the stores back when an assertion is about persisted state
   rather than pixels.

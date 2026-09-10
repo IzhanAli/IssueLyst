@@ -1,7 +1,5 @@
-"use client";
-
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useNavigate } from "@tanstack/react-router";
 import {
   Search,
   Plus,
@@ -18,7 +16,6 @@ import {
 import { Modal } from "@/components/ui/modal";
 import { Kbd } from "@/components/ui/kbd";
 import { StatusIcon } from "@/components/issues/status-icon";
-import { PriorityIcon } from "@/components/issues/priority-icon";
 import { Avatar } from "@/components/ui/avatar";
 import { useStore } from "@/lib/store/store";
 import { useUI } from "@/lib/store/ui";
@@ -27,6 +24,7 @@ import { issuesToCsv, downloadCsv } from "@/lib/utils/csv";
 import { toast } from "@/components/ui/toast";
 import { useTheme } from "@/components/theme/use-theme";
 import { cn } from "@/lib/utils/cn";
+import { DEFAULT_PROJECT_KEY } from "@/lib/constants";
 
 interface Row {
   id: string;
@@ -41,7 +39,7 @@ export function CommandPalette() {
   const open = useUI((s) => s.commandOpen);
   const setOpen = useUI((s) => s.setCommandOpen);
   const openCreate = useUI((s) => s.openCreate);
-  const router = useRouter();
+  const navigate = useNavigate();
   const { toggle } = useTheme();
 
   const store = useStore();
@@ -59,7 +57,11 @@ export function CommandPalette() {
   }, [open]);
 
   const goIssue = (key: string) => {
-    router.push(`/app/project/engineering/list?issue=${key}`);
+    navigate({
+      to: "/app/project/$key/list",
+      params: { key: DEFAULT_PROJECT_KEY },
+      search: { issue: key },
+    });
     setOpen(false);
   };
 
@@ -71,10 +73,10 @@ export function CommandPalette() {
       const recent = [...views].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)).slice(0, 5);
       return [
         { id: "a-new", section: "Actions", label: "Create new issue", icon: <Plus size={15} />, onSelect: () => { setOpen(false); openCreate(); } },
-        { id: "a-list", section: "Actions", label: "Go to List", icon: <ListIcon size={15} />, onSelect: () => { router.push("/app/project/engineering/list"); setOpen(false); } },
-        { id: "a-board", section: "Actions", label: "Go to Board", icon: <Columns3 size={15} />, onSelect: () => { router.push("/app/project/engineering/board"); setOpen(false); } },
-        { id: "a-mine", section: "Actions", label: "My Issues", icon: <UserRound size={15} />, onSelect: () => { router.push("/app/my-issues"); setOpen(false); } },
-        { id: "a-inbox", section: "Actions", label: "Inbox", icon: <Inbox size={15} />, onSelect: () => { router.push("/app/inbox"); setOpen(false); } },
+        { id: "a-list", section: "Actions", label: "Go to List", icon: <ListIcon size={15} />, onSelect: () => { navigate({ to: "/app/project/$key/list", params: { key: DEFAULT_PROJECT_KEY }, search: {} }); setOpen(false); } },
+        { id: "a-board", section: "Actions", label: "Go to Board", icon: <Columns3 size={15} />, onSelect: () => { navigate({ to: "/app/project/$key/board", params: { key: DEFAULT_PROJECT_KEY }, search: {} }); setOpen(false); } },
+        { id: "a-mine", section: "Actions", label: "My Issues", icon: <UserRound size={15} />, onSelect: () => { navigate({ to: "/app/my-issues", search: {} }); setOpen(false); } },
+        { id: "a-inbox", section: "Actions", label: "Inbox", icon: <Inbox size={15} />, onSelect: () => { navigate({ to: "/app/inbox", search: {} }); setOpen(false); } },
         { id: "a-theme", section: "Actions", label: "Toggle theme", icon: <MoonStar size={15} />, onSelect: () => toggle() },
         {
           id: "a-csv",
@@ -83,7 +85,7 @@ export function CommandPalette() {
           icon: <Download size={15} />,
           onSelect: () => {
             const all = allIssueViews(store);
-            downloadCsv(`projex-issues-${new Date().toISOString().slice(0, 10)}.csv`, issuesToCsv(all, store.users));
+            downloadCsv(`issuelyst-issues-${new Date().toISOString().slice(0, 10)}.csv`, issuesToCsv(all, store.users));
             toast.success(`Exported ${all.length} issues to CSV`);
             setOpen(false);
           },
@@ -130,14 +132,14 @@ export function CommandPalette() {
         label: u.name,
         sub: u.email,
         icon: <Avatar user={u} size="sm" />,
-        onSelect: () => { router.push(`/app/project/engineering/list?assignee=${u.id}`); setOpen(false); },
+        onSelect: () => { navigate({ to: "/app/project/$key/list", params: { key: DEFAULT_PROJECT_KEY }, search: { assignee: u.id } }); setOpen(false); },
       })),
       ...labels.map<Row>((l) => ({
         id: l.id,
         section: "Labels",
         label: l.name,
         icon: <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: l.color }} />,
-        onSelect: () => { router.push(`/app/project/engineering/list?label=${l.id}`); setOpen(false); },
+        onSelect: () => { navigate({ to: "/app/project/$key/list", params: { key: DEFAULT_PROJECT_KEY }, search: { label: l.id } }); setOpen(false); },
       })),
     ];
   }, [q, store]); // eslint-disable-line react-hooks/exhaustive-deps

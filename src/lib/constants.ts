@@ -22,6 +22,9 @@ export const PRIORITY_META: Record<
 export const PRIORITIES: Priority[] = ["urgent", "high", "medium", "low", "none"];
 
 /** Session storage keys */
-export const CURRENT_USER_KEY = "projex.currentUser";
-export const THEME_KEY = "projex.theme";
-export const SIDEBAR_KEY = "projex.sidebar.collapsed";
+export const CURRENT_USER_KEY = "issuelyst.currentUser";
+export const THEME_KEY = "issuelyst.theme";
+export const SIDEBAR_KEY = "issuelyst.sidebar.collapsed";
+
+/** The single seeded project. Routing is keyed on this until projects are dynamic. */
+export const DEFAULT_PROJECT_KEY = "engineering";

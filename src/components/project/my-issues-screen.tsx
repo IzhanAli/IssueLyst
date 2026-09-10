@@ -1,5 +1,3 @@
-"use client";
-
 import { UserRound, CheckCircle2, Plus } from "lucide-react";
 import { GroupMenu, SortMenu, FilterMenu, ActiveFilterChips } from "./controls";
 import { ColumnsMenu } from "./columns-menu";

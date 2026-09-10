@@ -1,7 +1,5 @@
-"use client";
-
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useNavigate } from "@tanstack/react-router";
 import { User, Users, Tag, CircleDot, Sun, Moon, Trash2, Plus, RotateCcw, SlidersHorizontal, GripVertical, Lock, Wand2, SquareTerminal, Code2 } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { StatusIcon } from "@/components/issues/status-icon";
@@ -20,7 +18,7 @@ type Tab = "profile" | "team" | "fields" | "labels" | "statuses" | "claude";
 
 export function SettingsScreen() {
   const hydrated = useHydrated();
-  const router = useRouter();
+  const navigate = useNavigate();
   const workspace = useStore((s) => s.workspace);
   const project = useStore((s) => s.project);
   const isAdmin = usePermissions().isAdmin;
@@ -45,7 +43,7 @@ export function SettingsScreen() {
             <p className="mt-1 text-[13px] text-text-muted">{workspace.name} workspace · {project.name}</p>
           </div>
           {isAdmin && (
-            <button onClick={() => router.push("/onboarding")} className="flex h-8 shrink-0 items-center gap-1.5 rounded-md border border-border bg-surface px-3 text-[12.5px] font-medium transition-colors hover:bg-surface-hover">
+            <button onClick={() => navigate({ to: "/onboarding" })} className="flex h-8 shrink-0 items-center gap-1.5 rounded-md border border-border bg-surface px-3 text-[12.5px] font-medium transition-colors hover:bg-surface-hover">
               <Wand2 size={14} /> Set up project
             </button>
           )}

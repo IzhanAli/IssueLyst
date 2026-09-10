@@ -1,19 +1,14 @@
-"use client";
-
 import { useCallback, useMemo } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useNavigate, useSearch } from "@tanstack/react-router";
 import type { Priority } from "@/lib/types";
 import {
   EMPTY_FILTERS,
-  type DateWindow,
   type Filters,
   type GroupBy,
   type Sort,
   type SortField,
 } from "./selectors";
-
-const csv = (v: string | null): string[] =>
-  v ? v.split(",").filter(Boolean) : [];
+import type { AppSearch } from "./search";
 
 type ArrayFilterKey = "statusIds" | "priorities" | "assigneeIds" | "labelIds";
 
@@ -30,64 +25,88 @@ export interface IssueQuery {
   setGroupBy: (g: GroupBy) => void;
 }
 
-export function useIssueQuery(): IssueQuery {
-  const router = useRouter();
-  const pathname = usePathname();
-  const sp = useSearchParams();
+/** Absent params default to the number sort, ascending. */
+const DEFAULT_SORT: Sort = { field: "number", dir: "asc" };
 
-  const filters = useMemo<Filters>(() => {
-    const fields: Record<string, string[]> = {};
-    for (const [k, v] of sp.entries()) {
-      if (k.startsWith("f.") && v) fields[k.slice(2)] = v.split(",").filter(Boolean);
-    }
-    return {
-      statusIds: csv(sp.get("status")),
-      priorities: csv(sp.get("priority")) as Priority[],
-      assigneeIds: csv(sp.get("assignee")),
-      labelIds: csv(sp.get("label")),
-      createdWithin: (sp.get("cw") ?? "") as DateWindow,
-      updatedWithin: (sp.get("uw") ?? "") as DateWindow,
-      fields,
-      q: sp.get("q") ?? "",
-    };
-  }, [sp]);
+const split = (value: string | undefined): string[] =>
+  value ? value.split(",").filter(Boolean) : [];
+
+const join = (values: string[]): string | undefined =>
+  values.length ? values.join(",") : undefined;
+
+/** Reads the validated search object into the `Filters` shape the selectors want. */
+function toFilters(search: AppSearch): Filters {
+  const fields: Record<string, string[]> = {};
+  for (const [key, value] of Object.entries(search)) {
+    if (!key.startsWith("f.") || typeof value !== "string") continue;
+    const ids = split(value);
+    if (ids.length) fields[key.slice(2)] = ids;
+  }
+  return {
+    statusIds: split(search.status),
+    priorities: split(search.priority) as Priority[],
+    assigneeIds: split(search.assignee),
+    labelIds: split(search.label),
+    createdWithin: search.cw ?? "",
+    updatedWithin: search.uw ?? "",
+    fields,
+    q: search.q ?? "",
+  };
+}
+
+/**
+ * Projects `Filters` back onto the search object, preserving every param the
+ * filters don't own (`sort`, `group`, `issue`).
+ */
+function withFilters(prev: AppSearch, filters: Filters): AppSearch {
+  const next: AppSearch = { ...prev };
+
+  for (const key of Object.keys(next)) {
+    if (key.startsWith("f.")) delete next[key as `f.${string}`];
+  }
+
+  next.status = join(filters.statusIds);
+  next.priority = join(filters.priorities);
+  next.assignee = join(filters.assigneeIds);
+  next.label = join(filters.labelIds);
+  next.cw = filters.createdWithin || undefined;
+  next.uw = filters.updatedWithin || undefined;
+  next.q = filters.q || undefined;
+
+  for (const [fieldId, optionIds] of Object.entries(filters.fields)) {
+    const value = join(optionIds);
+    if (value) next[`f.${fieldId}`] = value;
+  }
+
+  return next;
+}
+
+export function useIssueQuery(): IssueQuery {
+  // Validated at the `/app` layout route, so every screen below it — the
+  // project views, My Issues, the Inbox, Home — reads the same schema.
+  const search = useSearch({ from: "/app" });
+  const navigate = useNavigate();
+
+  const filters = useMemo(() => toFilters(search), [search]);
 
   const sort = useMemo<Sort>(() => {
-    const raw = sp.get("sort") ?? "manual:asc";
-    const [field, dir] = raw.split(":");
-    const valid: SortField[] = ["number", "title", "status", "priority", "assignee", "created", "updated", "due"];
-    return {
-      field: (valid.includes(field as SortField) ? field : "number") as SortField,
-      dir: dir === "desc" ? "desc" : "asc",
-    };
-  }, [sp]);
+    if (!search.sort) return DEFAULT_SORT;
+    const [field, dir] = search.sort.split(":");
+    return { field: field as SortField, dir: dir === "desc" ? "desc" : "asc" };
+  }, [search.sort]);
 
-  const groupBy = (sp.get("group") as GroupBy) || "status";
+  const groupBy: GroupBy = search.group ?? "status";
 
   const commit = useCallback(
-    (params: URLSearchParams) => {
-      const qs = params.toString();
-      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    (next: AppSearch) => {
+      navigate({ to: ".", search: next, replace: true, resetScroll: false });
     },
-    [router, pathname],
+    [navigate],
   );
 
   const writeFilters = useCallback(
-    (next: Filters) => {
-      const p = new URLSearchParams(sp.toString());
-      const set = (k: string, v: string[]) => (v.length ? p.set(k, v.join(",")) : p.delete(k));
-      set("status", next.statusIds);
-      set("priority", next.priorities);
-      set("assignee", next.assigneeIds);
-      set("label", next.labelIds);
-      if (next.createdWithin) p.set("cw", next.createdWithin); else p.delete("cw");
-      if (next.updatedWithin) p.set("uw", next.updatedWithin); else p.delete("uw");
-      for (const k of [...p.keys()]) if (k.startsWith("f.")) p.delete(k);
-      for (const [fid, opts] of Object.entries(next.fields)) if (opts.length) p.set(`f.${fid}`, opts.join(","));
-      if (next.q) p.set("q", next.q); else p.delete("q");
-      commit(p);
-    },
-    [sp, commit],
+    (next: Filters) => commit(withFilters(search, next)),
+    [search, commit],
   );
 
   const setFilters = useCallback(
@@ -97,8 +116,10 @@ export function useIssueQuery(): IssueQuery {
 
   const toggleFilter = useCallback(
     (key: ArrayFilterKey, value: string) => {
-      const cur = filters[key] as string[];
-      const next = cur.includes(value) ? cur.filter((x) => x !== value) : [...cur, value];
+      const current = filters[key] as string[];
+      const next = current.includes(value)
+        ? current.filter((x) => x !== value)
+        : [...current, value];
       writeFilters({ ...filters, [key]: next });
     },
     [filters, writeFilters],
@@ -106,8 +127,10 @@ export function useIssueQuery(): IssueQuery {
 
   const toggleFieldFilter = useCallback(
     (fieldId: string, optionId: string) => {
-      const cur = filters.fields[fieldId] ?? [];
-      const next = cur.includes(optionId) ? cur.filter((x) => x !== optionId) : [...cur, optionId];
+      const current = filters.fields[fieldId] ?? [];
+      const next = current.includes(optionId)
+        ? current.filter((x) => x !== optionId)
+        : [...current, optionId];
       const fields = { ...filters.fields, [fieldId]: next };
       if (!next.length) delete fields[fieldId];
       writeFilters({ ...filters, fields });
@@ -115,27 +138,34 @@ export function useIssueQuery(): IssueQuery {
     [filters, writeFilters],
   );
 
-  const clearFilters = useCallback(() => writeFilters(EMPTY_FILTERS), [writeFilters]);
+  const clearFilters = useCallback(
+    () => writeFilters(EMPTY_FILTERS),
+    [writeFilters],
+  );
 
   const setQ = useCallback((q: string) => setFilters({ q }), [setFilters]);
 
   const setSort = useCallback(
-    (s: Sort) => {
-      const p = new URLSearchParams(sp.toString());
-      p.set("sort", `${s.field}:${s.dir}`);
-      commit(p);
-    },
-    [sp, commit],
+    (next: Sort) => commit({ ...search, sort: `${next.field}:${next.dir}` }),
+    [search, commit],
   );
 
   const setGroupBy = useCallback(
-    (g: GroupBy) => {
-      const p = new URLSearchParams(sp.toString());
-      if (g === "status") p.delete("group"); else p.set("group", g);
-      commit(p);
-    },
-    [sp, commit],
+    (next: GroupBy) =>
+      commit({ ...search, group: next === "status" ? undefined : next }),
+    [search, commit],
   );
 
-  return { filters, sort, groupBy, setFilters, toggleFilter, toggleFieldFilter, clearFilters, setQ, setSort, setGroupBy };
+  return {
+    filters,
+    sort,
+    groupBy,
+    setFilters,
+    toggleFilter,
+    toggleFieldFilter,
+    clearFilters,
+    setQ,
+    setSort,
+    setGroupBy,
+  };
 }

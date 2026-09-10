@@ -1,5 +1,3 @@
-"use client";
-
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import type { CreateIssueInput } from "./store";
@@ -71,7 +69,7 @@ export const useUI = create<UIState>()(
       setClaudeTarget: (patch) => set((s) => ({ claudeTarget: { ...s.claudeTarget, ...patch } })),
     }),
     {
-      name: "projex.ui.v1",
+      name: "issuelyst.ui.v1",
       storage: createJSONStorage(() => localStorage),
       partialize: (s) => ({
         sidebarCollapsed: s.sidebarCollapsed,

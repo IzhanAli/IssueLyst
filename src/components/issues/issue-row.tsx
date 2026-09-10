@@ -1,5 +1,3 @@
-"use client";
-
 import { MessageSquare, Paperclip, Calendar } from "lucide-react";
 import type { FieldDef, IssueView, Priority } from "@/lib/types";
 import { StatusIcon } from "./status-icon";

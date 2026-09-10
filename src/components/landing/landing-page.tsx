@@ -1,8 +1,6 @@
-"use client";
-
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
+import { useNavigate } from "@tanstack/react-router";
+import { Shot } from "./shot";
 import { motion, useReducedMotion, type Variants } from "motion/react";
 import { ArrowRight, Check } from "lucide-react";
 import s from "./landing.module.css";
@@ -51,13 +49,13 @@ const HERO_MINIS = [
 ];
 
 function CtaForm({ id }: { id: string }) {
-  const router = useRouter();
+  const navigate = useNavigate();
   return (
     <form
       className={s.ctaForm}
       onSubmit={(e) => {
         e.preventDefault();
-        router.push("/app");
+        navigate({ to: "/app" });
       }}
     >
       <div className={s.ctaInputWrap}>
@@ -219,7 +217,7 @@ export function LandingPage() {
         <div className={s.hero}>
           <div className={s.heroBrand}>
             <span className={s.heroBrandMark}>P</span>
-            <span className={s.heroBrandName}>Projex</span>
+            <span className={s.heroBrandName}>IssueLyst</span>
           </div>
 
           <div className={s.heroLeft}>
@@ -366,12 +364,12 @@ export function LandingPage() {
             <div className={s.shotWrap} ref={shotRef}>
               <div className={s.shotBar}>
                 <span /><span /><span />
-                <span className={s.shotUrl}>projex.app/engineering/issue/142</span>
+                <span className={s.shotUrl}>issuelyst.app/engineering/issue/142</span>
               </div>
-              <Image
+              <Shot
                 className={s.shotImg}
                 src="/landing/app-issue.png"
-                alt="Projex issue detail — description, comments, activity and inline fields together"
+                alt="IssueLyst issue detail — description, comments, activity and inline fields together"
                 width={1440}
                 height={900}
                 priority
@@ -397,13 +395,13 @@ export function LandingPage() {
             <Reveal>
               <div className={s.shotWrap}>
                 <div className={s.shotBar}><span /><span /><span /><span className={s.shotUrl}>List · grouped by status</span></div>
-                <Image className={s.shotImg} src="/landing/app-list.png" alt="Projex dense list view grouped by status" width={1440} height={900} />
+                <Shot className={s.shotImg} src="/landing/app-list.png" alt="IssueLyst dense list view grouped by status" width={1440} height={900} />
               </div>
             </Reveal>
             <Reveal delay={0.08}>
               <div className={s.shotWrap}>
                 <div className={s.shotBar}><span /><span /><span /><span className={s.shotUrl}>Board · drag to move</span></div>
-                <Image className={s.shotImg} src="/landing/app-board.png" alt="Projex kanban board across workflow columns" width={1440} height={900} />
+                <Shot className={s.shotImg} src="/landing/app-board.png" alt="IssueLyst kanban board across workflow columns" width={1440} height={900} />
               </div>
             </Reveal>
           </div>
@@ -426,7 +424,7 @@ export function LandingPage() {
             <Reveal>
               <div className={s.shotWrap} style={{ marginTop: 0 }}>
                 <div className={s.shotBar}><span /><span /><span /><span className={s.shotUrl}>⌘K · command palette</span></div>
-                <Image className={s.shotImg} src="/landing/app-palette.png" alt="Command palette searching issues by keyword" width={1440} height={900} />
+                <Shot className={s.shotImg} src="/landing/app-palette.png" alt="Command palette searching issues by keyword" width={1440} height={900} />
               </div>
             </Reveal>
             <Reveal delay={0.08}>
@@ -592,7 +590,7 @@ export function LandingPage() {
 
       <footer className={`${s.wrap}`}>
         <div className={s.footer}>
-          <span>Projex — from report to resolved.</span>
+          <span>IssueLyst — from report to resolved.</span>
           <div className={s.footLinks}>
             <a href="#how">How it works</a>
             <a href="#product">Product</a>

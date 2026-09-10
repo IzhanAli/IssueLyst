@@ -1,5 +1,3 @@
-"use client";
-
 import {
   SlidersHorizontal,
   ArrowUpDown,
@@ -8,7 +6,6 @@ import {
   ArrowUp,
   ArrowDown,
   X,
-  Plus,
 } from "lucide-react";
 import { Popover } from "@/components/ui/popover";
 import { StatusIcon } from "@/components/issues/status-icon";
