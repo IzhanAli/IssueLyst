@@ -35,6 +35,7 @@ const ROUTE_LIST = [
   ROUTES.myIssues,
   ROUTES.inbox,
   ROUTES.home,
+  ROUTES.whiteboards,
   ROUTES.settings,
   ROUTES.onboarding,
   ROUTES.issue(ISSUES.auth.key),

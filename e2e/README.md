@@ -45,6 +45,7 @@ Reports and traces land in `e2e/.artifacts/` (git-ignored).
 | `fields.spec.ts` | select, multi-select, number, text, date, checkbox; filter/group by field; option renames |
 | `columns.spec.ts` | drag-to-reorder columns, visibility, persistence, per-user scope |
 | `views.spec.ts` | My Issues, Inbox, Home |
+| `whiteboards.spec.ts` | sidebar entry, board list and deep links, stickies/text/pen, pen and text colours and S/M/L sizes, edit in place, select-recolor-delete-undo, drag, fit-to-window zoom and pan, board CRUD, favourites, upgrades of saved boards |
 | `settings.spec.ts` | tabs, theme, label and field CRUD, seed reset |
 | `permissions.spec.ts` | member vs admin capabilities |
 | `onboarding.spec.ts` | the five-step wizard and what launching applies |
@@ -64,7 +65,8 @@ Reports and traces land in `e2e/.artifacts/` (git-ignored).
   context, so a test that signs out stays signed out. Override the acting user
   with `test.use({ userId: USERS.member.id })`, or `null` for signed out.
 * **Data isolation** — the app persists issues in `localStorage`
-  (`issuelyst.data.v4`). Every test gets a fresh browser context, so every test
+  (`issuelyst.data.v4`) and whiteboards alongside them
+  (`issuelyst.whiteboards.v1`). Every test gets a fresh browser context, so every test
   starts from the untouched seed; no cleanup needed. `readData()`, `readIssues()`
   and `readUI()` read the stores back when an assertion is about persisted state
   rather than pixels.

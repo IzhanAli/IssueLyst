@@ -14,6 +14,7 @@ const PATHS = [
   "/app/my-issues",
   "/app/inbox",
   "/app/home",
+  "/app/whiteboards",
   "/app/settings",
   "/onboarding",
 ];

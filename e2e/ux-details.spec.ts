@@ -45,7 +45,7 @@ test.describe("interaction details", () => {
 
     await sidebar(page).getByRole("button", { name: "Toggle project" }).click();
     await expect(sidebar(page).getByRole("link", { name: "List" })).toHaveCount(0);
-    await expect(sidebar(page).getByRole("link", { name: "Board" })).toHaveCount(0);
+    await expect(sidebar(page).getByRole("link", { name: "Board", exact: true })).toHaveCount(0);
 
     await sidebar(page).getByRole("button", { name: "Toggle project" }).click();
     await expect(sidebar(page).getByRole("link", { name: "List" })).toBeVisible();

@@ -5,6 +5,7 @@ import { test as base, expect, type Locator, type Page } from "@playwright/test"
 export const SESSION_KEY = "issuelyst.session.v1";
 export const DATA_KEY = "issuelyst.data.v4";
 export const UI_KEY = "issuelyst.ui.v1";
+export const WHITEBOARDS_KEY = "issuelyst.whiteboards.v1";
 export const THEME_KEY = "issuelyst.theme";
 
 export const USERS = {
@@ -22,6 +23,7 @@ export const ROUTES = {
   inbox: "/app/inbox",
   home: "/app/home",
   settings: "/app/settings",
+  whiteboards: "/app/whiteboards",
   onboarding: "/onboarding",
   issue: (key: string | number) => `/app/project/engineering/issue/${key}`,
 };

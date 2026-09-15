@@ -100,7 +100,7 @@ test.describe("list columns", () => {
     await menu(page).getByRole("button", { name: /^Squad/ }).click();
     await page.keyboard.press("Escape");
 
-    await page.getByRole("link", { name: "Board" }).last().click();
+    await page.getByRole("link", { name: "Board", exact: true }).last().click();
     await expect(page.getByText(ISSUES.auth.title)).toBeVisible();
     await expect(page.getByRole("button", { name: /^Columns/ })).toHaveCount(0);
   });

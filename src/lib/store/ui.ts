@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import type { CreateIssueInput } from "./store";
 import type { ClaudeSurface, ClaudeTarget } from "@/lib/integrations/claude-code";
+import type { InkStyle, ShapeKind, WhiteboardColor } from "@/lib/types";
 
 interface UIState {
   sidebarCollapsed: boolean;
@@ -32,6 +33,23 @@ interface UIState {
   setClaudeSurface: (s: ClaudeSurface) => void;
   claudeTarget: ClaudeTarget;
   setClaudeTarget: (patch: Partial<ClaudeTarget>) => void;
+
+  /** Whiteboards: the board list rail and the sheet's dot grid */
+  whiteboardRail: boolean;
+  setWhiteboardRail: (v: boolean) => void;
+  whiteboardGrid: boolean;
+  setWhiteboardGrid: (v: boolean) => void;
+  /** last-used pen and text styles, applied to new strokes and text */
+  whiteboardPen: InkStyle;
+  whiteboardText: InkStyle;
+  setWhiteboardStyle: (tool: "pen" | "text", patch: Partial<InkStyle>) => void;
+  /** last-used sticky note and shape colours, applied to new ones */
+  whiteboardSticky: WhiteboardColor;
+  whiteboardShape: WhiteboardColor;
+  setWhiteboardFill: (tool: "sticky" | "shape", color: WhiteboardColor) => void;
+  /** what the Shape tool draws next */
+  whiteboardShapeKind: ShapeKind;
+  setWhiteboardShapeKind: (shape: ShapeKind) => void;
 }
 
 export const useUI = create<UIState>()(
@@ -67,6 +85,25 @@ export const useUI = create<UIState>()(
       setClaudeSurface: (claudeSurface) => set({ claudeSurface }),
       claudeTarget: { repo: "", cwd: "" },
       setClaudeTarget: (patch) => set((s) => ({ claudeTarget: { ...s.claudeTarget, ...patch } })),
+
+      whiteboardRail: false,
+      setWhiteboardRail: (whiteboardRail) => set({ whiteboardRail }),
+      whiteboardGrid: false,
+      setWhiteboardGrid: (whiteboardGrid) => set({ whiteboardGrid }),
+      whiteboardPen: { color: "red", size: "m" },
+      whiteboardText: { color: "default", size: "m" },
+      setWhiteboardStyle: (tool, patch) =>
+        set((s) =>
+          tool === "pen"
+            ? { whiteboardPen: { ...s.whiteboardPen, ...patch } }
+            : { whiteboardText: { ...s.whiteboardText, ...patch } },
+        ),
+      whiteboardSticky: "amber",
+      whiteboardShape: "neutral",
+      setWhiteboardFill: (tool, color) =>
+        set(tool === "sticky" ? { whiteboardSticky: color } : { whiteboardShape: color }),
+      whiteboardShapeKind: "rect",
+      setWhiteboardShapeKind: (whiteboardShapeKind) => set({ whiteboardShapeKind }),
     }),
     {
       name: "issuelyst.ui.v1",
@@ -78,6 +115,13 @@ export const useUI = create<UIState>()(
         columnOrder: s.columnOrder,
         claudeSurface: s.claudeSurface,
         claudeTarget: s.claudeTarget,
+        whiteboardRail: s.whiteboardRail,
+        whiteboardGrid: s.whiteboardGrid,
+        whiteboardPen: s.whiteboardPen,
+        whiteboardText: s.whiteboardText,
+        whiteboardSticky: s.whiteboardSticky,
+        whiteboardShape: s.whiteboardShape,
+        whiteboardShapeKind: s.whiteboardShapeKind,
       }),
     },
   ),

@@ -36,6 +36,8 @@ export interface AppSearch {
   group?: GroupBy;
   /** issue key for the detail drawer */
   issue?: string;
+  /** whiteboard id on /app/whiteboards; absent means the first board */
+  board?: string;
   /** dynamic custom-field filters, comma-joined option ids */
   [key: `f.${string}`]: string | undefined;
 }
@@ -146,6 +148,9 @@ export function validateAppSearch(input: Record<string, unknown>): AppSearch {
 
   const issue = text(input.issue);
   if (issue) out.issue = issue;
+
+  const board = text(input.board);
+  if (board) out.board = board;
 
   for (const key of Object.keys(input)) {
     if (!key.startsWith("f.") || key.length <= 2) continue;

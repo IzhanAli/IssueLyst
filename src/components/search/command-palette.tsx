@@ -7,6 +7,7 @@ import {
   List as ListIcon,
   UserRound,
   Inbox,
+  Presentation,
   MoonStar,
   Download,
   CornerDownLeft,
@@ -77,6 +78,7 @@ export function CommandPalette() {
         { id: "a-board", section: "Actions", label: "Go to Board", icon: <Columns3 size={15} />, onSelect: () => { navigate({ to: "/app/project/$key/board", params: { key: DEFAULT_PROJECT_KEY }, search: {} }); setOpen(false); } },
         { id: "a-mine", section: "Actions", label: "My Issues", icon: <UserRound size={15} />, onSelect: () => { navigate({ to: "/app/my-issues", search: {} }); setOpen(false); } },
         { id: "a-inbox", section: "Actions", label: "Inbox", icon: <Inbox size={15} />, onSelect: () => { navigate({ to: "/app/inbox", search: {} }); setOpen(false); } },
+        { id: "a-whiteboards", section: "Actions", label: "Whiteboards", icon: <Presentation size={15} />, onSelect: () => { navigate({ to: "/app/whiteboards", search: {} }); setOpen(false); } },
         { id: "a-theme", section: "Actions", label: "Toggle theme", icon: <MoonStar size={15} />, onSelect: () => toggle() },
         {
           id: "a-csv",

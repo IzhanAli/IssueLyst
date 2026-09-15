@@ -12,6 +12,7 @@ import {
   PanelLeft,
   List as ListIcon,
   Columns3,
+  Presentation,
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils/cn";
@@ -22,6 +23,7 @@ import { Tooltip } from "@/components/ui/tooltip";
 import { useCurrentUser, useUnreadCount } from "@/lib/store/hooks";
 import { useStore } from "@/lib/store/store";
 import { useUI } from "@/lib/store/ui";
+import { useWhiteboards } from "@/lib/store/whiteboards";
 import { useTheme } from "@/components/theme/use-theme";
 import { signOut } from "@/lib/auth/session";
 import { UserMenu } from "./user-menu";
@@ -46,6 +48,8 @@ export function Sidebar() {
   );
 
   const isFav = favorites.includes(project.id);
+  const boards = useWhiteboards((s) => s.boards);
+  const favBoards = boards.filter((b) => favorites.includes(b.id));
 
   return (
     <aside
@@ -110,18 +114,33 @@ export function Sidebar() {
         <NavItem to="/app/home" icon={<Home size={16} />} label="Home" collapsed={collapsed} active={pathname === "/app/home"} />
         <NavItem to="/app/inbox" icon={<Inbox size={16} />} label="Inbox" collapsed={collapsed} active={pathname.startsWith("/app/inbox")} badge={unread || undefined} />
         <NavItem to="/app/my-issues" icon={<UserRound size={16} />} label="My Issues" collapsed={collapsed} active={pathname.startsWith("/app/my-issues")} />
+        <NavItem to="/app/whiteboards" icon={<Presentation size={16} />} label="Whiteboards" collapsed={collapsed} active={pathname.startsWith("/app/whiteboards")} count={boards.length} />
 
-        {isFav && (
+        {(isFav || favBoards.length > 0) && (
           <Section label="Favorites" collapsed={collapsed}>
-            <NavItem
-              to="/app/project/$key/list"
-              params={projectParams}
-              icon={<Star size={15} className="fill-warning text-warning" />}
-              label={project.name}
-              collapsed={collapsed}
-              active={false}
-              small
-            />
+            {isFav && (
+              <NavItem
+                to="/app/project/$key/list"
+                params={projectParams}
+                icon={<Star size={15} className="fill-warning text-warning" />}
+                label={project.name}
+                collapsed={collapsed}
+                active={false}
+                small
+              />
+            )}
+            {favBoards.map((b) => (
+              <NavItem
+                key={b.id}
+                to="/app/whiteboards"
+                search={{ board: b.id }}
+                icon={<Star size={15} className="fill-warning text-warning" />}
+                label={b.name}
+                collapsed={collapsed}
+                active={false}
+                small
+              />
+            ))}
           </Section>
         )}
 
@@ -220,6 +239,7 @@ function NavItem({
   collapsed,
   active,
   badge,
+  count,
   small,
   ...link
 }: {
@@ -228,6 +248,8 @@ function NavItem({
   collapsed: boolean;
   active: boolean;
   badge?: number;
+  /** a quiet total, where `badge` is an attention pill */
+  count?: number;
   small?: boolean;
 } & LinkProps) {
   const inner = (
@@ -246,6 +268,9 @@ function NavItem({
         <span className="ml-auto flex h-[17px] min-w-[17px] items-center justify-center rounded-full bg-primary px-1 font-mono text-[10px] font-medium text-primary-fg">
           {badge}
         </span>
+      )}
+      {!collapsed && count != null && (
+        <span className="ml-auto font-mono text-[10.5px] text-text-subtle">{count}</span>
       )}
       {collapsed && badge != null && (
         <span className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-primary" />

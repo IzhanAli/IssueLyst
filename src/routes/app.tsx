@@ -3,6 +3,7 @@ import {
   Outlet,
   createFileRoute,
   redirect,
+  useLocation,
   useNavigate,
 } from "@tanstack/react-router";
 import { Sidebar } from "@/components/shell/sidebar";
@@ -38,6 +39,9 @@ function AppLayout() {
   const { userId, loading, isAuthed } = useSession();
   const hydrated = useHydrated();
   const setCurrentUser = useStore((s) => s.setCurrentUser);
+  // Whiteboards put their own title bar in the top bar's place, so the canvas
+  // keeps the height. ⌘K and C still open search and New issue there.
+  const showTopBar = !useLocation({ select: (l) => l.pathname.startsWith("/app/whiteboards") });
 
   useEffect(() => {
     if (!loading && !isAuthed) navigate({ to: "/login", replace: true });
@@ -59,7 +63,7 @@ function AppLayout() {
     <div className="flex h-screen overflow-hidden bg-bg text-text">
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col">
-        <TopBar />
+        {showTopBar && <TopBar />}
         <main className="min-h-0 flex-1 overflow-hidden">
           <Outlet />
         </main>

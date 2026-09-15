@@ -18,6 +18,7 @@ import { Route as AppHomeRouteImport } from './routes/app/home'
 import { Route as AppInboxRouteImport } from './routes/app/inbox'
 import { Route as AppMyIssuesRouteImport } from './routes/app/my-issues'
 import { Route as AppSettingsRouteImport } from './routes/app/settings'
+import { Route as AppWhiteboardsRouteImport } from './routes/app/whiteboards'
 import { Route as AppProjectKeyRouteImport } from './routes/app/project/$key'
 import { Route as AppProjectKeyBoardRouteImport } from './routes/app/project/$key/board'
 import { Route as AppProjectKeyListRouteImport } from './routes/app/project/$key/list'
@@ -68,6 +69,11 @@ const AppSettingsRoute = AppSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AppRoute,
 } as any)
+const AppWhiteboardsRoute = AppWhiteboardsRouteImport.update({
+  id: '/whiteboards',
+  path: '/whiteboards',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppProjectKeyRoute = AppProjectKeyRouteImport.update({
   id: '/project/$key',
   path: '/project/$key',
@@ -99,6 +105,7 @@ export interface FileRoutesByFullPath {
   '/app/inbox': typeof AppInboxRoute
   '/app/my-issues': typeof AppMyIssuesRoute
   '/app/settings': typeof AppSettingsRoute
+  '/app/whiteboards': typeof AppWhiteboardsRoute
   '/app/': typeof AppIndexRoute
   '/app/project/$key': typeof AppProjectKeyRouteWithChildren
   '/app/project/$key/board': typeof AppProjectKeyBoardRoute
@@ -113,6 +120,7 @@ export interface FileRoutesByTo {
   '/app/inbox': typeof AppInboxRoute
   '/app/my-issues': typeof AppMyIssuesRoute
   '/app/settings': typeof AppSettingsRoute
+  '/app/whiteboards': typeof AppWhiteboardsRoute
   '/app': typeof AppIndexRoute
   '/app/project/$key': typeof AppProjectKeyRouteWithChildren
   '/app/project/$key/board': typeof AppProjectKeyBoardRoute
@@ -129,6 +137,7 @@ export interface FileRoutesById {
   '/app/inbox': typeof AppInboxRoute
   '/app/my-issues': typeof AppMyIssuesRoute
   '/app/settings': typeof AppSettingsRoute
+  '/app/whiteboards': typeof AppWhiteboardsRoute
   '/app/': typeof AppIndexRoute
   '/app/project/$key': typeof AppProjectKeyRouteWithChildren
   '/app/project/$key/board': typeof AppProjectKeyBoardRoute
@@ -146,6 +155,7 @@ export interface FileRouteTypes {
     | '/app/inbox'
     | '/app/my-issues'
     | '/app/settings'
+    | '/app/whiteboards'
     | '/app/'
     | '/app/project/$key'
     | '/app/project/$key/board'
@@ -160,6 +170,7 @@ export interface FileRouteTypes {
     | '/app/inbox'
     | '/app/my-issues'
     | '/app/settings'
+    | '/app/whiteboards'
     | '/app'
     | '/app/project/$key'
     | '/app/project/$key/board'
@@ -175,6 +186,7 @@ export interface FileRouteTypes {
     | '/app/inbox'
     | '/app/my-issues'
     | '/app/settings'
+    | '/app/whiteboards'
     | '/app/'
     | '/app/project/$key'
     | '/app/project/$key/board'
@@ -254,6 +266,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSettingsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/whiteboards': {
+      id: '/app/whiteboards'
+      path: '/whiteboards'
+      fullPath: '/app/whiteboards'
+      preLoaderRoute: typeof AppWhiteboardsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/project/$key': {
       id: '/app/project/$key'
       path: '/project/$key'
@@ -306,6 +325,7 @@ interface AppRouteChildren {
   AppInboxRoute: typeof AppInboxRoute
   AppMyIssuesRoute: typeof AppMyIssuesRoute
   AppSettingsRoute: typeof AppSettingsRoute
+  AppWhiteboardsRoute: typeof AppWhiteboardsRoute
   AppIndexRoute: typeof AppIndexRoute
   AppProjectKeyRoute: typeof AppProjectKeyRouteWithChildren
 }
@@ -315,6 +335,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppInboxRoute: AppInboxRoute,
   AppMyIssuesRoute: AppMyIssuesRoute,
   AppSettingsRoute: AppSettingsRoute,
+  AppWhiteboardsRoute: AppWhiteboardsRoute,
   AppIndexRoute: AppIndexRoute,
   AppProjectKeyRoute: AppProjectKeyRouteWithChildren,
 }

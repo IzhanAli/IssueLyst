@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Popover } from "@/components/ui/popover";
 import { useStore } from "@/lib/store/store";
 import { useUI } from "@/lib/store/ui";
+import { useWhiteboards } from "@/lib/store/whiteboards";
 import { useHydrated, useCurrentUser } from "@/lib/store/hooks";
 import { usePermissions } from "@/lib/auth/use-permissions";
 import { useTheme } from "@/components/theme/use-theme";
@@ -100,6 +101,7 @@ function ProfilePanel() {
   const me = useCurrentUser();
   const { theme, setTheme } = useTheme();
   const resetSeed = useStore((s) => s.resetSeed);
+  const resetWhiteboards = useWhiteboards((s) => s.resetSeed);
   const isAdmin = usePermissions().isAdmin;
   if (!me) return null;
   return (
@@ -132,12 +134,12 @@ function ProfilePanel() {
       </Card>
       <Card title="Prototype data">
         <div className="flex items-center justify-between gap-4">
-          <p className="text-[12.5px] text-text-muted">Reset all issues, comments and activity back to the seeded demo data.</p>
+          <p className="text-[12.5px] text-text-muted">Reset all issues, comments, activity and whiteboards back to the seeded demo data.</p>
           <Button
             size="sm"
             disabled={!isAdmin}
             title={isAdmin ? undefined : "Admins only"}
-            onClick={() => { resetSeed(); toast.success("Demo data reset"); }}
+            onClick={() => { resetSeed(); resetWhiteboards(); toast.success("Demo data reset"); }}
           >
             <RotateCcw size={13} /> Reset
           </Button>

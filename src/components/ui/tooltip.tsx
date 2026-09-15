@@ -38,7 +38,9 @@ export function Tooltip({
 
   const hover = useHover(context, { delay: { open: delay, close: 0 }, handleClose: safePolygon() });
   const focus = useFocus(context);
-  const dismiss = useDismiss(context);
+  // Closing on press keeps a tooltip from sitting on top of whatever the click
+  // just opened, e.g. the whiteboard's pen and text options above the toolbar.
+  const dismiss = useDismiss(context, { referencePress: true });
   const role = useRole(context, { role: "tooltip" });
   const { getReferenceProps, getFloatingProps } = useInteractions([hover, focus, dismiss, role]);
 
@@ -46,11 +48,16 @@ export function Tooltip({
 
   if (!isValidElement(children)) return children;
 
+  const childProps = (children as React.ReactElement<Record<string, unknown>>).props;
+
   return (
     <>
       {cloneElement(children as React.ReactElement<Record<string, unknown>>, {
         ref,
-        ...getReferenceProps(),
+        // pass the child's own props (onClick etc.) so Floating UI merges them
+        // with its handlers; closing on press adds an onClick that would
+        // otherwise replace the child's
+        ...getReferenceProps(childProps),
       })}
       {open && (
         <FloatingPortal>

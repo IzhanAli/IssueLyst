@@ -39,7 +39,7 @@ test.describe("shell navigation", () => {
 
   test("project tree switches between the list and board views", async ({ page }) => {
     await gotoList(page);
-    await sidebar(page).getByRole("link", { name: "Board" }).click();
+    await sidebar(page).getByRole("link", { name: "Board", exact: true }).click();
     await expect(page).toHaveURL(/\/board$/);
     await expect(page.getByRole("button", { name: "Add issue" }).first()).toBeVisible();
 
@@ -50,7 +50,7 @@ test.describe("shell navigation", () => {
 
   test("view tabs in the project header switch views", async ({ page }) => {
     await gotoList(page);
-    await page.getByRole("link", { name: "Board" }).last().click();
+    await page.getByRole("link", { name: "Board", exact: true }).last().click();
     await expect(page).toHaveURL(/\/board$/);
     await page.getByRole("link", { name: "List" }).last().click();
     await expect(page).toHaveURL(/\/list$/);

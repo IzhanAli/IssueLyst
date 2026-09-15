@@ -191,6 +191,97 @@ export interface Notification {
   createdAt: string;
 }
 
+/* ── Whiteboards ─────────────────────────────────────────────────── */
+
+/** Soft fills for stickies and shapes; each resolves to a theme token. */
+export type WhiteboardColor = "neutral" | "amber" | "blue" | "green" | "red" | "indigo";
+
+/** Strong colours for text and pen strokes; each resolves to a theme token. */
+export type InkColor = "default" | "gray" | "red" | "orange" | "green" | "blue";
+
+/** Small, medium or large: a text's font size or a pen stroke's width. */
+export type WhiteboardSize = "s" | "m" | "l";
+
+export interface InkStyle {
+  color: InkColor;
+  size: WhiteboardSize;
+}
+
+/** Positions and sizes are sheet pixels at 100% zoom. */
+interface WhiteboardObjectBase {
+  id: ID;
+  x: number;
+  y: number;
+  w: number;
+}
+
+export interface StickyObject extends WhiteboardObjectBase {
+  kind: "sticky";
+  /** minimum height; longer text grows the note */
+  h: number;
+  color: WhiteboardColor;
+  text: string;
+  authorId: ID;
+  createdAt: string;
+  /** the slight hand-placed tilt, in degrees */
+  rotation: number;
+}
+
+export interface TextObject extends WhiteboardObjectBase, InkStyle {
+  kind: "text";
+  weight: 400 | 700;
+  text: string;
+}
+
+/** What the Shape tool draws. */
+export type ShapeKind = "rect" | "ellipse";
+
+export interface ShapeObject extends WhiteboardObjectBase {
+  kind: "shape";
+  shape: ShapeKind;
+  h: number;
+  color: WhiteboardColor;
+}
+
+/** An outline ring drawn around something to call it out. Not one of the Shape tool's shapes. */
+export interface EllipseObject extends WhiteboardObjectBase {
+  kind: "ellipse";
+  h: number;
+}
+
+/** A captioned placeholder frame; real uploads arrive with file storage. */
+export interface ImageObject extends WhiteboardObjectBase {
+  kind: "image";
+  h: number;
+  caption: string;
+}
+
+export interface InkObject extends WhiteboardObjectBase, InkStyle {
+  kind: "ink";
+  h: number;
+  /** SVG path data, relative to (x, y) */
+  d: string;
+}
+
+export type WhiteboardObject =
+  | StickyObject
+  | TextObject
+  | ShapeObject
+  | EllipseObject
+  | ImageObject
+  | InkObject;
+
+export interface Whiteboard {
+  id: ID;
+  workspaceId: ID;
+  name: string;
+  /** paint order: later objects draw on top */
+  objects: WhiteboardObject[];
+  createdById: ID;
+  createdAt: string;
+  updatedAt: string;
+}
+
 /* ── Denormalized view models (built by selectors for the UI) ────── */
 
 export interface IssueView extends Issue {
