@@ -81,7 +81,7 @@ export const useUI = create<UIState>()(
       columnOrder: [],
       setColumnOrder: (ids) => set({ columnOrder: ids }),
 
-      claudeSurface: "terminal",
+      claudeSurface: "desktop",
       setClaudeSurface: (claudeSurface) => set({ claudeSurface }),
       claudeTarget: { repo: "", cwd: "" },
       setClaudeTarget: (patch) => set((s) => ({ claudeTarget: { ...s.claudeTarget, ...patch } })),
@@ -108,6 +108,12 @@ export const useUI = create<UIState>()(
     {
       name: "issuelyst.ui.v1",
       storage: createJSONStorage(() => localStorage),
+      // v1: the Claude app became the default surface; move saved sessions onto it once
+      version: 1,
+      migrate: (persisted, version) => {
+        const s = persisted as Partial<UIState>;
+        return version < 1 ? { ...s, claudeSurface: "desktop" } : s;
+      },
       partialize: (s) => ({
         sidebarCollapsed: s.sidebarCollapsed,
         favorites: s.favorites,

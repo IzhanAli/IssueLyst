@@ -35,7 +35,8 @@ export function SendToClaude({ issueId }: { issueId: string }) {
   const send = (to: ClaudeSurface) => {
     const text = prompt();
     openDeepLink(deepLink(to, text, target));
-    const where = to === "vscode" ? "VS Code" : `Claude Code · ${targetLabel(target)}`;
+    const where =
+      to === "vscode" ? "VS Code" : to === "desktop" ? "the Claude app" : `Claude Code · ${targetLabel(target)}`;
     toast.success(`Sent ${store.project.key}-${issue.number} to ${where}`, {
       label: "Copy prompt",
       onClick: () => copy(prompt(Infinity), "Prompt copied"),
@@ -57,7 +58,7 @@ export function SendToClaude({ issueId }: { issueId: string }) {
           onClick={() => send(surface)}
           className="flex h-7 items-center gap-1.5 rounded-l-md pl-2 pr-2 text-[12px] font-medium text-text transition-colors hover:bg-surface-hover"
         >
-          <ClaudeMark size={13} className="text-primary" />
+          <ClaudeMark size={13} />
           Claude Code
         </button>
       </Tooltip>
@@ -67,6 +68,11 @@ export function SendToClaude({ issueId }: { issueId: string }) {
         className="w-60 p-1"
         render={({ close }) => (
           <div>
+            <button onClick={() => { send("desktop"); close(); }} className={item}>
+              <ClaudeMark size={14} />
+              <span className="flex-1">Open in Claude app</span>
+              {surface === "desktop" && <Dot />}
+            </button>
             <button onClick={() => { send("terminal"); close(); }} className={item}>
               <SquareTerminal size={14} className="text-text-muted" />
               <span className="flex-1">Open in terminal</span>

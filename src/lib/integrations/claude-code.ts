@@ -3,6 +3,7 @@
  * prompt and hands it to a local Claude Code session through the deep-link
  * handlers Claude Code registers with the OS:
  *
+ *   desktop  → claude://code/new?folder=…&q=<prompt>        (Claude app, Code tab)
  *   terminal → claude-cli://open?repo=…|cwd=…&q=<prompt>   (q caps at 5,000 chars)
  *   VS Code  → vscode://anthropic.claude-code/open?prompt=<prompt>
  *
@@ -18,7 +19,7 @@ import { formatBytes, isOverdue } from "@/lib/utils/format";
 /** Hard limit on the deep link's `q` parameter (decoded characters). */
 export const MAX_PROMPT_CHARS = 5000;
 
-export type ClaudeSurface = "terminal" | "vscode";
+export type ClaudeSurface = "desktop" | "terminal" | "vscode";
 
 /** Where the local session should start.  Empty = Claude Code's home directory. */
 export interface ClaudeTarget {
@@ -248,12 +249,25 @@ function encodePath(value: string): string {
   return encodeURIComponent(value).replace(/%2F/g, "/");
 }
 
+/**
+ * `claude://code/new?…` — opens a new Claude Code session in the Claude desktop
+ * app.  The app takes a `folder` path but has no `repo` lookup, so only `cwd`
+ * carries over; with no folder it asks which one to use.
+ */
+export function desktopLink(prompt: string, target: ClaudeTarget = EMPTY_TARGET): string {
+  const params: string[] = [];
+  if (target.cwd.trim()) params.push(`folder=${encodePath(target.cwd.trim())}`);
+  params.push(`q=${encodeURIComponent(prompt)}`);
+  return `claude://code/new?${params.join("&")}`;
+}
+
 /** `vscode://anthropic.claude-code/open?…` — opens a Claude Code tab in VS Code. */
 export function vscodeLink(prompt: string): string {
   return `vscode://anthropic.claude-code/open?prompt=${encodeURIComponent(prompt)}`;
 }
 
 export function deepLink(surface: ClaudeSurface, prompt: string, target: ClaudeTarget): string {
+  if (surface === "desktop") return desktopLink(prompt, target);
   return surface === "vscode" ? vscodeLink(prompt) : terminalLink(prompt, target);
 }
 
