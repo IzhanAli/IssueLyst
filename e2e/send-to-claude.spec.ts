@@ -12,8 +12,8 @@ import {
 import type { Page } from "@playwright/test";
 
 /**
- * The "Claude Code" button hands a `claude-cli://` (or `vscode://`) URL to the
- * OS by clicking a synthesized anchor.  Every test stubs that click so the run
+ * The "Claude Code" button hands a `claude://` (or `claude-cli://`, `vscode://`)
+ * URL to the OS by clicking a synthesized anchor.  Every test stubs that click so the run
  * records the URL instead of launching a real Claude Code session.
  */
 async function captureDeepLinks(page: Page) {
@@ -29,7 +29,7 @@ function deepLinks(page: Page): Promise<string[]> {
   return page.evaluate(() => (window as unknown as { __deepLinks: string[] }).__deepLinks);
 }
 
-/** Decoded `q` (terminal) or `prompt` (VS Code) payload of the last link. */
+/** Decoded `q` (Claude app, terminal) or `prompt` (VS Code) payload of the last link. */
 async function lastPrompt(page: Page): Promise<string> {
   const links = await deepLinks(page);
   const url = new URL(links[links.length - 1].replace(/^[a-z-]+:\/\//, "https://"));
@@ -41,14 +41,14 @@ test.describe("send to Claude Code", () => {
     await captureDeepLinks(page);
   });
 
-  test("opens a terminal session carrying the issue and all of its fields", async ({ page }) => {
+  test("opens the Claude app carrying the issue and all of its fields", async ({ page }) => {
     await gotoList(page);
     await openIssueFromList(page, ISSUES.auth.title);
 
     await drawer(page).getByRole("button", { name: "Claude Code", exact: true }).click();
 
     expect(await deepLinks(page)).toHaveLength(1);
-    expect((await deepLinks(page))[0]).toMatch(/^claude-cli:\/\/open\?q=/);
+    expect((await deepLinks(page))[0]).toMatch(/^claude:\/\/code\/new\?q=/);
 
     const prompt = await lastPrompt(page);
     expect(prompt).toContain(`ENG-${ISSUES.auth.key}`);
@@ -71,7 +71,18 @@ test.describe("send to Claude Code", () => {
     // the handler caps `q` at 5,000 characters
     expect(prompt.length).toBeLessThanOrEqual(5000);
 
-    await expect(toast(page, `Sent ENG-${ISSUES.auth.key} to Claude Code`)).toBeVisible();
+    await expect(toast(page, `Sent ENG-${ISSUES.auth.key} to the Claude app`)).toBeVisible();
+  });
+
+  test("offers a terminal session from the split menu", async ({ page }) => {
+    await page.goto(ROUTES.issue(ISSUES.token.key));
+
+    await page.getByRole("button", { name: "Claude Code options" }).click();
+    await menu(page).getByRole("button", { name: "Open in terminal" }).click();
+
+    expect((await deepLinks(page))[0]).toMatch(/^claude-cli:\/\/open\?q=/);
+    expect(await lastPrompt(page)).toContain(ISSUES.token.title);
+    await expect(toast(page, "to Claude Code")).toBeVisible();
   });
 
   test("offers VS Code from the split menu", async ({ page }) => {
@@ -103,11 +114,17 @@ test.describe("send to Claude Code", () => {
     await page.goto(ROUTES.settings);
     await page.getByRole("button", { name: "Claude Code", exact: true }).click();
     await page.getByPlaceholder("acme/payments").fill("meridian/web");
+    await page.getByPlaceholder("/Users/you/code/payments").fill("/Users/you/code/web");
 
     await page.goto(ROUTES.issue(ISSUES.token.key));
+    // the Claude app takes the working directory as `folder`
     await page.getByRole("button", { name: "Claude Code", exact: true }).click();
+    expect((await deepLinks(page))[0]).toContain("code/new?folder=/Users/you/code/web&q=");
 
-    expect((await deepLinks(page))[0]).toContain("open?repo=meridian/web&q=");
-    await expect(toast(page, "Claude Code · meridian/web")).toBeVisible();
+    // the terminal handler prefers `cwd` over `repo`
+    await page.getByRole("button", { name: "Claude Code options" }).click();
+    await menu(page).getByRole("button", { name: "Open in terminal" }).click();
+    expect((await deepLinks(page))[1]).toContain("open?cwd=/Users/you/code/web&q=");
+    await expect(toast(page, "Claude Code · /Users/you/code/web")).toBeVisible();
   });
 });

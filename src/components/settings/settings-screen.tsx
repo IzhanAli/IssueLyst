@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { User, Users, Tag, CircleDot, Sun, Moon, Trash2, Plus, RotateCcw, SlidersHorizontal, GripVertical, Lock, Wand2, SquareTerminal, Code2 } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
+import { ClaudeLogo, ClaudeMark } from "@/components/brand/claude-mark";
 import { StatusIcon } from "@/components/issues/status-icon";
 import { Button } from "@/components/ui/button";
 import { Popover } from "@/components/ui/popover";
@@ -32,7 +33,7 @@ export function SettingsScreen() {
     { id: "fields", label: "Fields", icon: <SlidersHorizontal size={15} /> },
     { id: "labels", label: "Labels", icon: <Tag size={15} /> },
     { id: "statuses", label: "Statuses", icon: <CircleDot size={15} /> },
-    { id: "claude", label: "Claude Code", icon: <SquareTerminal size={15} /> },
+    { id: "claude", label: "Claude Code", icon: <ClaudeMark size={15} /> },
   ];
 
   return (
@@ -156,6 +157,7 @@ function ClaudePanel() {
   const setTarget = useUI((s) => s.setClaudeTarget);
 
   const surfaces = [
+    { id: "desktop" as const, label: "Claude app", hint: "claude://", icon: <ClaudeMark size={14} /> },
     { id: "terminal" as const, label: "Terminal", hint: "claude-cli://", icon: <SquareTerminal size={14} /> },
     { id: "vscode" as const, label: "VS Code tab", hint: "vscode://", icon: <Code2 size={14} /> },
   ];
@@ -163,6 +165,7 @@ function ClaudePanel() {
   return (
     <>
       <Card title="Send to Claude Code">
+        <ClaudeLogo height={22} className="mb-3 text-text" />
         <p className="text-[12.5px] leading-relaxed text-text-muted">
           Every issue header has a <span className="font-medium text-text">Claude Code</span> button that opens a local
           session with the issue and all of its fields pre-filled as the prompt. Claude Code registers the link handler
@@ -210,8 +213,8 @@ function ClaudePanel() {
         </div>
 
         <p className="mt-3 text-[11.5px] text-text-subtle">
-          Leave both empty and the session opens in your home directory. Only the terminal handler uses these; a VS Code
-          tab opens in whatever window is focused.
+          Leave both empty and the session opens in your home directory. The Claude app only uses the working directory
+          (it asks for a folder otherwise); a VS Code tab opens in whatever window is focused.
         </p>
       </Card>
     </>
