@@ -90,11 +90,6 @@ export function IssueDetail({
               </button>
             </Tooltip>
           )}
-          <Tooltip content="Copy link">
-            <button onClick={copyLink} className="rounded-md p-1.5 text-text-subtle hover:bg-surface-hover hover:text-text" aria-label="Copy link">
-              <Link2 size={15} />
-            </button>
-          </Tooltip>
           <Popover
             placement="bottom-end"
             className="w-44 p-1"
