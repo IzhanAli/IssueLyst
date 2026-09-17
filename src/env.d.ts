@@ -7,6 +7,8 @@ interface ImportMetaEnv {
   readonly VITE_GOOGLE_API_KEY?: string;
   /** Optional Cloud project number, for per-app Drive file scoping. */
   readonly VITE_GOOGLE_APP_ID?: string;
+  /** POST target for the landing page's "Request access" form. */
+  readonly VITE_REQUEST_ACCESS_ENDPOINT?: string;
 }
 
 interface ImportMeta {

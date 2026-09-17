@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { LogoMark } from "@/components/brand/logo";
 import { Link } from "@tanstack/react-router";
-import { requestAccess } from "@/lib/server/request-access";
+import { requestAccess } from "@/lib/request-access";
 import { Shot } from "./shot";
 import { motion, useReducedMotion, type Variants } from "motion/react";
 import { ArrowRight, Check } from "lucide-react";
@@ -75,7 +75,7 @@ function CtaForm({ id }: { id: string }) {
           const email = String(new FormData(e.currentTarget).get("email") ?? "");
           setState({ kind: "sending" });
           try {
-            await requestAccess({ data: { email } });
+            await requestAccess({ email });
             setState({ kind: "sent", message: `Thanks — we'll be in touch at ${email}.` });
           } catch (err) {
             setState({
