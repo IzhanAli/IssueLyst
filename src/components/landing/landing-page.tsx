@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { LogoMark } from "@/components/brand/logo";
+import { Link } from "@tanstack/react-router";
+import { requestAccess } from "@/lib/server/request-access";
 import { Shot } from "./shot";
 import { motion, useReducedMotion, type Variants } from "motion/react";
 import { ArrowRight, Check } from "lucide-react";
@@ -48,17 +50,41 @@ const HERO_MINIS = [
   { id: "122", name: "Drag handle hard to discover", color: "var(--violet)", meta: "Review" },
 ];
 
+type CtaState =
+  | { kind: "idle" | "sending" }
+  | { kind: "sent" | "error"; message: string };
+
 function CtaForm({ id }: { id: string }) {
-  const navigate = useNavigate();
+  const [state, setState] = useState<CtaState>({ kind: "idle" });
+
+  if (state.kind === "sent") {
+    return (
+      <p className={`${s.ctaStatus} ${s.ctaStatusOk}`} role="status">
+        <Check size={14} strokeWidth={2.5} />
+        {state.message}
+      </p>
+    );
+  }
+
   return (
-    <form
-      className={s.ctaForm}
-      onSubmit={(e) => {
-        e.preventDefault();
-        navigate({ to: "/app" });
-      }}
-    >
-      <div className={s.ctaInputWrap}>
+    <div className={s.ctaBlock}>
+      <form
+        className={s.ctaForm}
+        onSubmit={async (e) => {
+          e.preventDefault();
+          const email = String(new FormData(e.currentTarget).get("email") ?? "");
+          setState({ kind: "sending" });
+          try {
+            await requestAccess({ data: { email } });
+            setState({ kind: "sent", message: `Thanks — we'll be in touch at ${email}.` });
+          } catch (err) {
+            setState({
+              kind: "error",
+              message: err instanceof Error ? err.message : "Something went wrong. Try again.",
+            });
+          }
+        }}
+      >
         <input
           className={s.ctaInput}
           type="email"
@@ -66,14 +92,35 @@ function CtaForm({ id }: { id: string }) {
           aria-label="Work email"
           placeholder="you@team.dev"
           autoComplete="email"
+          required
           id={id}
         />
-      </div>
-      <button className={s.ctaBtn} type="submit">
-        Start tracking issues
-        <ArrowRight size={16} strokeWidth={2.2} />
-      </button>
-    </form>
+        <button className={s.ctaBtn} type="submit" disabled={state.kind === "sending"}>
+          {state.kind === "sending" ? "Sending…" : "Request access"}
+          <ArrowRight size={16} strokeWidth={2.2} />
+        </button>
+      </form>
+      {state.kind === "error" && (
+        <p className={`${s.ctaStatus} ${s.ctaStatusErr}`} role="alert">
+          {state.message}
+        </p>
+      )}
+    </div>
+  );
+}
+
+function CtaGroup({ id }: { id: string }) {
+  return (
+    <div className={s.ctaGroup}>
+      <CtaForm id={id} />
+      <p className={s.ctaAlt}>
+        or{" "}
+        <Link className={s.ctaAltLink} to="/app">
+          view the live demo
+          <ArrowRight size={13} strokeWidth={2.2} />
+        </Link>
+      </p>
+    </div>
   );
 }
 
@@ -198,7 +245,7 @@ const TEAM = [
   { initials: "MC", name: "Marcus Cole", work: "2 active", bars: 2, color: "var(--red)" },
 ];
 
-const FADE_OUT = ["Projects", "Docs", "Goals", "Whiteboards", "CRM", "Automations", "Reports"];
+const FADE_OUT = ["Projects", "Docs", "Goals", "CRM", "Automations", "Reports"];
 
 const LADDER = [
   { name: "Team", count: "1 team" },
@@ -214,57 +261,55 @@ export function LandingPage() {
     <div className={s.root}>
       {/* ════════ HERO ════════ */}
       <header className={s.wrap}>
+        <nav className={s.nav}>
+          <a className={s.navBrand} href="/">
+            <LogoMark size={26} />
+            <span>IssueLyst</span>
+          </a>
+          <div className={s.navLinks}>
+            <a className={s.navLink} href="#how">How it works</a>
+            <a className={s.navLink} href="#product">Product</a>
+            <Link className={s.navDemo} to="/app">
+              View demo
+              <ArrowRight size={14} strokeWidth={2.2} />
+            </Link>
+          </div>
+        </nav>
+
         <div className={s.hero}>
-          <div className={s.heroBrand}>
-            <span className={s.heroBrandMark}>P</span>
-            <span className={s.heroBrandName}>IssueLyst</span>
+          <motion.h1
+            className={`${s.display} ${s.heroHeadline}`}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          >
+            Every issue.<br />
+            <span className={s.heroAccent}>One clear flow.</span>
+          </motion.h1>
+
+          <motion.p
+            className={s.heroSub}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <span className={s.heroSubLead}>Made for teams who want to move fast.</span>
+            Capture, prioritize, discuss, and ship issues in one focused workspace
+            with native AI built in&nbsp;— without the noise of everything else.
+          </motion.p>
+
+          <motion.div
+            className={s.heroActions}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.22, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <CtaGroup id="hero-email" />
+          </motion.div>
+
+          <div className={s.heroVisual}>
+            <HeroFlow />
           </div>
-
-          <div className={s.heroLeft}>
-            <motion.span
-              className={`${s.kicker} ${s.kickerDot}`}
-              style={{ color: "var(--blue)" }}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5 }}
-            >
-              <span style={{ color: "var(--ink-3)" }}>Reported → Resolved</span>
-            </motion.span>
-
-            <motion.h1
-              className={`${s.display} ${s.heroHeadline}`}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-            >
-              Every issue.<br />
-              <span className={s.accent}>One clear flow.</span>
-            </motion.h1>
-
-            <motion.p
-              className={s.heroSub}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
-            >
-              A focused workspace for engineering teams to capture, prioritize,
-              discuss, and ship issues — without the noise of everything else.
-            </motion.p>
-
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.22, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <CtaForm id="hero-email" />
-              <div className={s.heroMetaRow} style={{ marginTop: 18 }}>
-                <a className={s.secondaryLink} href="#how">See how it works</a>
-                <span>No setup · demo data loaded</span>
-              </div>
-            </motion.div>
-          </div>
-
-          <HeroFlow />
         </div>
       </header>
 
@@ -404,6 +449,56 @@ export function LandingPage() {
                 <Shot className={s.shotImg} src="/landing/app-board.png" alt="IssueLyst kanban board across workflow columns" width={1440} height={900} />
               </div>
             </Reveal>
+          </div>
+        </div>
+      </section>
+
+      {/* ════════ WHITEBOARDS ════════ */}
+      <section className={s.section} id="whiteboards">
+        <div className={s.wrap}>
+          <div className={s.sectionHead}>
+            <Reveal><span className={`${s.kicker} ${s.kickerDot}`} style={{ color: "var(--blue)" }}><span style={{ color: "var(--ink-3)" }}>Before it&rsquo;s an issue</span></span></Reveal>
+            <Reveal delay={0.05}>
+              <h2 className={s.display} style={{ fontSize: "clamp(2.1rem, 4.4vw, 3.4rem)" }}>
+                Plan on the board.<br />Ship it as issues.
+              </h2>
+            </Reveal>
+            <Reveal delay={0.1}>
+              <p className={s.growSub}>
+                Whiteboards for the planning, triage and retros that happen
+                before a ticket exists — live in the same workspace as the work.
+              </p>
+            </Reveal>
+          </div>
+
+          <Reveal>
+            <div className={s.shotWrap}>
+              <div className={s.shotBar}>
+                <span /><span /><span />
+                <span className={s.shotUrl}>issuelyst.app/engineering/whiteboards?board=wb_q3</span>
+              </div>
+              <Shot
+                className={s.shotImg}
+                src="/landing/app-whiteboard.png"
+                alt="IssueLyst whiteboard — sticky notes, ink and shapes on a live planning board"
+                width={2000}
+                height={1193}
+              />
+            </div>
+          </Reveal>
+
+          <div className={s.annots}>
+            {[
+              { n: "01", t: "A real canvas", b: "Sticky notes, shapes, freehand ink, text and images — not a single embedded doc." },
+              { n: "02", t: "One board per conversation", b: "A planning session, a retro, a triage sweep — as many boards as the work needs, each a click away." },
+              { n: "03", t: "Never a separate app", b: "Share a link the same way you'd share an issue, and see who else is looking at it right now." },
+            ].map((a, i) => (
+              <Reveal key={a.n} delay={i * 0.08} className={s.annot}>
+                <span className={s.annotNum}>{a.n}</span>
+                <span className={s.annotTitle}>{a.t}</span>
+                <span className={s.annotBody}>{a.b}</span>
+              </Reveal>
+            ))}
           </div>
         </div>
       </section>
@@ -582,9 +677,8 @@ export function LandingPage() {
             <h2 className={`${s.display} ${s.finalHead}`}>Ready to clear the queue?</h2>
           </Reveal>
           <Reveal delay={0.08}>
-            <CtaForm id="final-email" />
+            <CtaGroup id="final-email" />
           </Reveal>
-          <span className={s.finalNote}>Every issue. One clear flow.</span>
         </div>
       </section>
 
@@ -594,7 +688,7 @@ export function LandingPage() {
           <div className={s.footLinks}>
             <a href="#how">How it works</a>
             <a href="#product">Product</a>
-            <a href="/app">Open app</a>
+            <a href="/app">View demo</a>
           </div>
         </div>
       </footer>
