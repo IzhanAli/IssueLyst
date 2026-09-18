@@ -146,7 +146,7 @@ export const attachments: Attachment[] = [
   { id: "at_1", issueId: "iss_142", filename: "redirect-loop.har", mimeType: "application/json", size: 184_320, url: "#", source: "local", createdById: "u_ahmed", createdAt: ago(2 * DAY) },
   { id: "at_2", issueId: "iss_134", filename: "android-crash-stacktrace.txt", mimeType: "text/plain", size: 12_400, url: "#", source: "local", createdById: "u_yuki", createdAt: ago(140) },
   { id: "at_3", issueId: "iss_140", filename: "scroll-jump.gif", mimeType: "image/gif", size: 2_310_000, url: "#", source: "local", createdById: "u_lena", createdAt: ago(95) },
-  { id: "at_4", issueId: "iss_142", filename: "Auth flow — sequence diagram", mimeType: "application/vnd.google-apps.document", size: 0, url: "https://drive.google.com/file/d/demo-auth-flow/view", source: "drive", externalId: "demo-auth-flow", createdById: "u_izhan", createdAt: ago(70) },
+  { id: "at_4", issueId: "iss_142", filename: "auth-flow-sequence.png", mimeType: "image/png", size: 428_900, url: "https://res.cloudinary.com/demo/image/upload/v1/issuelyst/auth-flow-sequence.png", source: "cloudinary", externalId: "issuelyst/auth-flow-sequence", createdById: "u_izhan", createdAt: ago(70) },
 ];
 
 /* ── Notifications for the default user ──────────────────────────── */

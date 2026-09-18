@@ -9,19 +9,18 @@ import {
   gotoList,
   openIssueFromList,
   test,
-  toast,
 } from "./helpers";
 
 test.describe("attachments", () => {
-  test("lists the seeded local and Drive attachments", async ({ page }) => {
+  test("lists the seeded local and hosted attachments", async ({ page }) => {
     await gotoList(page);
     await openIssueFromList(page, ISSUES.auth.title);
     const rail = drawer(page).getByRole("complementary");
 
     await expect(rail.getByText("redirect-loop.har")).toBeVisible();
     await expect(rail.getByText("180.0 KB")).toBeVisible();
-    await expect(rail.getByText("Auth flow — sequence diagram")).toBeVisible();
-    await expect(rail.getByText(/Google Drive · Doc/)).toBeVisible();
+    await expect(rail.getByText("auth-flow-sequence.png")).toBeVisible();
+    await expect(rail.getByText(/418\.8 KB · Hosted/)).toBeVisible();
   });
 
   test("uploads a local file and removes it again", async ({ page }) => {
@@ -39,17 +38,14 @@ test.describe("attachments", () => {
     await expect(rail.getByText(path.basename(file))).toHaveCount(0);
   });
 
-  test("attaches a demo Drive file when Drive is not configured", async ({ page }) => {
+  test("says uploads are tab-only while Cloudinary is unconfigured", async ({ page }) => {
     await gotoList(page);
     await openIssueFromList(page, ISSUES.shortcut.title);
     const rail = drawer(page).getByRole("complementary");
 
-    await rail.getByRole("button", { name: /Drive/ }).click();
-    await expect(page.getByText(/Live Drive picker activates once/)).toBeVisible();
-    await page.getByRole("menu").getByRole("button", { name: /Attach|demo/i }).first().click();
-
-    await expect(toast(page, /Attached 1 file from Drive/)).toBeVisible();
-    await expect(rail.getByText(/Google Drive ·/)).toBeVisible();
+    // The suite runs without credentials, so the fallback notice is the
+    // honest state — and no upload leaves the browser during the run.
+    await expect(rail.getByText(/Files stay in this tab until/)).toBeVisible();
   });
 });
 

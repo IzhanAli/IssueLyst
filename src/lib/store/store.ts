@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
+import { persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 import { nanoid } from "nanoid";
 import { can, canEditIssue, canDeleteIssue } from "@/lib/auth/permissions";
@@ -7,12 +7,14 @@ import type {
   Activity,
   ActivityEvent,
   Attachment,
+  AttachmentSource,
   Comment,
   FieldDef,
   FieldOption,
   FieldType,
   FieldValue,
   Issue,
+  JsonValue,
   Label,
   Notification,
   Priority,
@@ -22,6 +24,7 @@ import type {
   Workspace,
 } from "@/lib/types";
 import * as seed from "@/lib/data/seed";
+import { persistStorage, PERSIST_VERSION } from "./neon-storage";
 
 const nowIso = () => new Date().toISOString();
 
@@ -83,7 +86,7 @@ export interface EntityState {
 
   addAttachment: (
     issueId: string,
-    file: { name: string; type: string; size: number; url: string; source?: "local" | "drive"; externalId?: string; iconUrl?: string },
+    file: { name: string; type: string; size: number; url: string; source?: AttachmentSource; externalId?: string; iconUrl?: string },
   ) => void;
   removeAttachment: (attachmentId: string) => void;
 
@@ -142,7 +145,7 @@ export const useStore = create<EntityState>()(
         draft: EntityState,
         issueId: string,
         event: ActivityEvent,
-        meta: Record<string, unknown> = {},
+        meta: Record<string, JsonValue> = {},
       ) => {
         draft.activities.push({
           id: `ac_${nanoid(8)}`,
@@ -488,8 +491,10 @@ export const useStore = create<EntityState>()(
     }),
     {
       name: "issuelyst.data.v4",
-      version: 4,
-      storage: createJSONStorage(() => localStorage),
+      version: PERSIST_VERSION,
+      // Neon when DATABASE_URL is set, localStorage otherwise — the store
+      // itself does not know or care which.
+      storage: persistStorage,
       partialize: (s) => ({
         workspace: s.workspace,
         project: s.project,

@@ -11,6 +11,8 @@ export default defineConfig([
     ".output/**",
     ".nitro/**",
     "dist/**",
+    // Playwright's HTML report and traces — generated, and gitignored.
+    "e2e/.artifacts/**",
     "src/routeTree.gen.ts",
   ]),
   ...tseslint.configs.recommended,

@@ -6,6 +6,12 @@
 
 export type ID = string;
 
+/**
+ * Anything that survives a JSON round-trip. Activity meta is persisted and
+ * crosses the server-function boundary, so `unknown` would be a lie there.
+ */
+export type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
+
 export type Role = "admin" | "member";
 
 export interface User {
@@ -128,7 +134,7 @@ export interface Comment {
   updatedAt: string | null;
 }
 
-export type AttachmentSource = "local" | "drive";
+export type AttachmentSource = "local" | "cloudinary";
 
 export interface Attachment {
   id: ID;
@@ -136,11 +142,11 @@ export interface Attachment {
   filename: string;
   mimeType: string;
   size: number;
-  /** object URL (local) or a shareable link (drive) */
+  /** object URL (local) or a permanent hosted URL (cloudinary) */
   url: string;
   /** where the file lives; drives the icon and open behavior */
   source: AttachmentSource;
-  /** provider file id (e.g. Google Drive fileId), when source !== "local" */
+  /** provider file id (e.g. Cloudinary public_id), when source !== "local" */
   externalId?: string;
   /** small provider icon url, when available */
   iconUrl?: string;
@@ -168,7 +174,7 @@ export interface Activity {
   userId: ID;
   event: ActivityEvent;
   /** event-specific payload, e.g. { from, to } */
-  meta: Record<string, unknown>;
+  meta: Record<string, JsonValue>;
   createdAt: string;
 }
 

@@ -159,8 +159,9 @@ function attachmentsSection(issue: Issue, store: EntityState): string | null {
     `Attachments (${files.length})`,
     files
       .map((a) => {
-        const where = a.source === "drive" ? "Google Drive" : "uploaded";
-        const link = a.source === "drive" ? ` — ${a.url}` : "";
+        const hosted = a.source === "cloudinary";
+        const where = hosted ? "hosted" : "uploaded";
+        const link = hosted ? ` — ${a.url}` : "";
         return `- ${a.filename} (${a.mimeType || "file"}, ${formatBytes(a.size)}, ${where})${link}`;
       })
       .join("\n"),

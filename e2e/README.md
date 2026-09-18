@@ -50,7 +50,7 @@ Reports and traces land in `e2e/.artifacts/` (git-ignored).
 | `permissions.spec.ts` | member vs admin capabilities |
 | `onboarding.spec.ts` | the five-step wizard and what launching applies |
 | `export-csv.spec.ts` | real downloads: filenames, scope, quoting |
-| `attachments-comments.spec.ts` | uploads, Drive demo picker, comment edit/delete/ownership |
+| `attachments-comments.spec.ts` | uploads, Cloudinary fallback notice, comment edit/delete/ownership |
 | `activity-notifications.spec.ts` | activity feed entries, who gets notified, unread counts |
 | `persistence.spec.ts` | reloads, issue numbering, UI preferences, storage keys |
 | `data-integrity.spec.ts` | cascading deletes, closedAt, counts that must agree |

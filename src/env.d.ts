@@ -1,12 +1,13 @@
 /// <reference types="vite/client" />
 
+/** True when DATABASE_URL was set at build time — see vite.config.ts. */
+declare const __DB_CONFIGURED__: boolean;
+
 interface ImportMetaEnv {
-  /** Google OAuth 2.0 web client id — enables the real Drive picker. */
-  readonly VITE_GOOGLE_CLIENT_ID?: string;
-  /** Browser API key with the Picker API enabled. */
-  readonly VITE_GOOGLE_API_KEY?: string;
-  /** Optional Cloud project number, for per-app Drive file scoping. */
-  readonly VITE_GOOGLE_APP_ID?: string;
+  /** Cloudinary cloud name — with the preset below, enables hosted uploads. */
+  readonly VITE_CLOUDINARY_CLOUD_NAME?: string;
+  /** An *unsigned* Cloudinary upload preset; public by design. */
+  readonly VITE_CLOUDINARY_UPLOAD_PRESET?: string;
   /** POST target for the landing page's "Request access" form. */
   readonly VITE_REQUEST_ACCESS_ENDPOINT?: string;
 }
