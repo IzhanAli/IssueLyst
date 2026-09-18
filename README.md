@@ -3,8 +3,8 @@
 A focused, desktop-grade issue tracker for engineering teams, inspired by the
 interaction quality of ClickUp/Linear but with its own visual identity. Built
 frontend-first as a polished, fully interactive prototype whose data layer is
-deliberately isolated behind a clean seam, so it can be swapped for a real
-Neon/Postgres backend without touching the UI.
+isolated behind a clean seam — which is how it now runs on either
+`localStorage` or a real Neon/Postgres backend without the UI knowing.
 
 This is the TanStack Start port of `projex-app`. Same product and components;
 the router, the build and the URL-state layer are different. See `AGENTS.md`
@@ -16,6 +16,7 @@ search-param codec is customised).
 - **TanStack Start v1** (TanStack Router, file-based routes, Vite 8) · **React 19** · **TypeScript**
 - **Tailwind CSS v4** with a semantic design-token system (light + dark)
 - **Zustand** (+ immer, persist) — optimistic client store, seeded with demo data
+- **Drizzle + Neon Postgres** — optional; unset `DATABASE_URL` keeps it local
 - **Floating UI** — popovers, menus, tooltips, dialogs
 - **@dnd-kit** — board drag-and-drop
 - **Motion** — subtle drawer / reorder transitions
@@ -48,7 +49,7 @@ Data persists in the browser (localStorage). Reset it any time from
   persisted in the URL
 - **My Issues**, **Inbox** (assignments, mentions, status, comments), **Home**
 - **CSV export** — from the list/My Issues header or the command palette
-- **Google Drive attachments** — see below
+- **File attachments** — drag-and-drop uploads hosted on Cloudinary — see below
 - **Dark mode** — architecturally complete, follows system or an explicit toggle
 
 ### Keyboard
@@ -56,18 +57,22 @@ Data persists in the browser (localStorage). Reset it any time from
 `C` new issue · `⌘K` / `/` search · `Esc` close · `Enter` open row ·
 `↑`/`↓` (`j`/`k`) move · `x` select row · `[` toggle sidebar
 
-## Google Drive attachments
+## File attachments
 
-Issues can attach files from Google Drive via the Google Picker — entirely
-client-side, no backend. Copy `.env.local.example` to `.env.local` and set:
+Issues take files by drag-and-drop or the **Upload** button. Uploads go
+straight from the browser to Cloudinary through an *unsigned* upload preset —
+entirely client-side, no backend, no API secret in the bundle. Copy
+`.env.local.example` to `.env.local` and set:
 
 ```
-VITE_GOOGLE_CLIENT_ID=...
-VITE_GOOGLE_API_KEY=...
+VITE_CLOUDINARY_CLOUD_NAME=...
+VITE_CLOUDINARY_UPLOAD_PRESET=...
 ```
 
-Until those are set, the **Drive** button offers a demo attachment so the flow
-is fully usable. Setup steps are in `.env.local.example`.
+Until those are set, uploads fall back to an in-tab object URL so the flow
+stays usable — but those attachments do not survive a reload. Because the
+preset is public, cap its allowed formats and max file size in the Cloudinary
+console. Full setup steps are in `.env.local.example`.
 
 ## MCP server
 
@@ -77,22 +82,69 @@ clients (list/create/update/search issues, comments, CSV export). See
 
 ## Architecture & SaaS readiness
 
-The domain model (`src/lib/types.ts`) mirrors the intended relational schema:
+The domain model (`src/lib/types.ts`) and the Drizzle schema
+(`src/lib/db/schema.ts`) are the same shape:
 
 ```
 User → Workspace → Project → Issue → { Comment, Attachment, Activity }
                                     ↘ Status, Label, Notification
 ```
 
-Nothing is hardcoded to a single project. The store exposes async-shaped
-actions behind a seam (`src/lib/store`), so replacing the seeded local store
-with a Drizzle + Neon repository is a data-layer change, not a UI rewrite.
+Nothing is hardcoded to a single project. The store exposes its actions behind
+a seam (`src/lib/store`), which is what let the seeded local store be replaced
+with a Drizzle + Neon repository as a data-layer change rather than a UI
+rewrite — no component or selector was touched.
 
-### Wiring Neon (next step)
+### Neon Postgres
 
-Set `DATABASE_URL` (see `.env.local.example`), then implement the repository
-against Drizzle + `@neondatabase/serverless`, run migrations, and swap the
-store's persistence. The component tree and selectors stay as-is.
+The Drizzle/Neon data layer is wired. It is **opt-in**: with `DATABASE_URL`
+unset the app runs entirely on `localStorage` exactly as before, so nothing
+here is required to work on the UI.
+
+```bash
+# .env.local → DATABASE_URL=postgres://…   (see .env.local.example)
+npm run db:migrate    # apply drizzle/ to the database
+npm run db:seed       # load the demo dataset — destructive, replaces all rows
+npm run dev
+```
+
+| Script | What it does |
+| --- | --- |
+| `db:generate` | regenerate SQL in `drizzle/` after editing the schema |
+| `db:migrate` | apply pending migrations |
+| `db:push` | shove the schema straight at the database (dev shortcut) |
+| `db:studio` | Drizzle Studio against your database |
+| `db:seed` | replace everything with the demo dataset |
+
+Which mode you get is decided when the bundle is built: `vite.config.ts` folds
+`Boolean(DATABASE_URL)` into a `__DB_CONFIGURED__` constant, so an unconfigured
+build drops the Neon adapter entirely rather than shipping it and asking the
+server at boot. Set `DATABASE_URL` before building, not only at runtime.
+
+How it fits together:
+
+```
+src/lib/db/schema.ts      13 tables, the relational form of src/lib/types.ts
+src/lib/db/repository.ts  rows ⇄ the shape the store already holds
+src/lib/db/server.ts      server functions — the only route from browser to DB
+src/lib/db/client.ts      Neon connection; throws if it ever reaches a bundle
+src/lib/store/neon-storage.ts  the Zustand `persist` adapter
+drizzle/                  generated migrations — commit them
+```
+
+The store's actions did not change. They are still synchronous and optimistic;
+only the `persist` storage moved, so the component tree and selectors are
+untouched — the seam the architecture was built around.
+
+Writes are debounced (700ms) and diffed per slice. immer gives every action a
+fresh reference for the slices it touched and the same reference for the rest,
+so editing one issue title sends the `issues` slice and nothing else.
+
+**Known limits.** Persistence is last-write-wins for a single session — two
+browsers editing at once will clobber each other. Moving from snapshot
+write-through to per-action mutations is the fix, and it wants real auth
+first (today's "session" is still a user id in `localStorage`). Whiteboards
+have a table and are seeded, but still load from their own local store.
 
 ## Project layout
 
@@ -105,9 +157,12 @@ src/
     project/           header, list/board screens, filters, export
     shell/ inbox/ home/ settings/
   lib/
+    db/                drizzle schema, repository, server functions
     store/             zustand store, selectors, URL query
     data/              seed data
-    integrations/      google drive picker
+    integrations/      cloudinary uploads
     utils/             csv, format, platform helpers
 mcp-server/            MCP server (separate package)
 ```
+
+Create the Neon project, put DATABASE_URL in .env.local (no VITE_ prefix), then npm run db:migrate && npm run db:seed.
