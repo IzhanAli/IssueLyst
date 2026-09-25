@@ -62,6 +62,8 @@ export interface EntityState {
   replaceStatuses: (statuses: Status[]) => void;
   replaceFields: (fields: FieldDef[]) => void;
   replaceLabels: (labels: Label[]) => void;
+  /** Stamps `project.setupCompletedAt`, which closes the first-run wizard gate. */
+  completeProjectSetup: () => void;
 
   /* dynamic fields */
   setIssueFieldValue: (issueId: string, fieldId: string, value: FieldValue) => void;
@@ -204,6 +206,10 @@ export const useStore = create<EntityState>()(
         replaceLabels: (labels) => set((s) => {
           if (!can(actorOf(s), "label.manage")) return;
           s.labels = labels;
+        }),
+        completeProjectSetup: () => set((s) => {
+          if (!can(actorOf(s), "workspace.manage")) return;
+          s.project.setupCompletedAt = new Date().toISOString();
         }),
 
         /* ── dynamic fields ─────────────────────────────────────── */

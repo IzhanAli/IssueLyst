@@ -18,8 +18,9 @@ import { toast } from "@/components/ui/toast";
 import type { FieldValue, Priority } from "@/lib/types";
 import { cn } from "@/lib/utils/cn";
 
+// Rounded-rect property buttons, never pills.
 const chip =
-  "inline-flex h-7 items-center gap-1.5 rounded-md border border-border bg-surface px-2 text-[12.5px] text-text-muted transition-colors hover:bg-surface-hover hover:text-text data-[state=open]:bg-surface-hover";
+  "inline-flex h-8 items-center gap-1.5 rounded-[9px] bg-surface-2 px-2.5 font-display text-[12.5px] font-semibold text-text-muted transition-[background-color,color,transform] duration-150 hover:bg-surface-hover hover:text-text active:scale-[0.97] data-[state=open]:bg-surface-active data-[state=open]:text-text";
 
 export function CreateIssueModal() {
   const open = useUI((s) => s.createOpen);
@@ -94,17 +95,17 @@ export function CreateIssueModal() {
 
   return (
     <Modal open={open} onClose={close} align="top" className="max-w-[620px]" labelledBy="create-issue-title">
-      <div className="flex items-center justify-between border-b border-border px-4 py-2.5">
-        <div className="flex items-center gap-2 text-[12px] text-text-muted">
-          <span className="rounded bg-surface-2 px-1.5 py-0.5 font-mono text-[11px] font-medium text-text">{projectName}</span>
-          <span className="text-text-subtle">New issue</span>
+      <div className="flex items-center justify-between px-5 pb-1 pt-4">
+        <div className="flex items-center gap-2 font-display text-[12.5px]">
+          <span className="rounded-[6px] bg-primary px-1.5 py-0.5 text-[11.5px] font-bold text-primary-fg">{projectName}</span>
+          <span className="font-semibold text-text-subtle">New issue</span>
         </div>
-        <button onClick={close} className="rounded-md p-1 text-text-subtle hover:bg-surface-hover hover:text-text" aria-label="Close">
-          <X size={16} />
+        <button onClick={close} className="rounded-[8px] p-1 text-text-subtle transition-colors hover:bg-surface-hover hover:text-text" aria-label="Close">
+          <X size={17} strokeWidth={2.25} />
         </button>
       </div>
 
-      <div className="px-4 pt-3.5">
+      <div className="px-5 pt-3">
         <textarea
           ref={titleRef}
           id="create-issue-title"
@@ -120,7 +121,7 @@ export function CreateIssueModal() {
           }}
           rows={1}
           placeholder="Issue title"
-          className="w-full resize-none bg-transparent font-serif text-[17px] font-medium leading-snug text-text placeholder:text-text-subtle focus:outline-none"
+          className="w-full resize-none bg-transparent font-display text-[24px] font-extrabold leading-[1.2] tracking-[-0.03em] text-text placeholder:text-text-subtle/70 focus:outline-none"
         />
         <textarea
           id="ci-desc"
@@ -129,12 +130,12 @@ export function CreateIssueModal() {
           onKeyDown={(e) => { if ((e.metaKey || e.ctrlKey) && e.key === "Enter") submit(); }}
           rows={3}
           placeholder="Add a description…  Steps to reproduce, expected vs actual, environment."
-          className="mt-1.5 w-full resize-none bg-transparent text-[13.5px] leading-relaxed text-text placeholder:text-text-subtle focus:outline-none"
+          className="mt-2 w-full resize-none bg-transparent text-[14px] leading-relaxed text-text placeholder:text-text-subtle focus:outline-none"
         />
       </div>
 
       {/* Attribute chips */}
-      <div className="flex flex-wrap items-center gap-1.5 px-4 pb-3.5 pt-1">
+      <div className="flex flex-wrap items-center gap-1.5 px-5 pb-4 pt-1.5">
         {status && (
           <StatusPicker value={statusId} onChange={setStatusId}>
             <button className={chip}><StatusIcon status={status} /> {status.name}</button>
@@ -164,7 +165,7 @@ export function CreateIssueModal() {
           const setV = (val: FieldValue) => setFieldValues((p) => ({ ...p, [f.id]: val }));
           if (f.type === "checkbox") {
             return (
-              <button key={f.id} onClick={() => setV(v === true ? false : true)} className={cn(chip, v === true && "border-success/50 text-success")}>
+              <button key={f.id} onClick={() => setV(v === true ? false : true)} className={cn(chip, v === true && "bg-accent-soft text-accent hover:bg-accent-soft hover:text-accent")}>
                 <FieldValueDisplay field={f} value={v} /> {f.name}
               </button>
             );
@@ -181,36 +182,36 @@ export function CreateIssueModal() {
       </div>
 
       {chosenLabels.length > 0 && (
-        <div className="flex flex-wrap gap-1 px-4 pb-3">
+        <div className="flex flex-wrap gap-1.5 px-5 pb-4">
           {chosenLabels.map((l) => (
             <LabelChip key={l.id} label={l} onRemove={() => setLabelIds((p) => p.filter((x) => x !== l.id))} />
           ))}
         </div>
       )}
 
-      <div className="flex items-center justify-between border-t border-border bg-surface-2 px-4 py-2.5">
-        <label className="flex cursor-pointer items-center gap-2 text-[12.5px] text-text-muted">
+      <div className="flex items-center justify-between border-t border-border bg-surface-2 px-5 py-3">
+        <label className="flex cursor-pointer items-center gap-2 font-display text-[13px] font-semibold text-text-muted">
           <input
             type="checkbox"
             checked={createMore}
             onChange={(e) => setCreateMore(e.target.checked)}
-            className="h-3.5 w-3.5 accent-[var(--primary)]"
+            className="h-4 w-4 accent-[var(--primary)]"
           />
           Create more
         </label>
         <div className="flex items-center gap-2">
-          <button onClick={close} className="h-7 rounded-md px-2.5 text-[12.5px] text-text-muted hover:bg-surface-hover">
+          <button onClick={close} className="h-8 rounded-[10px] px-3 font-display text-[13px] font-semibold text-text-muted transition-colors hover:bg-surface-hover hover:text-text">
             Cancel
           </button>
           <button
             onClick={submit}
             disabled={!title.trim()}
-            className="flex h-7 items-center gap-1.5 rounded-md bg-primary px-2.5 text-[12.5px] font-medium text-primary-fg transition-colors hover:bg-primary-hover disabled:opacity-50"
+            className="flex h-8 items-center gap-2 rounded-[10px] bg-primary px-3.5 font-display text-[13px] font-semibold text-primary-fg transition-[background-color,transform] hover:bg-primary-hover active:scale-[0.97] disabled:opacity-45"
           >
             Create issue
             <span className="flex items-center gap-0.5 opacity-80">
-              <Kbd className="border-transparent bg-white/15 text-primary-fg shadow-none">⌘</Kbd>
-              <Kbd className="border-transparent bg-white/15 text-primary-fg shadow-none">↵</Kbd>
+              <Kbd className="border-transparent bg-primary-fg/15 text-primary-fg shadow-none">⌘</Kbd>
+              <Kbd className="border-transparent bg-primary-fg/15 text-primary-fg shadow-none">↵</Kbd>
             </span>
           </button>
         </div>
@@ -230,11 +231,11 @@ function DuePicker({ value, onChange }: { value: string | null; onChange: (v: st
             type="date"
             value={value ?? ""}
             onChange={(e) => { onChange(e.target.value || null); }}
-            className="rounded-md border border-border bg-surface px-2 py-1 text-[13px] focus:border-ring focus:outline-none"
+            className="text-field"
           />
           <button
             onClick={() => { onChange(null); close(); }}
-            className="rounded-md px-2 py-1 text-left text-[12px] text-text-muted hover:bg-surface-hover"
+            className="rounded-[8px] px-2.5 py-1.5 text-left font-display text-[12.5px] font-semibold text-text-muted hover:bg-surface-2 hover:text-text"
           >
             Clear due date
           </button>
@@ -242,7 +243,7 @@ function DuePicker({ value, onChange }: { value: string | null; onChange: (v: st
       )}
     >
       <button className={cn(chip)}>
-        <CalendarDays size={14} />
+        <CalendarDays size={15} strokeWidth={2.25} />
         {value ? shortDate(value) : "Due"}
       </button>
     </Popover>

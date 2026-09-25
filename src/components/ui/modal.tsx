@@ -36,7 +36,7 @@ export function Modal({
       <FloatingOverlay
         lockScroll
         className={cn(
-          "z-[170] bg-[rgb(10_12_20_/_0.40)] backdrop-blur-[1.5px]",
+          "z-[170] bg-[rgb(0_0_0_/_0.45)] backdrop-blur-[6px]",
           "flex justify-center px-4",
           align === "center" ? "items-center py-4" : "items-start pt-[12vh] pb-4",
         )}
@@ -48,7 +48,7 @@ export function Modal({
             aria-labelledby={labelledBy}
             {...getFloatingProps()}
             className={cn(
-              "anim-scale-in w-full overflow-hidden rounded-xl border border-border-strong bg-surface shadow-[var(--shadow-lg)]",
+              "anim-scale-in w-full overflow-hidden rounded-[18px] border border-border bg-surface shadow-[var(--shadow-lg)]",
               className,
             )}
           >

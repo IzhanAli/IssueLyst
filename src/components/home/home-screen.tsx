@@ -1,5 +1,5 @@
 import { Link, useNavigate, type LinkProps } from "@tanstack/react-router";
-import { ArrowRight, CircleDot, Timer, UserRound, AlertTriangle } from "lucide-react";
+import { ArrowRight, ArrowUpRight, CircleDot, Timer, UserRound, AlertTriangle } from "lucide-react";
 import { StatusIcon } from "@/components/issues/status-icon";
 import { PriorityIcon } from "@/components/issues/priority-icon";
 import { Avatar, AvatarEmpty } from "@/components/ui/avatar";
@@ -9,6 +9,7 @@ import { allIssueViews } from "@/lib/store/selectors";
 import { relativeTime, isOverdue } from "@/lib/utils/format";
 import type { IssueView } from "@/lib/types";
 import { DEFAULT_PROJECT_KEY } from "@/lib/constants";
+import { cn } from "@/lib/utils/cn";
 
 export function HomeScreen() {
   const hydrated = useHydrated();
@@ -36,25 +37,25 @@ export function HomeScreen() {
 
   return (
     <div className="h-full overflow-y-auto">
-      <div className="mx-auto max-w-[860px] px-6 py-8">
-        <div className="flex items-center gap-3">
-          <Avatar user={me} size="xl" />
+      <div className="mx-auto max-w-[940px] px-8 py-10">
+        <div className="flex items-center gap-4">
+          <Avatar user={me} size="xl" className="h-14 w-14 text-[19px]" />
           <div>
-            <h1 className="font-serif text-[22px] font-semibold tracking-[-0.01em]">
+            <h1 className="font-display text-[30px] font-extrabold leading-tight tracking-[-0.03em]">
               {greeting}, {me.name.split(" ")[0]}
             </h1>
-            <p className="text-[13px] text-text-muted">Here’s what needs your attention in {store.project.name}.</p>
+            <p className="mt-0.5 text-[14.5px] text-text-muted">Here’s what needs your attention in {store.project.name}.</p>
           </div>
         </div>
 
-        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <Stat icon={<UserRound size={15} />} label="Assigned to you" value={mine.length} link={{ to: "/app/my-issues" }} />
-          <Stat icon={<CircleDot size={15} />} label="Open" value={open.length} link={{ to: "/app/project/$key/list", params: { key: DEFAULT_PROJECT_KEY } }} />
-          <Stat icon={<Timer size={15} />} label="In progress" value={inProgress.length} link={{ to: "/app/project/$key/board", params: { key: DEFAULT_PROJECT_KEY } }} />
-          <Stat icon={<AlertTriangle size={15} />} label="Overdue" value={overdue.length} tone={overdue.length ? "danger" : undefined} />
+        <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <Stat icon={<UserRound size={15} strokeWidth={2.4} />} label="Assigned to you" value={mine.length} link={{ to: "/app/my-issues" }} />
+          <Stat icon={<CircleDot size={15} strokeWidth={2.4} />} label="Open" value={open.length} link={{ to: "/app/project/$key/list", params: { key: DEFAULT_PROJECT_KEY } }} />
+          <Stat icon={<Timer size={15} strokeWidth={2.4} />} label="In progress" value={inProgress.length} link={{ to: "/app/project/$key/board", params: { key: DEFAULT_PROJECT_KEY } }} />
+          <Stat icon={<AlertTriangle size={15} strokeWidth={2.4} />} label="Overdue" value={overdue.length} tone={overdue.length ? "danger" : undefined} />
         </div>
 
-        <div className="mt-7 grid grid-cols-1 gap-5 lg:grid-cols-2">
+        <div className="mt-8 grid grid-cols-1 gap-5 lg:grid-cols-2">
           <Panel title="Assigned to you" link={{ to: "/app/my-issues" }}>
             {mine.length === 0 ? (
               <Empty>Nothing assigned right now.</Empty>
@@ -72,49 +73,63 @@ export function HomeScreen() {
 }
 
 function Stat({ icon, label, value, link, tone }: { icon: React.ReactNode; label: string; value: number; link?: LinkProps; tone?: "danger" }) {
+  const alert = tone === "danger" && value > 0;
   const body = (
-    <div className="rounded-xl border border-border bg-surface p-3.5 transition-colors hover:border-border-strong">
-      <div className="flex items-center gap-1.5 text-text-subtle">
-        <span className={tone === "danger" ? "text-danger" : "text-text-muted"}>{icon}</span>
-        <span className="text-[11.5px] font-medium">{label}</span>
+    <div
+      className={cn(
+        "group rounded-[16px] bg-surface-2 p-4 transition-[background-color,transform] duration-150",
+        link && "hover:bg-surface-hover active:scale-[0.98]",
+      )}
+    >
+      <div className="flex items-center gap-2">
+        <span
+          className={cn(
+            "flex h-7 w-7 items-center justify-center rounded-[8px]",
+            alert ? "bg-signal text-signal-fg" : "bg-primary text-primary-fg",
+          )}
+        >
+          {icon}
+        </span>
+        <span className="font-display text-[13px] font-semibold text-text-muted">{label}</span>
+        {link && <ArrowUpRight size={15} strokeWidth={2.4} className="ml-auto text-text-subtle opacity-0 transition-opacity group-hover:opacity-100" />}
       </div>
-      <div className={`mt-1.5 font-serif text-[26px] font-semibold tracking-[-0.02em] ${tone === "danger" && value > 0 ? "text-danger" : "text-text"}`}>
+      <div className={cn("mt-3 font-display text-[40px] font-extrabold leading-none tracking-[-0.04em]", alert ? "text-signal" : "text-text")}>
         {value}
       </div>
     </div>
   );
-  return link ? <Link {...link}>{body}</Link> : body;
+  return link ? <Link {...link} className="block rounded-[16px]">{body}</Link> : body;
 }
 
 function Panel({ title, link, children }: { title: string; link?: LinkProps; children: React.ReactNode }) {
   return (
-    <div className="rounded-xl border border-border bg-surface">
-      <div className="flex items-center justify-between border-b border-border px-3.5 py-2.5">
-        <h2 className="text-[13px] font-semibold text-text">{title}</h2>
+    <div className="rounded-[16px] bg-surface shadow-[inset_0_0_0_1px_var(--border)]">
+      <div className="flex items-center justify-between px-4 pb-2 pt-4">
+        <h2 className="font-display text-[17px] font-extrabold tracking-[-0.02em] text-text">{title}</h2>
         {link && (
-          <Link {...link} className="flex items-center gap-0.5 text-[12px] text-text-muted hover:text-text">
-            View all <ArrowRight size={12} />
+          <Link {...link} className="flex items-center gap-0.5 font-display text-[13px] font-semibold text-accent hover:text-accent-hover">
+            View all <ArrowRight size={13} strokeWidth={2.5} />
           </Link>
         )}
       </div>
-      <div className="p-1">{children}</div>
+      <div className="px-1.5 pb-1.5">{children}</div>
     </div>
   );
 }
 
 function IssueLine({ v, onOpen, showTime }: { v: IssueView; onOpen: () => void; showTime?: boolean }) {
   return (
-    <button onClick={onOpen} className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left transition-colors hover:bg-surface-hover">
+    <button onClick={onOpen} className="flex w-full items-center gap-2.5 rounded-[10px] px-2.5 py-2 text-left transition-colors duration-150 hover:bg-surface-2">
       <PriorityIcon priority={v.priority} size={14} />
       <StatusIcon status={v.status} size={14} />
-      <span className="font-mono text-[10.5px] text-text-subtle">{v.issueKey}</span>
-      <span className="min-w-0 flex-1 truncate text-[13px] text-text">{v.title}</span>
-      {showTime && <time className="shrink-0 font-mono text-[10px] text-text-subtle">{relativeTime(v.updatedAt)}</time>}
+      <span className="min-w-[28px] shrink-0 font-display text-[12px] font-semibold text-text-subtle">{v.issueKey}</span>
+      <span className="min-w-0 flex-1 truncate text-[13.5px] font-medium text-text">{v.title}</span>
+      {showTime && <time className="shrink-0 font-display text-[12px] font-semibold text-text-subtle">{relativeTime(v.updatedAt)}</time>}
       {v.assignee ? <Avatar user={v.assignee} size="sm" /> : <AvatarEmpty size="sm" />}
     </button>
   );
 }
 
 function Empty({ children }: { children: React.ReactNode }) {
-  return <div className="px-3 py-6 text-center text-[12.5px] text-text-subtle">{children}</div>;
+  return <div className="px-3 py-8 text-center font-display text-[13.5px] font-semibold text-text-subtle">{children}</div>;
 }

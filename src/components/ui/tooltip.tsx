@@ -65,12 +65,12 @@ export function Tooltip({
             ref={refs.setFloating}
             style={floatingStyles}
             {...getFloatingProps()}
-            className="anim-in z-[190] flex items-center gap-1.5 rounded-md border border-border-strong bg-text px-2 py-1 text-[11.5px] font-medium text-text-invert shadow-[var(--shadow-md)]"
+            className="anim-in z-[190] flex items-center gap-1.5 rounded-[8px] bg-text px-2.5 py-[5px] font-display text-[12px] font-semibold text-text-invert shadow-[var(--shadow-md)]"
           >
             {content}
             {shortcut && (
               <span className="ml-0.5 opacity-80">
-                <Kbd className="border-transparent bg-white/15 text-text-invert shadow-none">{shortcut}</Kbd>
+                <Kbd className="border-transparent bg-text-invert/15 text-text-invert shadow-none">{shortcut}</Kbd>
               </span>
             )}
           </div>

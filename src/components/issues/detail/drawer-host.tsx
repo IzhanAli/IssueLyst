@@ -43,7 +43,7 @@ export function DrawerHost() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.16 }}
               onClick={close}
-              className="fixed inset-0 z-[120] bg-[rgb(10_12_20_/_0.38)] backdrop-blur-[1px]"
+              className="fixed inset-0 z-[120] bg-[rgb(0_0_0_/_0.4)] backdrop-blur-[4px]"
             />
             <motion.div
               key="panel"
@@ -51,7 +51,7 @@ export function DrawerHost() {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", stiffness: 460, damping: 42, mass: 0.9 }}
-              className="fixed inset-y-0 right-0 z-[121] w-full max-w-[860px] border-l border-border shadow-[var(--shadow-lg)]"
+              className="fixed inset-y-0 right-0 z-[121] w-full max-w-[860px] overflow-hidden rounded-l-[20px] border-l border-border shadow-[var(--shadow-lg)]"
               role="dialog"
               aria-modal="true"
               aria-label={`Issue ${issue.number}`}

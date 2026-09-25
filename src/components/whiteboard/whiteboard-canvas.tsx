@@ -619,7 +619,7 @@ export function WhiteboardCanvas({
     ) : (
       <>
         <ShapePicker value={shapeKind} onChange={setShapeKind} />
-        <div className="mx-1 h-4 w-px shrink-0 bg-border" />
+        <div className="mx-1 h-5 w-px shrink-0 bg-border" />
         <FillPicker value={shapeColor} options={SHAPE_SWATCHES} onChange={(color) => setToolFill("shape", color)} />
       </>
     );
@@ -642,7 +642,7 @@ export function WhiteboardCanvas({
     return (
       <>
         <ShapePicker value={o.shape} onChange={(shape) => reshape(o.id, shape)} />
-        <div className="mx-1 h-4 w-px shrink-0 bg-border" />
+        <div className="mx-1 h-5 w-px shrink-0 bg-border" />
         <FillPicker value={o.color} options={SHAPE_SWATCHES} onChange={(color) => recolor(o.id, color)} />
       </>
     );
@@ -664,7 +664,7 @@ export function WhiteboardCanvas({
         <div
           ref={sheetRef}
           data-wb-sheet=""
-          className="absolute left-0 top-0 rounded-xl bg-surface shadow-[var(--shadow-lg)]"
+          className="absolute left-0 top-0 rounded-[18px] bg-surface shadow-[var(--shadow-lg)]"
           style={{
             width: SHEET.width,
             height: SHEET.height,
@@ -703,7 +703,7 @@ export function WhiteboardCanvas({
 
           {board.objects.length === 0 && !stroke && (
             <div className="pointer-events-none absolute left-0 top-[150px] flex w-[950px] flex-col gap-2 px-[60px]">
-              <div className="text-[32px] font-semibold tracking-[-0.01em] text-text">Blank board</div>
+              <div className="font-display text-[36px] font-extrabold tracking-[-0.035em] text-text">Blank board</div>
               <div className="max-w-[480px] text-[19px] text-text-muted [text-wrap:pretty]">
                 Pick the sticky or text tool below, then click anywhere. Everyone in {workspaceName} sees this
                 board live.
@@ -717,7 +717,7 @@ export function WhiteboardCanvas({
         <div
           role="toolbar"
           aria-label="Selection"
-          className="anim-scale-in absolute z-[6] flex items-center rounded-lg border border-border bg-surface p-1 shadow-[var(--shadow-md)]"
+          className="anim-scale-in absolute z-[6] flex items-center rounded-[12px] border border-border bg-surface p-1 shadow-[var(--shadow-md)]"
           style={{
             left: Math.round(left + barTarget.x * k) + 4,
             top: Math.max(8, Math.round(top + barTarget.y * k) - 44),
@@ -727,9 +727,9 @@ export function WhiteboardCanvas({
             <button
               onClick={() => remove(barTarget.id)}
               aria-label="Delete"
-              className="flex h-6 w-6 items-center justify-center rounded-[5px] text-danger transition-colors hover:bg-danger-soft"
+              className="flex h-7 w-7 items-center justify-center rounded-[8px] text-danger transition-[background-color,transform] hover:bg-danger-soft active:scale-90"
             >
-              <Trash2 size={14} />
+              <Trash2 size={15} strokeWidth={2.25} />
             </button>
           </Tooltip>
         </div>
@@ -760,7 +760,7 @@ export function WhiteboardCanvas({
       <div
         role="toolbar"
         aria-label="Tools"
-        className="absolute bottom-[18px] left-1/2 z-[7] flex max-w-[calc(100%-24px)] -translate-x-1/2 items-center gap-0.5 overflow-x-auto rounded-[10px] border border-border bg-surface p-[5px] shadow-[var(--shadow-lg)]"
+        className="absolute bottom-[18px] left-1/2 z-[7] flex max-w-[calc(100%-24px)] -translate-x-1/2 items-center gap-1 overflow-x-auto rounded-[14px] bg-primary p-1.5 text-primary-fg shadow-[var(--shadow-lg)]"
       >
         {TOOLS.map((t) => {
           const id = t.id;
@@ -807,11 +807,11 @@ export function WhiteboardCanvas({
                 aria-pressed={tool === id}
                 aria-haspopup={styled ? "true" : undefined}
                 className={cn(
-                  "relative flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-[7px] transition-colors [-webkit-touch-callout:none]",
-                  tool === id ? "bg-primary text-primary-fg" : "text-text-muted hover:bg-surface-2 hover:text-text",
+                  "relative flex h-9 w-9 shrink-0 select-none items-center justify-center rounded-[10px] transition-[background-color,color,transform] duration-150 active:scale-90 [-webkit-touch-callout:none]",
+                  tool === id ? "bg-primary-fg text-primary" : "text-primary-fg/65 hover:bg-primary-fg/12 hover:text-primary-fg",
                 )}
               >
-                <Icon size={17} />
+                <Icon size={18} strokeWidth={2.2} />
                 {styled && (
                   // corner mark: this tool has more options
                   <span
@@ -823,31 +823,31 @@ export function WhiteboardCanvas({
             </Tooltip>
           );
         })}
-        <div className="mx-1 h-[18px] w-px shrink-0 bg-border" />
+        <div className="mx-1 h-5 w-px shrink-0 bg-primary-fg/20" />
         <Tooltip content="Undo" shortcut={isMac() ? "⌘Z" : "Ctrl+Z"}>
           <button
             onClick={() => undo(board.id)}
             disabled={!canUndo}
             aria-label="Undo"
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[7px] text-text-muted transition-colors hover:bg-surface-2 hover:text-text disabled:opacity-40"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] text-primary-fg/65 transition-[background-color,color,transform] duration-150 hover:bg-primary-fg/12 hover:text-primary-fg active:scale-90 disabled:opacity-35"
           >
-            <Undo2 size={16} />
+            <Undo2 size={17} strokeWidth={2.2} />
           </button>
         </Tooltip>
       </div>
 
-      <div className="absolute bottom-[18px] right-4 z-[7] flex items-center gap-0.5 rounded-lg border border-border bg-surface p-[3px] shadow-[var(--shadow-md)] @max-xl:bottom-auto @max-xl:top-3">
+      <div className="absolute bottom-[18px] right-4 z-[7] flex items-center gap-0.5 rounded-[12px] border border-border bg-surface p-1 shadow-[var(--shadow-md)] @max-xl:bottom-auto @max-xl:top-3">
         <button
           onClick={() => zoomStep(-1)}
           aria-label="Zoom out"
-          className="flex h-6 w-6 items-center justify-center rounded-[5px] text-text-muted transition-colors hover:bg-surface-2"
+          className="flex h-7 w-7 items-center justify-center rounded-[8px] text-text-muted transition-colors hover:bg-surface-2 hover:text-text"
         >
-          <Minus size={14} />
+          <Minus size={15} strokeWidth={2.25} />
         </button>
         <Tooltip content="Fit to window" shortcut="⇧1">
           <button
             onClick={resetView}
-            className="h-6 rounded-[5px] px-1.5 font-mono text-[11px] text-text-muted transition-colors hover:bg-surface-2"
+            className="h-7 min-w-[46px] rounded-[8px] px-1.5 font-display text-[12.5px] font-bold text-text transition-colors hover:bg-surface-2"
           >
             {Math.round(view.zoom)}%
           </button>
@@ -855,9 +855,9 @@ export function WhiteboardCanvas({
         <button
           onClick={() => zoomStep(1)}
           aria-label="Zoom in"
-          className="flex h-6 w-6 items-center justify-center rounded-[5px] text-text-muted transition-colors hover:bg-surface-2"
+          className="flex h-7 w-7 items-center justify-center rounded-[8px] text-text-muted transition-colors hover:bg-surface-2 hover:text-text"
         >
-          <Plus size={14} />
+          <Plus size={15} strokeWidth={2.25} />
         </button>
       </div>
     </div>

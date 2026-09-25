@@ -19,7 +19,7 @@ import { activeFilterCount, type GroupBy, type SortField } from "@/lib/store/sel
 import { cn } from "@/lib/utils/cn";
 
 const ctrlBtn =
-  "flex h-7 items-center gap-1.5 rounded-md px-2 text-[12.5px] text-text-muted transition-colors hover:bg-surface-hover hover:text-text data-[state=open]:bg-surface-hover data-[state=open]:text-text";
+  "flex h-8 items-center gap-1.5 rounded-[10px] px-2.5 font-display text-[13px] font-semibold text-text-muted transition-[background-color,color,transform] duration-150 hover:bg-surface-2 hover:text-text active:scale-[0.97] data-[state=open]:bg-surface-2 data-[state=open]:text-text";
 
 /* ── Filter ──────────────────────────────────────────────────────── */
 export function FilterMenu() {
@@ -80,13 +80,13 @@ export function FilterMenu() {
               <FilterSection key={f.id} title={f.name}>
                 {f.type === "checkbox" ? (
                   (["true", "false"] as const).map((v) => (
-                    <CheckRow key={v} on={(filters.fields[f.id] ?? []).includes(v)} onClick={() => toggleFieldFilter(f.id, v)} icon={<span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: v === "true" ? "var(--success)" : "var(--text-subtle)" }} />}>
+                    <CheckRow key={v} on={(filters.fields[f.id] ?? []).includes(v)} onClick={() => toggleFieldFilter(f.id, v)} icon={<span className="h-2.5 w-2.5 rounded-[3px]" style={{ backgroundColor: v === "true" ? "var(--success)" : "var(--text-subtle)" }} />}>
                       {v === "true" ? "Yes" : "No"}
                     </CheckRow>
                   ))
                 ) : (
                   f.options.map((o) => (
-                    <CheckRow key={o.id} on={(filters.fields[f.id] ?? []).includes(o.id)} onClick={() => toggleFieldFilter(f.id, o.id)} icon={<span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: o.color }} />}>
+                    <CheckRow key={o.id} on={(filters.fields[f.id] ?? []).includes(o.id)} onClick={() => toggleFieldFilter(f.id, o.id)} icon={<span className="h-2.5 w-2.5 rounded-[3px]" style={{ backgroundColor: o.color }} />}>
                       {o.label}
                     </CheckRow>
                   ))
@@ -96,9 +96,9 @@ export function FilterMenu() {
         </div>
       )}
     >
-      <button className={cn(ctrlBtn, count > 0 && "bg-primary-soft text-primary hover:bg-primary-soft")}>
-        <SlidersHorizontal size={14} /> Filter
-        {count > 0 && <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 font-mono text-[10px] text-primary-fg">{count}</span>}
+      <button className={cn(ctrlBtn, count > 0 && "bg-accent-soft text-accent hover:bg-accent-soft hover:text-accent data-[state=open]:bg-accent-soft data-[state=open]:text-accent")}>
+        <SlidersHorizontal size={15} strokeWidth={2.2} /> Filter
+        {count > 0 && <span className="anim-pop flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-accent px-1 font-display text-[11px] font-bold text-accent-fg">{count}</span>}
       </button>
     </Popover>
   );
@@ -107,7 +107,7 @@ export function FilterMenu() {
 function FilterSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="mb-1.5">
-      <div className="px-1.5 pb-0.5 pt-1 text-[10.5px] font-semibold uppercase tracking-wide text-text-subtle">{title}</div>
+      <div className="px-2 pb-1 pt-1.5 font-display text-[12.5px] font-semibold text-text-subtle">{title}</div>
       {children}
     </div>
   );
@@ -115,9 +115,9 @@ function FilterSection({ title, children }: { title: string; children: React.Rea
 
 function CheckRow({ on, onClick, icon, children }: { on: boolean; onClick: () => void; icon: React.ReactNode; children: React.ReactNode }) {
   return (
-    <button onClick={onClick} className="flex w-full items-center gap-2 rounded-md px-1.5 py-1 text-left text-[12.5px] hover:bg-surface-hover">
-      <span className={cn("flex h-3.5 w-3.5 items-center justify-center rounded border", on ? "border-primary bg-primary text-primary-fg" : "border-border-strong")}>
-        {on && <Check size={10} />}
+    <button onClick={onClick} className="flex w-full items-center gap-2.5 rounded-[8px] px-2 py-[5px] text-left text-[13px] transition-colors hover:bg-surface-2">
+      <span className={cn("flex h-4 w-4 shrink-0 items-center justify-center rounded-[5px] border transition-colors", on ? "border-primary bg-primary text-primary-fg" : "border-border-strong")}>
+        {on && <Check size={11} strokeWidth={3} />}
       </span>
       <span className="flex h-4 w-4 items-center justify-center">{icon}</span>
       <span className="truncate">{children}</span>
@@ -133,12 +133,15 @@ function DateRow({ value, onChange }: { value: string; onChange: (v: "" | "1" | 
     { v: "30", label: "30 days" },
   ];
   return (
-    <div className="flex gap-1 px-1.5 py-0.5">
+    <div className="mx-2 my-0.5 flex gap-0.5 rounded-[10px] bg-surface-2 p-[3px]">
       {opts.map((o) => (
         <button
           key={o.v}
           onClick={() => onChange(o.v)}
-          className={cn("rounded-md px-2 py-1 text-[11.5px]", value === o.v ? "bg-primary-soft font-medium text-primary" : "text-text-muted hover:bg-surface-hover")}
+          className={cn(
+            "flex-1 rounded-[8px] px-1.5 py-1 font-display text-[12px] transition-all duration-150",
+            value === o.v ? "bg-surface font-bold text-text shadow-[var(--shadow-sm)] dark:bg-surface-active" : "font-semibold text-text-muted hover:text-text",
+          )}
         >
           {o.label}
         </button>
@@ -173,10 +176,10 @@ export function SortMenu() {
               <button
                 key={s.field}
                 onClick={() => setSort({ field: s.field, dir: on && sort.dir === "asc" ? "desc" : "asc" })}
-                className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[12.5px] hover:bg-surface-hover"
+                className={cn("flex w-full items-center gap-2 rounded-[8px] px-2.5 py-[7px] text-left font-display text-[13px] transition-colors hover:bg-surface-2", on ? "font-bold text-text" : "font-medium")}
               >
                 <span className="flex-1">{s.label}</span>
-                {on && (sort.dir === "asc" ? <ArrowUp size={13} className="text-primary" /> : <ArrowDown size={13} className="text-primary" />)}
+                {on && (sort.dir === "asc" ? <ArrowUp size={14} strokeWidth={2.5} className="text-accent" /> : <ArrowDown size={14} strokeWidth={2.5} className="text-accent" />)}
               </button>
             );
           })}
@@ -184,7 +187,7 @@ export function SortMenu() {
       )}
     >
       <button className={ctrlBtn}>
-        <ArrowUpDown size={14} /> Sort
+        <ArrowUpDown size={15} strokeWidth={2.2} /> Sort
       </button>
     </Popover>
   );
@@ -216,17 +219,17 @@ export function GroupMenu() {
             <button
               key={o.g}
               onClick={() => { setGroupBy(o.g); close(); }}
-              className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[12.5px] hover:bg-surface-hover"
+              className={cn("flex w-full items-center gap-2 rounded-[8px] px-2.5 py-[7px] text-left font-display text-[13px] transition-colors hover:bg-surface-2", groupBy === o.g ? "font-bold text-text" : "font-medium")}
             >
               <span className="flex-1 truncate">{o.label}</span>
-              {groupBy === o.g && <Check size={14} className="text-primary" />}
+              {groupBy === o.g && <Check size={15} strokeWidth={2.5} className="text-accent" />}
             </button>
           ))}
         </div>
       )}
     >
       <button className={ctrlBtn}>
-        <Layers size={14} /> Group: <span className="font-medium text-text">{current}</span>
+        <Layers size={15} strokeWidth={2.2} /> Group: <span className="font-bold text-text">{current}</span>
       </button>
     </Popover>
   );
@@ -243,9 +246,9 @@ export function ActiveFilterChips() {
   if (count === 0) return null;
 
   const chip = (key: string, label: React.ReactNode, onRemove: () => void) => (
-    <span key={key} className="flex h-6 items-center gap-1 rounded-md border border-border bg-surface px-1.5 text-[11.5px] text-text">
+    <span key={key} className="anim-scale-in flex h-7 items-center gap-1.5 rounded-[8px] bg-surface-2 pl-2 pr-1 font-display text-[12px] font-semibold text-text shadow-[inset_0_0_0_1px_var(--border)]">
       {label}
-      <button onClick={onRemove} className="text-text-subtle hover:text-text" aria-label="Remove filter"><X size={11} /></button>
+      <button onClick={onRemove} className="rounded-[5px] p-0.5 text-text-subtle transition-colors hover:bg-surface-hover hover:text-text" aria-label="Remove filter"><X size={12} strokeWidth={2.5} /></button>
     </span>
   );
 
@@ -253,16 +256,16 @@ export function ActiveFilterChips() {
     <div className="flex flex-wrap items-center gap-1.5">
       {filters.statusIds.map((id) => {
         const s = statuses.find((x) => x.id === id);
-        return s && chip(`s${id}`, <span className="flex items-center gap-1"><StatusIcon status={s} size={12} />{s.name}</span>, () => toggleFilter("statusIds", id));
+        return s && chip(`s${id}`, <span className="flex items-center gap-1.5"><StatusIcon status={s} size={13} />{s.name}</span>, () => toggleFilter("statusIds", id));
       })}
-      {filters.priorities.map((p) => chip(`p${p}`, <span className="flex items-center gap-1"><PriorityIcon priority={p} size={12} />{PRIORITY_META[p].label}</span>, () => toggleFilter("priorities", p)))}
+      {filters.priorities.map((p) => chip(`p${p}`, <span className="flex items-center gap-1.5"><PriorityIcon priority={p} size={13} />{PRIORITY_META[p].label}</span>, () => toggleFilter("priorities", p)))}
       {filters.assigneeIds.map((id) => {
         const u = users.find((x) => x.id === id);
-        return chip(`a${id}`, <span className="flex items-center gap-1">{u ? <Avatar user={u} size="xs" /> : <AvatarEmpty size="xs" />}{u?.name ?? "Unassigned"}</span>, () => toggleFilter("assigneeIds", id));
+        return chip(`a${id}`, <span className="flex items-center gap-1.5">{u ? <Avatar user={u} size="xs" /> : <AvatarEmpty size="xs" />}{u?.name ?? "Unassigned"}</span>, () => toggleFilter("assigneeIds", id));
       })}
       {filters.labelIds.map((id) => {
         const l = labels.find((x) => x.id === id);
-        return l && chip(`l${id}`, <span className="flex items-center gap-1"><LabelDot color={l.color} />{l.name}</span>, () => toggleFilter("labelIds", id));
+        return l && chip(`l${id}`, <span className="flex items-center gap-1.5"><LabelDot color={l.color} />{l.name}</span>, () => toggleFilter("labelIds", id));
       })}
       {filters.createdWithin && chip("cw", `Created ≤ ${filters.createdWithin}d`, () => setFilters({ createdWithin: "" }))}
       {filters.updatedWithin && chip("uw", `Updated ≤ ${filters.updatedWithin}d`, () => setFilters({ updatedWithin: "" }))}
@@ -277,8 +280,8 @@ export function ActiveFilterChips() {
           const color = field.type === "checkbox" ? undefined : field.options.find((o) => o.id === optId)?.color;
           return chip(
             `${fieldId}:${optId}`,
-            <span className="flex items-center gap-1">
-              {color && <span className="h-2 w-2 rounded-full" style={{ backgroundColor: color }} />}
+            <span className="flex items-center gap-1.5">
+              {color && <span className="h-2 w-2 rounded-[2.5px]" style={{ backgroundColor: color }} />}
               {label}
             </span>,
             () => toggleFieldFilter(fieldId, optId),
@@ -286,7 +289,7 @@ export function ActiveFilterChips() {
         });
       })}
       {count > 1 && (
-        <button onClick={clearFilters} className="flex h-6 items-center gap-1 rounded-md px-1.5 text-[11.5px] text-text-subtle hover:text-danger">
+        <button onClick={clearFilters} className="flex h-7 items-center gap-1 rounded-[8px] px-2 font-display text-[12px] font-semibold text-text-subtle transition-colors hover:bg-signal-soft hover:text-signal">
           Clear all
         </button>
       )}

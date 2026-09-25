@@ -40,9 +40,9 @@ export function IssueRow({
       data-active={active}
       onClick={onOpen}
       className={cn(
-        "group flex h-[38px] cursor-pointer select-none items-center gap-2.5 border-b border-border/70 pl-2.5 pr-3 transition-colors",
-        "hover:bg-surface-hover data-[active=true]:bg-primary-soft/60",
-        selected && "bg-primary-soft/40",
+        "group flex h-10 cursor-pointer select-none items-center gap-2.5 border-b border-border/70 pl-2.5 pr-3 transition-colors duration-100",
+        "hover:bg-surface-2 data-[active=true]:bg-accent-soft data-[active=true]:shadow-[inset_3px_0_0_var(--accent)]",
+        selected && "bg-accent-soft/70 hover:bg-accent-soft",
       )}
     >
       {/* leading controls (fixed cell so columns align with the header) */}
@@ -50,35 +50,35 @@ export function IssueRow({
         <button
           onClick={(e) => { e.stopPropagation(); onToggleSelect?.(e.shiftKey); }}
           className={cn(
-            "flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-all",
+            "flex h-4 w-4 shrink-0 items-center justify-center rounded-[5px] border transition-all duration-150",
             selected
-              ? "border-primary bg-primary text-primary-fg"
+              ? "anim-pop border-primary bg-primary text-primary-fg"
               : "border-border-strong opacity-0 hover:border-text-subtle group-hover:opacity-100",
           )}
           aria-label={selected ? "Deselect" : "Select"}
         >
           {selected && (
-            <svg viewBox="0 0 12 12" width="9" height="9" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg viewBox="0 0 12 12" width="10" height="10" fill="none" stroke="currentColor" strokeWidth="2.4">
               <path d="M2.5 6.5l2.2 2.2L9.5 3.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           )}
         </button>
 
         <PriorityPicker value={view.priority} onChange={(p: Priority) => updateIssue(view.id, { priority: p })} disabled={!editable}>
-          <button onClick={(e) => e.stopPropagation()} className="shrink-0 rounded p-0.5 hover:bg-surface-active" aria-label="Priority">
+          <button onClick={(e) => e.stopPropagation()} className="shrink-0 rounded-[6px] p-0.5 transition-colors hover:bg-surface-active" aria-label="Priority">
             <PriorityIcon priority={view.priority} />
           </button>
         </PriorityPicker>
 
         {showStatus && (
           <StatusPicker value={view.statusId} onChange={(id) => updateIssue(view.id, { statusId: id })} disabled={!editable}>
-            <button onClick={(e) => e.stopPropagation()} className="shrink-0 rounded p-0.5 hover:bg-surface-active" aria-label="Status">
+            <button onClick={(e) => e.stopPropagation()} className="shrink-0 rounded-[6px] p-0.5 transition-colors hover:bg-surface-active" aria-label="Status">
               <StatusIcon status={view.status} />
             </button>
           </StatusPicker>
         )}
 
-        <span className="shrink-0 font-mono text-[11.5px] text-text-subtle">{view.issueKey}</span>
+        <span className="shrink-0 font-display text-[12px] font-semibold text-text-subtle">{view.issueKey}</span>
       </div>
 
       {/* title + labels (fixed-width name column, wide enough to avoid ellipsis) */}
@@ -91,7 +91,7 @@ export function IssueRow({
             {view.labels.slice(0, 3).map((l) => (
               <LabelChip key={l.id} label={l} />
             ))}
-            {view.labels.length > 3 && <span className="text-[11px] text-text-subtle">+{view.labels.length - 3}</span>}
+            {view.labels.length > 3 && <span className="font-display text-[11.5px] font-semibold text-text-subtle">+{view.labels.length - 3}</span>}
           </span>
         )}
       </span>
@@ -105,7 +105,7 @@ export function IssueRow({
           onClick={(e) => e.stopPropagation()}
         >
           <FieldEditor field={f} value={view.fields?.[f.id] ?? null} onChange={(v) => setIssueFieldValue(view.id, f.id, v)} disabled={!editable}>
-            <button className="flex w-full min-w-0 items-center rounded px-1 py-0.5 text-left hover:bg-surface-active">
+            <button className="flex w-full min-w-0 items-center rounded-[6px] px-1 py-0.5 text-left transition-colors hover:bg-surface-active">
               <FieldValueDisplay field={f} value={view.fields?.[f.id] ?? null} muted />
             </button>
           </FieldEditor>
@@ -118,8 +118,8 @@ export function IssueRow({
       {/* due */}
       <span className="hidden w-[64px] shrink-0 justify-end sm:flex">
         {view.dueDate && (
-          <span className={cn("flex items-center gap-1 font-mono text-[11px]", overdue ? "text-danger" : "text-text-subtle")}>
-            <Calendar size={12} /> {shortDate(view.dueDate)}
+          <span className={cn("flex items-center gap-1 font-display text-[12px] font-semibold", overdue ? "text-danger" : "text-text-subtle")}>
+            <Calendar size={12} strokeWidth={2.3} /> {shortDate(view.dueDate)}
           </span>
         )}
       </span>
@@ -127,10 +127,10 @@ export function IssueRow({
       {/* comments + attachments */}
       <span className="hidden w-[52px] shrink-0 items-center justify-end gap-2 text-text-subtle sm:flex">
         {view.attachmentCount > 0 && (
-          <span className="flex items-center gap-0.5 text-[11px]"><Paperclip size={11} />{view.attachmentCount}</span>
+          <span className="flex items-center gap-0.5 font-display text-[11.5px] font-semibold"><Paperclip size={12} strokeWidth={2.3} />{view.attachmentCount}</span>
         )}
         {view.commentCount > 0 && (
-          <span className="flex items-center gap-0.5 text-[11px]"><MessageSquare size={11} />{view.commentCount}</span>
+          <span className="flex items-center gap-0.5 font-display text-[11.5px] font-semibold"><MessageSquare size={12} strokeWidth={2.3} />{view.commentCount}</span>
         )}
       </span>
 

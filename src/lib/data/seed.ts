@@ -33,6 +33,8 @@ export const project: Project = {
   icon: "cube",
   description: "Product engineering — bugs, defects and platform work.",
   createdAt: ago(320 * DAY),
+ 
+  setupCompletedAt: ago(320 * DAY),
 };
 
 /* ── Team ────────────────────────────────────────────────────────── */

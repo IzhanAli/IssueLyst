@@ -31,16 +31,16 @@ function NoBoards() {
   const navigate = useNavigate();
   const createBoard = useWhiteboards((s) => s.createBoard);
   return (
-    <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
-      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-soft text-primary">
-        <Presentation size={20} />
+    <div className="flex h-full flex-col items-center justify-center gap-4 text-center">
+      <div className="anim-pop flex h-12 w-12 items-center justify-center rounded-[14px] bg-primary text-primary-fg">
+        <Presentation size={22} strokeWidth={2.25} />
       </div>
-      <h1 className="font-serif text-[16px] font-semibold">No whiteboards yet</h1>
+      <h1 className="font-display text-[22px] font-extrabold tracking-[-0.025em]">No whiteboards yet</h1>
       <button
         onClick={() => navigate({ to: "/app/whiteboards", search: { board: createBoard().id } })}
-        className="btn-primary px-3"
+        className="btn-primary px-4"
       >
-        <Plus size={15} /> New board
+        <Plus size={16} strokeWidth={2.5} /> New board
       </button>
     </div>
   );

@@ -73,18 +73,18 @@ export function CommandList({
   return (
     <div className="flex max-h-[min(60vh,380px)] w-full flex-col" onKeyDown={onKeyDown}>
       {searchable && (
-        <div className="flex items-center gap-2 border-b border-border px-3 py-2">
-          <Search size={14} className="shrink-0 text-text-subtle" />
+        <div className="flex items-center gap-2.5 border-b border-border px-3.5 py-2.5">
+          <Search size={15} strokeWidth={2.25} className="shrink-0 text-text-subtle" />
           <input
             ref={inputRef}
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder={placeholder}
-            className="w-full bg-transparent text-[13px] text-text placeholder:text-text-subtle focus:outline-none"
+            className="w-full bg-transparent text-[14px] text-text placeholder:text-text-subtle focus:outline-none"
           />
         </div>
       )}
-      <div ref={listRef} className="flex-1 overflow-y-auto p-1">
+      <div ref={listRef} className="flex-1 overflow-y-auto p-1.5">
         {filtered.length === 0 ? (
           <div className="px-2 py-6 text-center text-[12px] text-text-subtle">{emptyLabel}</div>
         ) : (
@@ -96,19 +96,19 @@ export function CommandList({
               onMouseMove={() => setActive(idx)}
               onClick={() => item.onSelect()}
               className={cn(
-                "flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-left text-[13px] text-text disabled:opacity-40",
-                idx === active && "bg-surface-hover",
+                "flex w-full items-center gap-2.5 rounded-[8px] px-2.5 py-[7px] text-left text-[13.5px] text-text disabled:opacity-40",
+                idx === active && "bg-surface-2 font-medium",
               )}
             >
               {item.icon && <span className="flex h-4 w-4 shrink-0 items-center justify-center">{item.icon}</span>}
               <span className="flex-1 truncate">{item.label}</span>
-              {item.hint && <span className="font-mono text-[10.5px] text-text-subtle">{item.hint}</span>}
+              {item.hint && <span className="font-display text-[11.5px] font-semibold text-text-subtle">{item.hint}</span>}
               {item.right}
             </button>
           ))
         )}
       </div>
-      {footer && <div className="border-t border-border p-1">{footer}</div>}
+      {footer && <div className="border-t border-border p-1.5">{footer}</div>}
     </div>
   );
 }

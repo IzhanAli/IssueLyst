@@ -18,30 +18,30 @@ export function ColumnsMenu() {
       className="w-56 p-1"
       render={() => (
         <div className="max-h-[60vh] overflow-y-auto">
-          <div className="px-2 pb-1 pt-1.5 text-[10.5px] font-semibold uppercase tracking-wide text-text-subtle">Field columns</div>
+          <div className="px-2.5 pb-1 pt-1.5 font-display text-[12.5px] font-semibold text-text-subtle">Field columns</div>
           {fieldDefs.map((f) => {
             const on = isFieldVisible(f, columns);
             return (
               <button
                 key={f.id}
                 onClick={() => toggleColumn(f.id, !on)}
-                className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[12.5px] hover:bg-surface-hover"
+                className="flex w-full items-center gap-2.5 rounded-[8px] px-2.5 py-[7px] text-left font-display text-[13px] font-medium transition-colors hover:bg-surface-2"
               >
-                <span className={cn("flex h-3.5 w-3.5 items-center justify-center rounded border", on ? "border-primary bg-primary text-primary-fg" : "border-border-strong")}>
-                  {on && <Check size={10} />}
+                <span className={cn("flex h-4 w-4 shrink-0 items-center justify-center rounded-[5px] border transition-colors", on ? "border-primary bg-primary text-primary-fg" : "border-border-strong")}>
+                  {on && <Check size={11} strokeWidth={3} />}
                 </span>
                 <span className="flex-1 truncate">{f.name}</span>
-                <span className="text-[10px] capitalize text-text-subtle">{f.type.replace("_", " ")}</span>
+                <span className="text-[11px] font-semibold capitalize text-text-subtle">{f.type.replace("_", " ")}</span>
               </button>
             );
           })}
-          {fieldDefs.length === 0 && <div className="px-2 py-3 text-center text-[12px] text-text-subtle">No fields yet</div>}
+          {fieldDefs.length === 0 && <div className="px-2 py-3 text-center text-[12.5px] text-text-subtle">No fields yet</div>}
         </div>
       )}
     >
       <button className={ctrlBtn}>
-        <Columns2 size={14} /> Columns
-        <span className="font-mono text-[10.5px] text-text-subtle">{shown}</span>
+        <Columns2 size={15} strokeWidth={2.2} /> Columns
+        <span className="text-[12px] font-semibold text-text-subtle">{shown}</span>
       </button>
     </Popover>
   );

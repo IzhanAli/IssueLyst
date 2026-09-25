@@ -3,16 +3,15 @@ import {
   Outlet,
   createFileRoute,
   redirect,
-  useLocation,
   useNavigate,
 } from "@tanstack/react-router";
-import { Sidebar } from "@/components/shell/sidebar";
-import { TopBar } from "@/components/shell/top-bar";
+import { Rail, Sidebar } from "@/components/shell/sidebar";
 import { GlobalShortcuts } from "@/components/shell/global-shortcuts";
 import { CommandPalette } from "@/components/search/command-palette";
 import { CreateIssueModal } from "@/components/issues/create-issue-modal";
 import { DrawerHost } from "@/components/issues/detail/drawer-host";
 import { getSession, useSession } from "@/lib/auth/session";
+import { usePermissions } from "@/lib/auth/use-permissions";
 import { useHydrated } from "@/lib/store/hooks";
 import { useStore } from "@/lib/store/store";
 import { LogoMark } from "@/components/brand/logo";
@@ -39,9 +38,12 @@ function AppLayout() {
   const { userId, loading, isAuthed } = useSession();
   const hydrated = useHydrated();
   const setCurrentUser = useStore((s) => s.setCurrentUser);
-  // Whiteboards put their own title bar in the top bar's place, so the canvas
-  // keeps the height. ⌘K and C still open search and New issue there.
-  const showTopBar = !useLocation({ select: (l) => l.pathname.startsWith("/app/whiteboards") });
+  const perms = usePermissions();
+  // A bootstrapped project has no setupCompletedAt until an admin finishes the
+  // wizard. This can't live in `beforeLoad` with the session check: in database
+  // mode the project arrives with the store's snapshot, so there is nothing to
+  // read until hydration.
+  const needsSetup = useStore((s) => !s.project.setupCompletedAt);
 
   useEffect(() => {
     if (!loading && !isAuthed) navigate({ to: "/login", replace: true });
@@ -50,6 +52,14 @@ function AppLayout() {
   useEffect(() => {
     if (userId) setCurrentUser(userId);
   }, [userId, setCurrentUser]);
+
+  // Admins only: the wizard turns everyone else away, so a member on an
+  // unconfigured project stays in the (empty) app rather than bouncing.
+  useEffect(() => {
+    if (hydrated && isAuthed && needsSetup && perms.isAdmin) {
+      navigate({ to: "/onboarding", replace: true });
+    }
+  }, [hydrated, isAuthed, needsSetup, perms.isAdmin, navigate]);
 
   if (loading || !hydrated || !isAuthed) {
     return (
@@ -60,11 +70,14 @@ function AppLayout() {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-bg text-text">
-      <Sidebar />
-      <div className="flex min-w-0 flex-1 flex-col">
-        {showTopBar && <TopBar />}
-        <main className="min-h-0 flex-1 overflow-hidden">
+    <div className="flex h-screen overflow-hidden bg-rail text-text">
+      {/* Black rail, then a rounded frame holding the grey panel and the paper
+          canvas. Search, New issue and the unread count live in the chrome, so
+          each screen's own header is the first thing in the canvas. */}
+      <Rail />
+      <div className="workspace-frame flex min-w-0 flex-1 overflow-hidden rounded-l-[20px] bg-surface">
+        <Sidebar />
+        <main className="min-h-0 min-w-0 flex-1 overflow-hidden">
           <Outlet />
         </main>
       </div>

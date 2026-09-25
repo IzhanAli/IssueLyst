@@ -80,19 +80,18 @@ export function Board() {
       const u = store.users.find((x) => x.id === g.key);
       return u ? <Avatar user={u} size="sm" /> : <AvatarEmpty size="sm" />;
     }
-    if (g.color) return <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: g.color }} />;
+    if (g.color) return <span className="h-2.5 w-2.5 rounded-[3px]" style={{ backgroundColor: g.color }} />;
     return null;
   };
 
   return (
     <DndContext sensors={sensors} collisionDetection={pointerWithin} onDragStart={(e: DragStartEvent) => setActiveId(String(e.active.id))} onDragEnd={onDragEnd} onDragCancel={() => setActiveId(null)}>
-      <div className="flex h-full gap-3 overflow-x-auto overflow-y-hidden p-3">
+      <div className="flex h-full gap-3 overflow-x-auto overflow-y-hidden p-4">
         {groups.map((g) => (
           <Column
             key={g.key}
             colKey={g.key}
             title={g.label}
-            color={g.color}
             icon={columnIcon(g)}
             issues={g.issues}
             onOpen={open}
@@ -111,7 +110,6 @@ export function Board() {
 function Column({
   colKey,
   title,
-  color,
   icon,
   issues,
   onOpen,
@@ -120,7 +118,6 @@ function Column({
 }: {
   colKey: string;
   title: string;
-  color?: string;
   icon: React.ReactNode;
   issues: IssueView[];
   onOpen: (key: string) => void;
@@ -131,26 +128,27 @@ function Column({
 
   return (
     <div className="flex h-full w-[288px] shrink-0 flex-col">
-      <div className="mb-2 flex items-center gap-2 px-1">
+      {/* Status colour stays on the glyph; the title is plain ink */}
+      <div className="mb-2 flex h-8 items-center gap-2 px-1.5">
         {icon}
-        <span className="truncate text-[12.5px] font-semibold" style={color ? { color } : undefined}>{title}</span>
-        <span className="font-mono text-[11px] text-text-subtle">{issues.length}</span>
-        <button onClick={onAdd} className="ml-auto rounded p-1 text-text-subtle hover:bg-surface-hover hover:text-text" aria-label="Add issue">
-          <Plus size={14} />
+        <span className="truncate font-display text-[14px] font-bold tracking-[-0.01em] text-text">{title}</span>
+        <span className="font-display text-[12.5px] font-semibold text-text-subtle">{issues.length}</span>
+        <button onClick={onAdd} className="ml-auto rounded-[7px] p-1 text-text-subtle transition-colors hover:bg-surface-2 hover:text-text" aria-label="Add issue">
+          <Plus size={15} strokeWidth={2.4} />
         </button>
       </div>
       <div
         ref={setNodeRef}
         className={cn(
-          "flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto rounded-lg p-1.5 transition-colors",
-          isOver ? "bg-primary-soft/50 ring-1 ring-inset ring-ring/40" : "bg-surface-2/50",
+          "flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto rounded-[16px] p-2 transition-[background-color,box-shadow] duration-150",
+          isOver ? "bg-accent-soft shadow-[inset_0_0_0_2px_var(--accent)]" : "bg-surface-2",
         )}
       >
         {issues.map((v) => (
           <DraggableCard key={v.id} view={v} colKey={colKey} onOpen={() => onOpen(v.issueKey)} hidden={activeId === v.id} />
         ))}
-        <button onClick={onAdd} className="flex items-center gap-1.5 rounded-md px-2 py-1.5 text-[12px] text-text-subtle transition-colors hover:bg-surface-hover hover:text-text-muted">
-          <Plus size={13} /> Add issue
+        <button onClick={onAdd} className="flex items-center gap-1.5 rounded-[10px] px-2.5 py-2 font-display text-[13px] font-semibold text-text-subtle transition-colors hover:bg-surface-hover hover:text-text">
+          <Plus size={14} strokeWidth={2.4} /> Add issue
         </button>
       </div>
     </div>

@@ -40,6 +40,12 @@ export interface Project {
   icon: string;
   description: string;
   createdAt: string;
+  /**
+   * When an admin finished the setup wizard. Null means the project was
+   * bootstrapped but never configured, which is what sends the first admin to
+   * `/onboarding` instead of the app shell.
+   */
+  setupCompletedAt: string | null;
 }
 
 /** Data-driven status — customizable per project in a future SaaS tier. */

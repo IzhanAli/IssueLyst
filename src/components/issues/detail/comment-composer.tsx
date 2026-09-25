@@ -65,16 +65,16 @@ export function CommentComposer({ onSubmit }: { onSubmit: (body: string) => void
       <Avatar user={me} size="md" className="mt-1" />
       <div className="relative flex-1">
         {mention && matches.length > 0 && (
-          <div className="absolute bottom-full left-0 z-20 mb-1 w-60 overflow-hidden rounded-lg border border-border-strong bg-surface p-1 shadow-[var(--shadow-lg)]">
+          <div className="anim-scale-in absolute bottom-full left-0 z-20 mb-1.5 w-64 overflow-hidden rounded-[14px] border border-border bg-surface p-1.5 shadow-[var(--shadow-lg)]">
             {matches.map((u, i) => (
               <button
                 key={u.id}
                 onMouseDown={(e) => { e.preventDefault(); insertMention(u.name); }}
                 onMouseMove={() => setActive(i)}
-                className={cn("flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left", i === active && "bg-surface-hover")}
+                className={cn("flex w-full items-center gap-2.5 rounded-[8px] px-2.5 py-[7px] text-left", i === active && "bg-surface-2")}
               >
                 <Avatar user={u} size="sm" />
-                <span className="truncate text-[13px]">{u.name}</span>
+                <span className="truncate font-display text-[13.5px] font-medium">{u.name}</span>
               </button>
             ))}
           </div>
@@ -89,18 +89,18 @@ export function CommentComposer({ onSubmit }: { onSubmit: (body: string) => void
             onBlur={() => setFocused(false)}
             rows={focused || value ? 3 : 1}
             placeholder="Add a comment…  Use @ to mention"
-            className="w-full resize-none bg-transparent px-3 py-2 text-[13.5px] leading-relaxed text-text placeholder:text-text-subtle focus:outline-none"
+            className="w-full resize-none bg-transparent px-3.5 py-2.5 text-[14px] leading-relaxed text-text placeholder:text-text-subtle focus:outline-none"
           />
           {(focused || value) && (
-            <div className="flex items-center justify-between border-t border-border px-2 py-1.5">
-              <span className="flex items-center gap-1 text-[11px] text-text-subtle"><AtSign size={12} /> mention · <Kbd>↵</Kbd> send</span>
+            <div className="flex items-center justify-between border-t border-border px-2.5 py-2">
+              <span className="flex items-center gap-1 font-display text-[11.5px] font-medium text-text-subtle"><AtSign size={13} strokeWidth={2.25} /> mention · <Kbd>↵</Kbd> send</span>
               <button
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={send}
                 disabled={!value.trim()}
-                className="flex h-6.5 items-center gap-1.5 rounded-md bg-primary px-2 py-1 text-[12px] font-medium text-primary-fg transition-colors hover:bg-primary-hover disabled:opacity-40"
+                className="flex h-7 items-center gap-1.5 rounded-[8px] bg-primary px-2.5 font-display text-[12.5px] font-semibold text-primary-fg transition-[background-color,transform] hover:bg-primary-hover active:scale-[0.97] disabled:opacity-40"
               >
-                Comment <SendHorizontal size={13} />
+                Comment <SendHorizontal size={14} strokeWidth={2.25} />
               </button>
             </div>
           )}

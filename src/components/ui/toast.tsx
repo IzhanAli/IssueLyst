@@ -58,24 +58,24 @@ function ToastRow({ toast: t, onDismiss }: { toast: Toast; onDismiss: () => void
     <div
       role="status"
       className={cn(
-        "anim-scale-in pointer-events-auto flex items-center gap-3 rounded-lg border border-border bg-surface px-3.5 py-2.5 shadow-[var(--shadow-lg)]",
+        "anim-scale-in pointer-events-auto flex items-center gap-3 rounded-[14px] bg-primary px-4 py-3 text-primary-fg shadow-[var(--shadow-lg)]",
         "min-w-[280px] max-w-[420px]",
       )}
     >
       {icons[t.kind]}
-      <span className="flex-1 text-[13px] text-text">{t.message}</span>
+      <span className="flex-1 font-display text-[13.5px] font-semibold">{t.message}</span>
       {t.action && (
         <button
           onClick={() => {
             t.action!.onClick();
             onDismiss();
           }}
-          className="rounded px-1.5 py-0.5 text-[12px] font-medium text-primary hover:bg-primary-soft"
+          className="rounded-[7px] px-2 py-1 font-display text-[12.5px] font-bold text-accent hover:bg-primary-fg/10"
         >
           {t.action.label}
         </button>
       )}
-      <button onClick={onDismiss} className="rounded p-0.5 text-text-subtle hover:text-text" aria-label="Dismiss">
+      <button onClick={onDismiss} className="rounded-[6px] p-0.5 opacity-60 hover:opacity-100" aria-label="Dismiss">
         <X size={14} />
       </button>
     </div>

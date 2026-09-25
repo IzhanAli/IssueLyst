@@ -14,7 +14,7 @@ export function MentionText({ body, users }: { body: string; users: User[] }) {
         const isMention = names.includes(part);
         if (isMention) {
           return (
-            <span key={i} className="rounded bg-primary-soft px-0.5 font-medium text-primary">
+            <span key={i} className="rounded-[4px] bg-accent-soft px-1 font-bold text-accent">
               @{part}
             </span>
           );

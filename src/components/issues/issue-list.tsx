@@ -120,18 +120,18 @@ export function IssueList({ views, empty }: { views: IssueView[]; empty?: React.
         return (
           <section key={group.key} className="border-b border-border last:border-b-0">
             {/* group header */}
-            <div className="group sticky top-8 z-10 flex h-9 items-center gap-2 bg-surface-2/95 px-2.5 backdrop-blur supports-[backdrop-filter]:bg-surface-2/85">
-              <button onClick={() => toggleGroup(group.key)} className="rounded p-0.5 text-text-subtle hover:text-text" aria-label="Toggle group">
-                <ChevronDown size={13} className={cn("transition-transform", isCollapsed && "-rotate-90")} />
+            <div className="group sticky top-9 z-10 flex h-10 items-center gap-2 border-b border-border bg-surface-2/95 px-2.5 backdrop-blur supports-[backdrop-filter]:bg-surface-2/85">
+              <button onClick={() => toggleGroup(group.key)} className="rounded-[6px] p-0.5 text-text-subtle transition-colors hover:bg-surface-hover hover:text-text" aria-label="Toggle group">
+                <ChevronDown size={14} strokeWidth={2.5} className={cn("transition-transform duration-200", isCollapsed && "-rotate-90")} />
               </button>
               <GroupLabel group={group} groupBy={groupBy} />
-              <span className="font-mono text-[11px] text-text-subtle">{group.count}</span>
+              <span className="font-display text-[12.5px] font-semibold text-text-subtle">{group.count}</span>
               <button
                 onClick={() => openCreate(group.status ? { statusId: group.status.id } : undefined)}
-                className="ml-auto rounded p-1 text-text-subtle opacity-0 transition-opacity hover:bg-surface-hover hover:text-text group-hover:opacity-100"
+                className="ml-auto rounded-[7px] p-1 text-text-subtle opacity-0 transition-[opacity,background-color,color] hover:bg-surface-hover hover:text-text group-hover:opacity-100"
                 aria-label="Add issue to group"
               >
-                <Plus size={14} />
+                <Plus size={15} strokeWidth={2.4} />
               </button>
             </div>
 
@@ -156,9 +156,9 @@ export function IssueList({ views, empty }: { views: IssueView[]; empty?: React.
                 {group.issues.length === 0 && (
                   <button
                     onClick={() => openCreate(group.status ? { statusId: group.status.id } : undefined)}
-                    className="flex h-9 w-full items-center gap-2 px-3.5 text-[12.5px] text-text-subtle hover:bg-surface-hover"
+                    className="flex h-10 w-full items-center gap-2 px-4 font-display text-[13px] font-semibold text-text-subtle transition-colors hover:bg-surface-2 hover:text-text"
                   >
-                    <Plus size={13} /> Add issue
+                    <Plus size={14} strokeWidth={2.4} /> Add issue
                   </button>
                 )}
               </div>
@@ -189,7 +189,7 @@ function ColumnHeader({ fields, onReorder }: { fields: FieldDef[]; onReorder: (i
   };
 
   return (
-    <div className="sticky top-0 z-20 flex h-8 items-center gap-2.5 border-b border-border bg-surface pl-2.5 pr-3 text-[10.5px] font-semibold uppercase tracking-[0.05em] text-text-subtle">
+    <div className="sticky top-0 z-20 flex h-9 items-center gap-2.5 border-b border-border bg-surface pl-2.5 pr-3 font-display text-[12px] font-semibold text-text-subtle">
       <span className="w-[130px] shrink-0 pl-6">Task</span>
       <span className="w-[300px] shrink-0 lg:w-[400px]">Name</span>
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
@@ -216,7 +216,7 @@ function SortableColumn({ field }: { field: FieldDef }) {
       {...attributes}
       {...listeners}
     >
-      <GripVertical size={11} className="shrink-0 text-text-subtle opacity-0 transition-opacity group-hover:opacity-100" />
+      <GripVertical size={12} strokeWidth={2.2} className="shrink-0 text-text-subtle opacity-0 transition-opacity group-hover:opacity-100" />
       <span className="truncate">{field.name}</span>
     </span>
   );
@@ -225,17 +225,17 @@ function SortableColumn({ field }: { field: FieldDef }) {
 function GroupLabel({ group, groupBy }: { group: Group; groupBy: string }) {
   if (groupBy === "status" && group.status) {
     return (
-      <span className="flex items-center gap-1.5 text-[12.5px] font-semibold" style={{ color: group.status.color }}>
-        <StatusIcon status={group.status} size={14} /> {group.label}
+      <span className="flex items-center gap-2 font-display text-[13.5px] font-bold tracking-[-0.01em] text-text">
+        <StatusIcon status={group.status} size={15} /> {group.label}
       </span>
     );
   }
   if (groupBy === "priority") {
     return (
-      <span className="flex items-center gap-1.5 text-[12.5px] font-semibold text-text">
-        <PriorityIcon priority={group.key as never} size={14} /> {group.label}
+      <span className="flex items-center gap-2 font-display text-[13.5px] font-bold tracking-[-0.01em] text-text">
+        <PriorityIcon priority={group.key as never} size={15} /> {group.label}
       </span>
     );
   }
-  return <span className="text-[12.5px] font-semibold text-text">{group.label}</span>;
+  return <span className="font-display text-[13.5px] font-bold tracking-[-0.01em] text-text">{group.label}</span>;
 }

@@ -4,16 +4,19 @@ import { Popover } from "@/components/ui/popover";
 import { CommandList, type CommandItem } from "@/components/ui/command-list";
 import type { FieldDef, FieldOption, FieldValue } from "@/lib/types";
 import { shortDate } from "@/lib/utils/format";
-import { readableTextOn } from "@/lib/utils/color";
 import { cn } from "@/lib/utils/cn";
 
+/** A neutral chip: the option's own color lives in the swatch, never the plate. */
 export function OptionPill({ option, className }: { option: FieldOption; className?: string }) {
   return (
     <span
-      className={cn("inline-flex max-w-full items-center truncate rounded-md px-1.5 py-[1px] text-[11px] font-semibold leading-[16px]", className)}
-      style={{ color: readableTextOn(option.color), backgroundColor: `color-mix(in srgb, ${option.color} 84%, var(--surface))` }}
+      className={cn(
+        "inline-flex max-w-full items-center gap-1.5 rounded-[6px] bg-surface-2 px-1.5 py-[1px] font-display text-[11.5px] font-semibold leading-[17px] text-text shadow-[inset_0_0_0_1px_var(--border)]",
+        className,
+      )}
     >
-      {option.label}
+      <span className="h-2 w-2 shrink-0 rounded-[2.5px]" style={{ backgroundColor: option.color }} />
+      <span className="truncate">{option.label}</span>
     </span>
   );
 }
@@ -44,16 +47,16 @@ export function FieldValueDisplay({ field, value, muted }: { field: FieldDef; va
   }
   if (field.type === "checkbox") {
     return value === true ? (
-      <span className="flex h-4 w-4 items-center justify-center rounded border border-success bg-success text-white"><Check size={11} /></span>
+      <span className="flex h-4 w-4 items-center justify-center rounded-[5px] border border-primary bg-primary text-primary-fg"><Check size={11} strokeWidth={3} /></span>
     ) : (
-      <span className="flex h-4 w-4 items-center justify-center rounded border border-border-strong text-text-subtle"><Minus size={10} /></span>
+      <span className="flex h-4 w-4 items-center justify-center rounded-[5px] border-[1.5px] border-border-strong text-text-subtle"><Minus size={10} strokeWidth={2.5} /></span>
     );
   }
   if (field.type === "number") {
-    return value == null || value === "" ? empty : <span className={cn("font-mono text-[12px]", muted && "text-text-muted")}>{String(value)}</span>;
+    return value == null || value === "" ? empty : <span className={cn("font-display text-[12.5px] font-semibold", muted && "text-text-muted")}>{String(value)}</span>;
   }
   if (field.type === "date") {
-    return value ? <span className="font-mono text-[11.5px] text-text-muted">{shortDate(String(value))}</span> : empty;
+    return value ? <span className="font-display text-[12px] font-semibold text-text-muted">{shortDate(String(value))}</span> : empty;
   }
   return value ? <span className="truncate text-[12.5px]">{String(value)}</span> : empty;
 }
@@ -89,7 +92,7 @@ export function FieldEditor({
   const trigger =
     children ??
     (
-      <button className="flex min-w-0 max-w-full items-center rounded px-1 py-0.5 text-left hover:bg-surface-hover" onClick={(e) => e.stopPropagation()}>
+      <button className="flex min-w-0 max-w-full items-center rounded-[6px] px-1 py-0.5 text-left hover:bg-surface-hover" onClick={(e) => e.stopPropagation()}>
         <FieldValueDisplay field={field} value={value} />
       </button>
     );
@@ -99,7 +102,7 @@ export function FieldEditor({
     return (
       <button
         onClick={(e) => { e.stopPropagation(); onChange(value === true ? false : true); }}
-        className="rounded p-0.5 hover:bg-surface-hover"
+        className="rounded-[6px] p-0.5 hover:bg-surface-hover"
         aria-label={field.name}
       >
         <FieldValueDisplay field={field} value={value} />
@@ -113,8 +116,8 @@ export function FieldEditor({
     const items: CommandItem[] = field.options.map((o) => ({
       id: o.id,
       label: o.label,
-      icon: <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: o.color }} />,
-      right: selected.has(o.id) ? <Check size={14} className="text-primary" /> : <span className="w-3.5" />,
+      icon: <span className="h-2.5 w-2.5 rounded-[3px]" style={{ backgroundColor: o.color }} />,
+      right: selected.has(o.id) ? <Check size={15} strokeWidth={2.5} className="text-accent" /> : <span className="w-[15px]" />,
       onSelect: () => {
         if (multi) {
           const next = new Set(selected);
@@ -136,7 +139,7 @@ export function FieldEditor({
             items={items.map((it) => ({ ...it, onSelect: () => { it.onSelect(); if (!multi) close(); } }))}
             footer={
               selected.size ? (
-                <button onClick={() => { onChange(multi ? [] : null); close(); }} className="w-full rounded-md px-2 py-1 text-left text-[12px] text-text-muted hover:bg-surface-hover">
+                <button onClick={() => { onChange(multi ? [] : null); close(); }} className="w-full rounded-[8px] px-2.5 py-1.5 text-left font-display text-[12.5px] font-semibold text-text-muted hover:bg-surface-2 hover:text-text">
                   Clear
                 </button>
               ) : undefined
@@ -194,7 +197,7 @@ function InlineValue({ field, value, onCommit }: { field: FieldDef; value: Field
     <button
       onClick={() => { setDraft(value == null ? "" : String(value)); setEditing(true); }}
       className={cn(
-        "flex w-full items-center gap-1 rounded-md border border-transparent px-2 py-1.5 text-left text-[12.5px] transition-colors hover:border-border hover:bg-surface-hover",
+        "flex w-full items-center gap-1 rounded-[8px] px-2 py-1.5 text-left font-display text-[13px] font-medium transition-colors hover:bg-surface hover:shadow-[inset_0_0_0_1px_var(--border)]",
       )}
     >
       {isEmpty ? (
@@ -215,8 +218,8 @@ function ValueInput({ field, value, onCommit }: { field: FieldDef; value: FieldV
   return (
     <div className="flex flex-col gap-2">
       <div className="relative flex items-center">
-        {field.type === "number" && <Hash size={13} className="pointer-events-none absolute left-2.5 text-text-subtle" />}
-        {field.type === "date" && <Calendar size={13} className="pointer-events-none absolute left-2.5 text-text-subtle" />}
+        {field.type === "number" && <Hash size={14} strokeWidth={2.25} className="pointer-events-none absolute left-2.5 text-text-subtle" />}
+        {field.type === "date" && <Calendar size={14} strokeWidth={2.25} className="pointer-events-none absolute left-2.5 text-text-subtle" />}
         <input
           autoFocus
           type={field.type === "number" ? "number" : field.type === "date" ? "date" : "text"}
@@ -228,8 +231,8 @@ function ValueInput({ field, value, onCommit }: { field: FieldDef; value: FieldV
         />
       </div>
       <div className="flex gap-1.5">
-        <button onClick={commit} className="flex-1 rounded-md bg-primary py-1.5 text-[12px] font-medium text-primary-fg transition-colors hover:bg-primary-hover">Save</button>
-        {value != null && <button onClick={() => onCommit(null)} className="rounded-md px-2 py-1.5 text-[12px] text-text-muted hover:bg-surface-hover">Clear</button>}
+        <button onClick={commit} className="h-8 flex-1 rounded-[8px] bg-primary font-display text-[12.5px] font-semibold text-primary-fg transition-[background-color,transform] hover:bg-primary-hover active:scale-[0.97]">Save</button>
+        {value != null && <button onClick={() => onCommit(null)} className="h-8 rounded-[8px] px-2.5 font-display text-[12.5px] font-semibold text-text-muted hover:bg-surface-hover hover:text-text">Clear</button>}
       </div>
     </div>
   );

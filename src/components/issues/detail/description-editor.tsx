@@ -40,7 +40,7 @@ export function DescriptionEditor({
 
   if (readOnly) {
     return (
-      <div className="-mx-2.5 px-2.5 py-2 text-[13.5px] text-text">
+      <div className="-mx-3 px-3 py-2.5 text-[14px] leading-relaxed text-text">
         {value ? <Markdown text={value} /> : <span className="text-text-subtle">No description</span>}
       </div>
     );
@@ -61,7 +61,7 @@ export function DescriptionEditor({
           if (e.key === "Escape") { e.preventDefault(); setDraft(value); setEditing(false); }
         }}
         placeholder="Add a description…"
-        className="w-full resize-none rounded-md border border-ring bg-surface p-2.5 text-[13.5px] leading-relaxed text-text shadow-[0_0_0_3px_color-mix(in_srgb,var(--ring)_22%,transparent)] focus:outline-none"
+        className="-mx-3 w-[calc(100%+1.5rem)] resize-none rounded-[12px] border border-ring bg-surface px-3 py-2.5 text-[14px] leading-relaxed text-text shadow-[0_0_0_3px_color-mix(in_srgb,var(--ring)_22%,transparent)] focus:outline-none"
       />
     );
   }
@@ -73,7 +73,7 @@ export function DescriptionEditor({
       onClick={() => setEditing(true)}
       onKeyDown={(e) => { if (e.key === "Enter") setEditing(true); }}
       className={cn(
-        "-mx-2.5 cursor-text rounded-md px-2.5 py-2 text-[13.5px] text-text transition-colors hover:bg-surface-2",
+        "-mx-3 cursor-text rounded-[12px] px-3 py-2.5 text-[14px] leading-relaxed text-text transition-colors hover:bg-surface-2",
         !value && "text-text-subtle",
       )}
     >

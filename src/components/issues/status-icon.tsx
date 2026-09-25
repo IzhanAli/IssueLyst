@@ -1,7 +1,7 @@
 import type { Status, StatusIcon as StatusIconKind } from "@/lib/types";
 import { cn } from "@/lib/utils/cn";
 
-/** Circular progress-style status glyph, colored by the status token. */
+/** Circular progress-style status glyph, colored by the status token. Heavy strokes, so it reads at 14px. */
 export function StatusIcon({
   status,
   size = 15,
@@ -28,14 +28,14 @@ export function StatusIcon({
       aria-hidden
     >
       {kind === "backlog" && (
-        <circle cx="8" cy="8" r={r} fill="none" stroke={c} strokeWidth="1.6" strokeDasharray="1.6 2.2" />
+        <circle cx="8" cy="8" r={r} fill="none" stroke={c} strokeWidth="1.9" strokeDasharray="1.8 2.2" />
       )}
       {kind === "open" && (
-        <circle cx="8" cy="8" r={r} fill="none" stroke={c} strokeWidth="1.6" />
+        <circle cx="8" cy="8" r={r} fill="none" stroke={c} strokeWidth="1.9" />
       )}
       {(kind === "progress" || kind === "review") && (
         <>
-          <circle cx="8" cy="8" r={r} fill="none" stroke={c} strokeWidth="1.6" opacity="0.35" />
+          <circle cx="8" cy="8" r={r} fill="none" stroke={c} strokeWidth="1.9" opacity="0.3" />
           <circle
             cx="8"
             cy="8"
@@ -53,13 +53,13 @@ export function StatusIcon({
       {kind === "done" && (
         <>
           <circle cx="8" cy="8" r={r + 0.5} fill={c} />
-          <path d="M5.2 8.2l1.9 1.9 3.6-3.9" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M5.2 8.2l1.9 1.9 3.6-3.9" fill="none" stroke="var(--surface)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
         </>
       )}
       {kind === "closed" && (
         <>
           <circle cx="8" cy="8" r={r + 0.5} fill={c} />
-          <path d="M5.5 5.5l5 5M10.5 5.5l-5 5" stroke="white" strokeWidth="1.4" strokeLinecap="round" />
+          <path d="M5.5 5.5l5 5M10.5 5.5l-5 5" stroke="var(--surface)" strokeWidth="1.7" strokeLinecap="round" />
         </>
       )}
     </svg>

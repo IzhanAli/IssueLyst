@@ -174,7 +174,8 @@ const neonStorage: PersistStorage<Persisted> = {
     try {
       localStorage.removeItem(name);
       // Deliberately does not drop the database. Clearing local state should
-      // not be a data-destroying act; `npm run db:seed` resets the server.
+      // not be a data-destroying act; `npm run db:bootstrap` resets the server
+      // to a bare workspace.
       localStorage.removeItem(sessionKey(name));
     } catch {
       /* ignore */

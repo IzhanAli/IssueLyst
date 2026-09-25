@@ -117,6 +117,7 @@ export async function loadSnapshot(): Promise<Snapshot | null> {
       icon: projectRow.icon,
       description: projectRow.description,
       createdAt: req(projectRow.createdAt),
+      setupCompletedAt: iso(projectRow.setupCompletedAt),
     },
     users: userRows.map((r) => ({ ...r, createdAt: req(r.createdAt) })),
     statuses: statusRows,
@@ -157,7 +158,7 @@ export async function saveSlices(slices: Partial<Snapshot>): Promise<void> {
 
   if (slices.project) {
     const p = slices.project;
-    await d.insert(t.projects).values({ ...p, createdAt: new Date(p.createdAt) })
+    await d.insert(t.projects).values({ ...p, createdAt: new Date(p.createdAt), setupCompletedAt: at(p.setupCompletedAt) })
       .onConflictDoUpdate({ target: t.projects.id, set: upsertSet(t.projects) });
   }
 

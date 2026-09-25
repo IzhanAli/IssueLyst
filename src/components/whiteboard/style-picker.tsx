@@ -32,8 +32,8 @@ function Swatch({
       aria-label={`Color ${label}`}
       aria-pressed={pressed}
       className={cn(
-        "h-5 w-5 shrink-0 rounded-full border border-border-strong transition-shadow",
-        pressed && "shadow-[0_0_0_2px_var(--surface),0_0_0_4px_var(--primary)]",
+        "h-[22px] w-[22px] shrink-0 rounded-[7px] shadow-[inset_0_0_0_1px_var(--border-strong)] transition-[box-shadow,transform] duration-150 hover:scale-110 active:scale-95",
+        pressed && "shadow-[inset_0_0_0_1px_var(--border-strong),0_0_0_2px_var(--surface),0_0_0_4px_var(--accent)]",
       )}
       style={{ background: fill }}
     />
@@ -65,7 +65,7 @@ export function InkStylePicker({
           onPick={() => onChange({ color: s.color })}
         />
       ))}
-      <div className="mx-1 h-4 w-px shrink-0 bg-border" />
+      <div className="mx-1 h-5 w-px shrink-0 bg-border" />
       <div role="group" aria-label={sizeName} className="flex items-center gap-0.5">
         {SIZES.map((s) => (
           <button
@@ -74,8 +74,8 @@ export function InkStylePicker({
             aria-label={`${sizeName} ${s.name}`}
             aria-pressed={value.size === s.size}
             className={cn(
-              "flex h-6 min-w-6 items-center justify-center rounded-[5px] px-1 font-mono text-[11px] font-medium transition-colors",
-              value.size === s.size ? "bg-surface-active text-text" : "text-text-muted hover:bg-surface-2 hover:text-text",
+              "flex h-7 min-w-7 items-center justify-center rounded-[8px] px-1 font-display text-[12px] font-bold transition-colors",
+              value.size === s.size ? "bg-primary text-primary-fg" : "text-text-muted hover:bg-surface-2 hover:text-text",
             )}
           >
             {s.label}
@@ -127,11 +127,11 @@ export function ShapePicker({ value, onChange }: { value: ShapeKind; onChange: (
           aria-label={`Shape ${s.label}`}
           aria-pressed={value === s.shape}
           className={cn(
-            "flex h-6 w-6 items-center justify-center rounded-[5px] transition-colors",
-            value === s.shape ? "bg-surface-active text-text" : "text-text-muted hover:bg-surface-2 hover:text-text",
+            "flex h-7 w-7 items-center justify-center rounded-[8px] transition-colors",
+            value === s.shape ? "bg-primary text-primary-fg" : "text-text-muted hover:bg-surface-2 hover:text-text",
           )}
         >
-          <s.icon size={14} />
+          <s.icon size={15} strokeWidth={2.25} />
         </button>
       ))}
     </div>
@@ -184,7 +184,7 @@ export function StyleMenu({
         aria-label={label}
         style={floatingStyles}
         {...getFloatingProps({ onContextMenu: (e) => e.preventDefault() })}
-        className="anim-scale-in z-[180] flex items-center gap-1 rounded-lg border border-border bg-surface p-1 shadow-[var(--shadow-lg)]"
+        className="anim-scale-in z-[180] flex items-center gap-1.5 rounded-[14px] border border-border bg-surface p-1.5 shadow-[var(--shadow-lg)]"
       >
         {children}
       </div>

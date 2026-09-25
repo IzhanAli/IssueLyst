@@ -11,109 +11,141 @@
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 /* ══════════════════════════════════════════════════════════════════
-   Semantic design tokens.  Never hardcode a color in a component —
-   reference these.  Light is the primary theme; dark is architectural.
+   Semantic design tokens. Never hardcode a color in a component —
+   reference these.
+
+   The palette is four colors, high contrast, and each has one job:
+
+     Ink      #000000  structure and emphasis — the navigation rail,
+                       primary buttons, active navigation, headings.
+     Paper    #FFFFFF  the canvas — content, cards, menus, dialogs.
+     Magenta  #E5136B  attention only — unread counts, urgent, overdue,
+                       destructive actions. Small doses, never a surface.
+     Azure    #0A66FF  activity and focus — focus rings, selection,
+                       links, in-progress work, presence, success.
+
+   Greys are tints of ink: neutral and cool, never warm. Every fill is a
+   solid color: no gradients, glows or patterned backgrounds.
    ══════════════════════════════════════════════════════════════════ */
 :root {
-  /* Neutrals — cool ClickUp-style greys, clearly-separated layers */
-  --bg:              #f2f3f5;
+  /* Layers */
+  --bg:              #ffffff;
   --surface:         #ffffff;
-  --surface-2:       #e9ebef;   /* sunken panels, sidebar */
-  --surface-hover:   #e0e3e8;
-  --surface-active:  #d3d7de;
-  --border:          #d8dbe1;
-  --border-strong:   #bbc1cb;
-  --border-focus:    #8ea6d6;
+  --surface-2:       #f2f2f5;   /* sidebar panel, sunken wells, filled fields */
+  --surface-hover:   #e8e8ed;
+  --surface-active:  #dcdce2;
+  --border:          #e3e3e8;
+  --border-strong:   #c7c7ce;
+  --border-focus:    #0a66ff;
 
-  --text:            #0c1119;
-  --text-muted:      #454e5d;
-  --text-subtle:     #767f8e;
-  --text-invert:     #f2f3f5;
+  --text:            #000000;
+  --text-muted:      #4a4a4f;
+  --text-subtle:     #68686d;
+  --text-invert:     #ffffff;
 
-  /* Brand — rich cobalt sapphire */
-  --primary:         #2749c4;
-  --primary-hover:   #1e3aa4;
-  --primary-soft:    #e6e9f8;
+  /* Rail — black in both themes */
+  --rail:            #000000;
+  --rail-fg:         #ffffff;
+  --rail-muted:      rgb(255 255 255 / 0.6);
+  --rail-hover:      rgb(255 255 255 / 0.1);
+  --rail-active:     rgb(255 255 255 / 0.18);
+
+  /* Ink — primary actions and emphasis */
+  --primary:         #000000;
+  --primary-hover:   #2a2a2e;
+  --primary-soft:    #e8e8ed;   /* active nav row: a grey plate, bold ink text */
   --primary-fg:      #ffffff;
-  --ring:            #5f7fda;
+  --ring:            #0a66ff;
 
-  /* Semantic feedback — deep, saturated */
-  --danger:          #c02219;
-  --danger-soft:     #f8e2df;
-  --warning:         #a2620f;
-  --warning-soft:    #f6ead2;
-  --success:         #0d774c;
-  --success-soft:    #d9ede2;
-  --info:            #1f57a6;
-  --info-soft:       #e2ebf7;
+  /* Azure — activity and focus */
+  --accent:          #0a66ff;
+  --accent-hover:    #0052d6;
+  --accent-soft:     #e6eeff;
+  --accent-fg:       #ffffff;
 
-  /* Status palette (data-driven; these are defaults) */
-  --status-backlog:  #5b6270;
-  --status-open:     #1f57a6;
-  --status-progress: #a2620f;
-  --status-review:   #6a2f9e;
-  --status-done:     #0d774c;
-  --status-closed:   #676054;
+  /* Magenta — attention */
+  --signal:          #e5136b;
+  --signal-hover:    #c70f5c;
+  --signal-soft:     #fde6ef;
+  --signal-fg:       #ffffff;
 
-  /* Priority palette */
-  --prio-urgent:     #c02219;
-  --prio-high:       #c6551a;
-  --prio-medium:     #a37c13;
-  --prio-low:        #5b6270;
+  /* Semantic feedback, folded into the two accents */
+  --danger:          var(--signal);
+  --danger-soft:     var(--signal-soft);
+  --warning:         var(--signal);
+  --warning-soft:    var(--signal-soft);
+  --success:         var(--accent);
+  --success-soft:    var(--accent-soft);
+  --info:            var(--accent);
+  --info-soft:       var(--accent-soft);
 
-  /* Elevation — soft, restrained (cool slate) */
-  --shadow-sm: 0 1px 2px 0 rgb(18 24 38 / 0.06);
-  --shadow-md: 0 4px 14px -4px rgb(18 24 38 / 0.12), 0 2px 4px -2px rgb(18 24 38 / 0.07);
-  --shadow-lg: 0 16px 48px -12px rgb(18 24 38 / 0.24), 0 4px 10px -4px rgb(18 24 38 / 0.12);
+  /* Status — settled states are ink, active work is azure, waiting-on-someone is magenta */
+  --status-backlog:  #7a7a80;
+  --status-open:     #000000;
+  --status-progress: var(--accent);
+  --status-review:   var(--signal);
+  --status-done:     #000000;
+  --status-closed:   #7a7a80;
 
-  --radius: 7px;
+  /* Priority — the bars carry the rank; only urgent earns a color */
+  --prio-urgent:     var(--signal);
+  --prio-high:       #000000;
+  --prio-medium:     #000000;
+  --prio-low:        #7a7a80;
+
+  /* Elevation — soft and neutral */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.06);
+  --shadow-md: 0 8px 24px -8px rgb(0 0 0 / 0.18), 0 2px 6px -2px rgb(0 0 0 / 0.08);
+  --shadow-lg: 0 28px 64px -18px rgb(0 0 0 / 0.32), 0 8px 18px -8px rgb(0 0 0 / 0.14);
+
+  --radius: 10px;
 }
 
 [data-theme="dark"] {
-  --bg:              #131419;
-  --surface:         #1e1f27;
-  --surface-2:       #24262f;
-  --surface-hover:   #2c2e39;
-  --surface-active:  #383b48;
-  --border:          #313340;
-  --border-strong:   #474b59;
-  --border-focus:    #3d548a;
+  --bg:              #0e0e10;
+  --surface:         #0e0e10;
+  --surface-2:       #19191c;
+  --surface-hover:   #232327;
+  --surface-active:  #2f2f34;
+  --border:          #252529;
+  --border-strong:   #3a3a40;
+  --border-focus:    #3d8bff;
 
-  --text:            #f6f8fc;
-  --text-muted:      #b1bbca;
-  --text-subtle:     #737d8d;
-  --text-invert:     #131419;
+  --text:            #ffffff;
+  --text-muted:      #b6b6bc;
+  --text-subtle:     #8e8e94;
+  --text-invert:     #000000;
 
-  --primary:         #7590f2;
-  --primary-hover:   #8ba4f6;
-  --primary-soft:    #1e2748;
-  --primary-fg:      #0b0e1e;
-  --ring:            #4f6fce;
+  --rail-muted:      rgb(255 255 255 / 0.55);
 
-  --danger:          #ec6459;
-  --danger-soft:     #3a1f1c;
-  --warning:         #dd9c3c;
-  --warning-soft:    #35270d;
-  --success:         #2fb279;
-  --success-soft:    #0f281d;
-  --info:            #5f97e6;
-  --info-soft:       #14233c;
+  --primary:         #ffffff;
+  --primary-hover:   #e2e2e6;
+  --primary-soft:    #2a2a2f;
+  --primary-fg:      #000000;
+  --ring:            #3d8bff;
 
-  --status-backlog:  #8b93a3;
-  --status-open:     #5f97e6;
-  --status-progress: #dd9c3c;
-  --status-review:   #b07ce8;
-  --status-done:     #2fb279;
-  --status-closed:   #8a8175;
+  --accent:          #3d8bff;
+  --accent-hover:    #62a1ff;
+  --accent-soft:     #0f2146;
+  --accent-fg:       #000000;
 
-  --prio-urgent:     #ec6459;
-  --prio-high:       #ee8b48;
-  --prio-medium:     #d9b544;
-  --prio-low:        #8b93a3;
+  --signal:          #ff3d86;
+  --signal-hover:    #ff6199;
+  --signal-soft:     #3b0c20;
+  --signal-fg:       #000000;
 
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.4);
-  --shadow-md: 0 4px 14px -4px rgb(0 0 0 / 0.5), 0 2px 4px -2px rgb(0 0 0 / 0.4);
-  --shadow-lg: 0 16px 48px -12px rgb(0 0 0 / 0.7), 0 4px 10px -4px rgb(0 0 0 / 0.5);
+  --status-backlog:  #8e8e94;
+  --status-open:     #ffffff;
+  --status-done:     #ffffff;
+  --status-closed:   #8e8e94;
+
+  --prio-high:       #ffffff;
+  --prio-medium:     #ffffff;
+  --prio-low:        #8e8e94;
+
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.5);
+  --shadow-md: 0 8px 24px -8px rgb(0 0 0 / 0.7), 0 2px 6px -2px rgb(0 0 0 / 0.5);
+  --shadow-lg: 0 28px 64px -18px rgb(0 0 0 / 0.85), 0 8px 18px -8px rgb(0 0 0 / 0.6);
 }
 
 /* ── Map tokens to Tailwind utilities (inline = follow the CSS var) ── */
@@ -132,11 +164,27 @@
   --color-text-subtle:    var(--text-subtle);
   --color-text-invert:    var(--text-invert);
 
+  --color-rail:           var(--rail);
+  --color-rail-fg:        var(--rail-fg);
+  --color-rail-muted:     var(--rail-muted);
+  --color-rail-hover:     var(--rail-hover);
+  --color-rail-active:    var(--rail-active);
+
   --color-primary:        var(--primary);
   --color-primary-hover:  var(--primary-hover);
   --color-primary-soft:   var(--primary-soft);
   --color-primary-fg:     var(--primary-fg);
   --color-ring:           var(--ring);
+
+  --color-accent:         var(--accent);
+  --color-accent-hover:   var(--accent-hover);
+  --color-accent-soft:    var(--accent-soft);
+  --color-accent-fg:      var(--accent-fg);
+
+  --color-signal:         var(--signal);
+  --color-signal-hover:   var(--signal-hover);
+  --color-signal-soft:    var(--signal-soft);
+  --color-signal-fg:      var(--signal-fg);
 
   --color-danger:         var(--danger);
   --color-danger-soft:    var(--danger-soft);
@@ -159,8 +207,10 @@
   --color-prio-medium:  var(--prio-medium);
   --color-prio-low:     var(--prio-low);
 
-  --font-serif: var(--font-roboto), "Roboto", system-ui, -apple-system, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
-  --font-mono:  var(--font-plex-mono), "IBM Plex Mono", ui-monospace, SFMono-Regular, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", monospace;
+  /* Text face (default) and display face. Mono is for inline code only. */
+  --font-sans:    var(--font-roboto), "Roboto", "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+  --font-display: var(--font-geist), "Geist Variable", var(--font-roboto), "Roboto", "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
+  --font-mono:    var(--font-plex-mono), "IBM Plex Mono", monospace;
 
   --radius-DEFAULT: var(--radius);
 }
@@ -175,7 +225,7 @@ html, body {
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   font-size: 13.5px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
@@ -183,10 +233,10 @@ body {
   font-feature-settings: "kern";
 }
 
-/* Typography rhythm — weight & size hierarchy, not color */
-.font-mono { font-family: var(--font-mono); font-feature-settings: "kern", "ss01"; }
+/* Counts, keys and dates line up in columns */
+.font-display { font-feature-settings: "kern", "tnum"; }
 
-/* Focus — visible, calm.
+/* Focus — visible, azure.
    These rules are unlayered, so they outrank every Tailwind utility (layered CSS
    always loses to unlayered CSS). Keep the blanket ring for buttons, links and
    other interactive surfaces, and let text-entry elements opt out: they carry
@@ -202,14 +252,14 @@ body {
 }
 .focus-ring:focus-visible { outline: 2px solid var(--ring); outline-offset: 1px; }
 
-/* Polished text field — filled by default (no harsh border), focus reveals a ring */
+/* Text field — filled well by default, focus lifts it to paper with an azure ring */
 .text-field {
   width: 100%;
-  border-radius: 8px;
+  border-radius: 10px;
   border: 1px solid transparent;
   background: var(--surface-2);
-  padding: 7px 10px;
-  font-size: 13px;
+  padding: 7px 11px;
+  font-size: 13.5px;
   line-height: 1.35;
   color: var(--text);
   transition: border-color 130ms ease, box-shadow 130ms ease, background 130ms ease;
@@ -227,7 +277,7 @@ body {
 
 /* Filled variant used for larger composers / textareas */
 .field-fill {
-  border-radius: 10px;
+  border-radius: 12px;
   border: 1px solid transparent;
   background: var(--surface-2);
   transition: border-color 130ms ease, box-shadow 130ms ease, background 130ms ease;
@@ -253,45 +303,49 @@ body {
 }
 *::-webkit-scrollbar-thumb:hover { background: var(--text-subtle); background-clip: padding-box; }
 
-::selection { background: var(--primary-soft); color: var(--text); }
+::selection { background: var(--accent-soft); color: var(--text); }
 
-/* Motion — subtle, purposeful (120–200ms) */
+/* Motion — quick, springy, purposeful (120–220ms) */
 @media (prefers-reduced-motion: no-preference) {
   .anim-in { animation: fade-in 160ms cubic-bezier(0.2, 0, 0, 1); }
-  .anim-scale-in { animation: scale-in 150ms cubic-bezier(0.2, 0, 0, 1); }
-  .anim-slide-in { animation: slide-in 200ms cubic-bezier(0.22, 1, 0.36, 1); }
+  .anim-scale-in { animation: scale-in 170ms cubic-bezier(0.22, 1.2, 0.36, 1); }
+  .anim-slide-in { animation: slide-in 220ms cubic-bezier(0.22, 1, 0.36, 1); }
+  .anim-pop { animation: pop 260ms cubic-bezier(0.34, 1.56, 0.64, 1); }
 }
 @keyframes fade-in { from { opacity: 0 } to { opacity: 1 } }
 @keyframes scale-in {
-  from { opacity: 0; transform: scale(0.97) translateY(2px) }
+  from { opacity: 0; transform: scale(0.96) translateY(3px) }
   to { opacity: 1; transform: scale(1) translateY(0) }
 }
 @keyframes slide-in {
   from { transform: translateX(16px); opacity: 0 }
   to { transform: translateX(0); opacity: 1 }
 }
-@keyframes shimmer {
-  0% { background-position: -400px 0 }
-  100% { background-position: 400px 0 }
+@keyframes pop {
+  0% { transform: scale(0.6); opacity: 0 }
+  100% { transform: scale(1); opacity: 1 }
+}
+/* Loading placeholder — a solid well that breathes, no shimmer gradient */
+@keyframes breathe {
+  0%, 100% { opacity: 1 }
+  50% { opacity: 0.55 }
 }
 .skeleton {
-  background: linear-gradient(90deg, var(--surface-2) 0px, var(--surface-hover) 200px, var(--surface-2) 400px);
-  background-size: 800px 100%;
-  animation: shimmer 1.4s infinite linear;
-  border-radius: 4px;
+  background: var(--surface-2);
+  animation: breathe 1.4s ease-in-out infinite;
+  border-radius: 6px;
 }
 
 /* ── Sign-in form ───────────────────────────────────────────────────
-   Previously a `<style jsx global>` block inside the login page, which was
-   a Next-only feature. Only the sign-in screen uses these two classes. */
+   Only the sign-in screen uses these two classes. */
 .input {
   width: 100%;
-  height: 40px;
-  border-radius: 9px;
+  height: 44px;
+  border-radius: 12px;
   border: 1px solid transparent;
   background: var(--surface-2);
-  padding: 0 12px;
-  font-size: 13.5px;
+  padding: 0 14px;
+  font-size: 14.5px;
   color: var(--text);
   transition: border-color 150ms, box-shadow 150ms, background 150ms;
 }
@@ -307,14 +361,22 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  height: 38px;
-  border-radius: 8px;
+  gap: 8px;
+  height: 44px;
+  border-radius: 12px;
   background: var(--primary);
   color: var(--primary-fg);
-  font-size: 13.5px;
-  font-weight: 500;
-  transition: background 150ms;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  transition: background 150ms, transform 150ms;
 }
 .btn-primary:hover { background: var(--primary-hover); }
+.btn-primary:active { transform: scale(0.985); }
 .btn-primary:disabled { opacity: 0.6; }
+
+/* The rounded frame that sits on the rail. In dark mode paper and rail are
+   both near-black, so a hairline keeps the edge legible. */
+.workspace-frame { box-shadow: -1px 0 0 0 transparent; }
+[data-theme="dark"] .workspace-frame { box-shadow: 0 0 0 1px rgb(255 255 255 / 0.07); }
