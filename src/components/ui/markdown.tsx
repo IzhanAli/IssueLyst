@@ -30,7 +30,7 @@ export function Markdown({ text, className }: { text: string; className?: string
       blocks.push(<div key={`sp-${i}`} className="h-2" />);
     } else if (/^#{1,3}\s/.test(line)) {
       blocks.push(
-        <div key={`h-${i}`} className="mt-2 text-[13.5px] font-semibold text-text">
+        <div key={`h-${i}`} className="mt-2 font-display text-[14.5px] font-bold tracking-[-0.01em] text-text">
           {inline(line.replace(/^#{1,3}\s/, ""))}
         </div>,
       );
@@ -52,11 +52,11 @@ function inline(text: string): React.ReactNode {
   const parts = text.split(/(\*\*[^*]+\*\*|`[^`]+`)/g);
   return parts.map((p, i) => {
     if (p.startsWith("**") && p.endsWith("**")) {
-      return <strong key={i} className="font-semibold text-text">{p.slice(2, -2)}</strong>;
+      return <strong key={i} className="font-bold text-text">{p.slice(2, -2)}</strong>;
     }
     if (p.startsWith("`") && p.endsWith("`")) {
       return (
-        <code key={i} className="rounded bg-surface-2 px-1 py-0.5 font-mono text-[11.5px] text-text">
+        <code key={i} className="rounded-[5px] bg-surface-2 px-1 py-0.5 font-mono text-[12px] text-text">
           {p.slice(1, -1)}
         </code>
       );

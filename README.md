@@ -20,7 +20,7 @@ search-param codec is customised).
 - **Floating UI** — popovers, menus, tooltips, dialogs
 - **@dnd-kit** — board drag-and-drop
 - **Motion** — subtle drawer / reorder transitions
-- Type: **Roboto** (UI) · **IBM Plex Mono** (ids, timestamps, shortcuts), self-hosted via `@fontsource`
+- Type: **Roboto** (text) · **Geist** (display: headings, navigation, buttons, counts), self-hosted via `@fontsource`
 
 ## Run
 
@@ -35,7 +35,7 @@ Data persists in the browser (localStorage). Reset it any time from
 
 ## What's in it
 
-- **App shell** — collapsible sidebar, workspace switcher, top bar, command bar
+- **App shell** — black icon rail, collapsible sidebar with search, workspace switcher, command bar
 - **List view** — dense grouped rows (by status / priority / assignee), inline
   editing of status, priority, assignee, labels; multi-select + bulk actions
 - **Board view** — kanban with drag-and-drop between statuses (optimistic)
@@ -104,7 +104,7 @@ here is required to work on the UI.
 ```bash
 # .env.local → DATABASE_URL=postgres://…   (see .env.local.example)
 npm run db:migrate    # apply drizzle/ to the database
-npm run db:seed       # load the demo dataset — destructive, replaces all rows
+npm run db:bootstrap  # workspace, project, user and structure — no demo issues
 npm run dev
 ```
 
@@ -114,7 +114,7 @@ npm run dev
 | `db:migrate` | apply pending migrations |
 | `db:push` | shove the schema straight at the database (dev shortcut) |
 | `db:studio` | Drizzle Studio against your database |
-| `db:seed` | replace everything with the demo dataset |
+| `db:bootstrap` | write a bare workspace, project, user and structure — no issues |
 
 Which mode you get is decided when the bundle is built: `vite.config.ts` folds
 `Boolean(DATABASE_URL)` into a `__DB_CONFIGURED__` constant, so an unconfigured
@@ -165,4 +165,4 @@ src/
 mcp-server/            MCP server (separate package)
 ```
 
-Create the Neon project, put DATABASE_URL in .env.local (no VITE_ prefix), then npm run db:migrate && npm run db:seed.
+Create the Neon project, put DATABASE_URL in .env.local (no VITE_ prefix), then npm run db:migrate && npm run db:bootstrap. The first admin to sign in lands in the setup wizard.

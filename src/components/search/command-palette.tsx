@@ -73,18 +73,18 @@ export function CommandPalette() {
     if (!query) {
       const recent = [...views].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)).slice(0, 5);
       return [
-        { id: "a-new", section: "Actions", label: "Create new issue", icon: <Plus size={15} />, onSelect: () => { setOpen(false); openCreate(); } },
-        { id: "a-list", section: "Actions", label: "Go to List", icon: <ListIcon size={15} />, onSelect: () => { navigate({ to: "/app/project/$key/list", params: { key: DEFAULT_PROJECT_KEY }, search: {} }); setOpen(false); } },
-        { id: "a-board", section: "Actions", label: "Go to Board", icon: <Columns3 size={15} />, onSelect: () => { navigate({ to: "/app/project/$key/board", params: { key: DEFAULT_PROJECT_KEY }, search: {} }); setOpen(false); } },
-        { id: "a-mine", section: "Actions", label: "My Issues", icon: <UserRound size={15} />, onSelect: () => { navigate({ to: "/app/my-issues", search: {} }); setOpen(false); } },
-        { id: "a-inbox", section: "Actions", label: "Inbox", icon: <Inbox size={15} />, onSelect: () => { navigate({ to: "/app/inbox", search: {} }); setOpen(false); } },
-        { id: "a-whiteboards", section: "Actions", label: "Whiteboards", icon: <Presentation size={15} />, onSelect: () => { navigate({ to: "/app/whiteboards", search: {} }); setOpen(false); } },
-        { id: "a-theme", section: "Actions", label: "Toggle theme", icon: <MoonStar size={15} />, onSelect: () => toggle() },
+        { id: "a-new", section: "Actions", label: "Create new issue", icon: <Plus size={16} strokeWidth={2.25} />, onSelect: () => { setOpen(false); openCreate(); } },
+        { id: "a-list", section: "Actions", label: "Go to List", icon: <ListIcon size={16} strokeWidth={2.25} />, onSelect: () => { navigate({ to: "/app/project/$key/list", params: { key: DEFAULT_PROJECT_KEY }, search: {} }); setOpen(false); } },
+        { id: "a-board", section: "Actions", label: "Go to Board", icon: <Columns3 size={16} strokeWidth={2.25} />, onSelect: () => { navigate({ to: "/app/project/$key/board", params: { key: DEFAULT_PROJECT_KEY }, search: {} }); setOpen(false); } },
+        { id: "a-mine", section: "Actions", label: "My Issues", icon: <UserRound size={16} strokeWidth={2.25} />, onSelect: () => { navigate({ to: "/app/my-issues", search: {} }); setOpen(false); } },
+        { id: "a-inbox", section: "Actions", label: "Inbox", icon: <Inbox size={16} strokeWidth={2.25} />, onSelect: () => { navigate({ to: "/app/inbox", search: {} }); setOpen(false); } },
+        { id: "a-whiteboards", section: "Actions", label: "Whiteboards", icon: <Presentation size={16} strokeWidth={2.25} />, onSelect: () => { navigate({ to: "/app/whiteboards", search: {} }); setOpen(false); } },
+        { id: "a-theme", section: "Actions", label: "Toggle theme", icon: <MoonStar size={16} strokeWidth={2.25} />, onSelect: () => toggle() },
         {
           id: "a-csv",
           section: "Actions",
           label: "Export all issues to CSV",
-          icon: <Download size={15} />,
+          icon: <Download size={16} strokeWidth={2.25} />,
           onSelect: () => {
             const all = allIssueViews(store);
             downloadCsv(`issuelyst-issues-${new Date().toISOString().slice(0, 10)}.csv`, issuesToCsv(all, store.users));
@@ -140,7 +140,7 @@ export function CommandPalette() {
         id: l.id,
         section: "Labels",
         label: l.name,
-        icon: <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: l.color }} />,
+        icon: <span className="h-2.5 w-2.5 rounded-[3px]" style={{ backgroundColor: l.color }} />,
         onSelect: () => { navigate({ to: "/app/project/$key/list", params: { key: DEFAULT_PROJECT_KEY }, search: { label: l.id } }); setOpen(false); },
       })),
     ];
@@ -161,22 +161,22 @@ export function CommandPalette() {
   let lastSection = "";
 
   return (
-    <Modal open={open} onClose={() => setOpen(false)} align="top" className="max-w-[560px]">
+    <Modal open={open} onClose={() => setOpen(false)} align="top" className="max-w-[600px]">
       <div onKeyDown={onKeyDown}>
-        <div className="flex items-center gap-2.5 border-b border-border px-3.5 py-3">
-          <Search size={16} className="text-text-subtle" />
+        <div className="flex items-center gap-3 border-b border-border px-4 py-3.5">
+          <Search size={19} strokeWidth={2.4} className="shrink-0 text-text" />
           <input
             ref={inputRef}
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Search issues, people, labels — or jump to…"
-            className="w-full bg-transparent text-[14px] text-text placeholder:text-text-subtle focus:outline-none"
+            className="w-full bg-transparent font-display text-[16px] font-medium tracking-[-0.01em] text-text placeholder:font-normal placeholder:text-text-subtle focus:outline-none"
           />
           <Kbd>Esc</Kbd>
         </div>
-        <div ref={listRef} className="max-h-[52vh] overflow-y-auto p-1.5">
+        <div ref={listRef} className="max-h-[52vh] overflow-y-auto p-2">
           {rows.length === 0 ? (
-            <div className="px-2 py-8 text-center text-[13px] text-text-subtle">No results for “{q}”</div>
+            <div className="px-2 py-10 text-center font-display text-[14px] font-semibold text-text-subtle">No results for “{q}”</div>
           ) : (
             rows.map((row, i) => {
               const showSection = row.section !== lastSection;
@@ -184,27 +184,27 @@ export function CommandPalette() {
               return (
                 <div key={row.id + i}>
                   {showSection && (
-                    <div className="px-2 pb-1 pt-2 text-[10.5px] font-semibold uppercase tracking-wide text-text-subtle">{row.section}</div>
+                    <div className="px-2.5 pb-1 pt-2.5 font-display text-[12.5px] font-semibold text-text-subtle">{row.section}</div>
                   )}
                   <button
                     data-i={i}
                     onMouseMove={() => setActive(i)}
                     onClick={() => row.onSelect()}
                     className={cn(
-                      "flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-left",
-                      i === active && "bg-surface-hover",
+                      "flex w-full items-center gap-3 rounded-[10px] px-2.5 py-2 text-left transition-colors duration-100",
+                      i === active && "bg-surface-2",
                     )}
                   >
                     <span className="flex h-4 w-4 shrink-0 items-center justify-center">{row.icon}</span>
-                    <span className="min-w-0 flex-1 truncate text-[13px] text-text">{row.label}</span>
-                    {row.sub && <span className="shrink-0 font-mono text-[10.5px] text-text-subtle">{row.sub}</span>}
+                    <span className={cn("min-w-0 flex-1 truncate text-[14px] text-text", i === active && "font-medium")}>{row.label}</span>
+                    {row.sub && <span className="shrink-0 font-display text-[12px] font-semibold text-text-subtle">{row.sub}</span>}
                   </button>
                 </div>
               );
             })
           )}
         </div>
-        <div className="flex items-center gap-3 border-t border-border bg-surface-2 px-3 py-2 text-[11px] text-text-subtle">
+        <div className="flex items-center gap-4 border-t border-border bg-surface-2 px-4 py-2.5 font-display text-[12px] font-semibold text-text-subtle">
           <span className="flex items-center gap-1"><Kbd><ArrowUp size={9} /></Kbd><Kbd><ArrowDown size={9} /></Kbd> navigate</span>
           <span className="flex items-center gap-1"><Kbd><CornerDownLeft size={9} /></Kbd> open</span>
         </div>

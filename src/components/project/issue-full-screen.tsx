@@ -21,9 +21,9 @@ export function IssueFullScreen() {
   if (!issue) {
     return (
       <div className="flex h-full flex-col">
-        <div className="flex h-11 items-center border-b border-border px-3">
+        <div className="flex h-[52px] items-center border-b border-border px-4">
           <Button variant="ghost" size="sm" onClick={() => navigate({ to: "/app/project/$key/list", params: { key: DEFAULT_PROJECT_KEY }, search: {} })}>
-            <ArrowLeft size={15} /> Back to issues
+            <ArrowLeft size={15} strokeWidth={2.4} /> Back to issues
           </Button>
         </div>
         <div className="flex flex-1 items-center justify-center">
@@ -35,9 +35,9 @@ export function IssueFullScreen() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex h-11 shrink-0 items-center border-b border-border px-3">
+      <div className="flex h-[52px] shrink-0 items-center border-b border-border px-4">
         <Button variant="ghost" size="sm" onClick={() => navigate({ to: "/app/project/$key/list", params: { key: DEFAULT_PROJECT_KEY }, search: {} })}>
-          <ArrowLeft size={15} /> Issues
+          <ArrowLeft size={15} strokeWidth={2.4} /> Issues
         </Button>
       </div>
       <div className="min-h-0 flex-1">

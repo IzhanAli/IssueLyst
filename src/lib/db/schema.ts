@@ -53,6 +53,7 @@ export const projects = pgTable("projects", {
   icon: text("icon").notNull(),
   description: text("description").notNull().default(""),
   createdAt: createdAt(),
+  setupCompletedAt: timestamp("setup_completed_at", { withTimezone: true }),
 });
 
 export const statuses = pgTable("statuses", {

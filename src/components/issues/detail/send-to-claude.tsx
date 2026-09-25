@@ -49,23 +49,23 @@ export function SendToClaude({ issueId }: { issueId: string }) {
   };
 
   const item =
-    "flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-left text-[13px] hover:bg-surface-hover";
+    "flex w-full items-center gap-2.5 rounded-[8px] px-2.5 py-[7px] text-left font-display text-[13.5px] font-medium hover:bg-surface-2";
 
   return (
-    <div className="mr-1 flex items-center rounded-md border border-border bg-surface transition-colors hover:border-border-strong">
+    <div className="mr-1.5 flex items-center rounded-[9px] bg-surface shadow-[inset_0_0_0_1px_var(--border-strong)] transition-shadow hover:shadow-[inset_0_0_0_1px_var(--text-subtle)]">
       <Tooltip content="Open in Claude Code with every field as the prompt">
         <button
           onClick={() => send(surface)}
-          className="flex h-7 items-center gap-1.5 rounded-l-md pl-2 pr-2 text-[12px] font-medium text-text transition-colors hover:bg-surface-hover"
+          className="flex h-8 items-center gap-1.5 rounded-l-[9px] pl-2.5 pr-2.5 font-display text-[12.5px] font-semibold text-text transition-colors hover:bg-surface-2"
         >
           <ClaudeMark size={13} />
           Claude Code
         </button>
       </Tooltip>
-      <span className="h-4 w-px bg-border" />
+      <span className="h-4 w-px bg-border-strong" />
       <Popover
         placement="bottom-end"
-        className="w-60 p-1"
+        className="w-64 p-1.5"
         render={({ close }) => (
           <div>
             <button onClick={() => { send("desktop"); close(); }} className={item}>
@@ -74,30 +74,30 @@ export function SendToClaude({ issueId }: { issueId: string }) {
               {surface === "desktop" && <Dot />}
             </button>
             <button onClick={() => { send("terminal"); close(); }} className={item}>
-              <SquareTerminal size={14} className="text-text-muted" />
+              <SquareTerminal size={15} strokeWidth={2.1} className="text-text-muted" />
               <span className="flex-1">Open in terminal</span>
               {surface === "terminal" && <Dot />}
             </button>
             <button onClick={() => { send("vscode"); close(); }} className={item}>
-              <Code2 size={14} className="text-text-muted" />
+              <Code2 size={15} strokeWidth={2.1} className="text-text-muted" />
               <span className="flex-1">Open in VS Code</span>
               {surface === "vscode" && <Dot />}
             </button>
-            <div className="my-1 h-px bg-border" />
+            <div className="mx-2 my-1 h-px bg-border" />
             <button
               onClick={() => { copy(prompt(Infinity), "Prompt copied to clipboard"); close(); }}
               className={item}
             >
-              <Copy size={14} className="text-text-muted" /> Copy prompt
+              <Copy size={15} strokeWidth={2.1} className="text-text-muted" /> Copy prompt
             </button>
             <button
               onClick={() => { copy(cliCommand(prompt(Infinity), target), "Command copied to clipboard"); close(); }}
               className={item}
             >
-              <ClipboardCheck size={14} className="text-text-muted" /> Copy <code className="font-mono text-[11.5px]">claude</code> command
+              <ClipboardCheck size={15} strokeWidth={2.1} className="text-text-muted" /> Copy <code className="rounded-[4px] bg-surface-2 px-1 font-mono text-[12px]">claude</code> command
             </button>
-            <p className="px-2 pb-1 pt-1.5 text-[10.5px] leading-relaxed text-text-subtle">
-              Opens in <span className="font-mono">{targetLabel(target)}</span>. The prompt is pre-filled, never sent
+            <p className="px-2.5 pb-1 pt-1.5 text-[11.5px] leading-relaxed text-text-subtle">
+              Opens in <span className="font-display font-semibold text-text-muted">{targetLabel(target)}</span>. The prompt is pre-filled, never sent
               automatically. Change the folder in Settings → Claude Code.
             </p>
           </div>
@@ -106,15 +106,15 @@ export function SendToClaude({ issueId }: { issueId: string }) {
         <button
           aria-label="Claude Code options"
           className={cn(
-            "flex h-7 items-center rounded-r-md px-1 text-text-subtle transition-colors hover:bg-surface-hover hover:text-text",
-            "data-[state=open]:bg-surface-hover data-[state=open]:text-text",
+            "flex h-8 items-center rounded-r-[9px] px-1.5 text-text-subtle transition-colors hover:bg-surface-2 hover:text-text",
+            "data-[state=open]:bg-surface-2 data-[state=open]:text-text",
           )}
         >
-          <ChevronDown size={13} />
+          <ChevronDown size={14} strokeWidth={2.4} />
         </button>
       </Popover>
     </div>
   );
 }
 
-const Dot = () => <span className="h-1.5 w-1.5 rounded-full bg-primary" />;
+const Dot = () => <span className="h-2 w-2 rounded-full bg-accent" />;

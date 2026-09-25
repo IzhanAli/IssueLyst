@@ -1,10 +1,10 @@
 import { cn } from "@/lib/utils/cn";
 
-/** Brand mark — team, upward trend and issue list. Raster, so pick the source by rendered size. */
+/** Brand mark — an "I" beside a shrinking issue list. Source of every favicon too: `npm run icons`. */
 export function LogoMark({ size = 22, className }: { size?: number; className?: string }) {
   return (
     <img
-      src={size > 32 ? "/brand/logo-128.png" : "/brand/logo-64.png"}
+      src="/brand/logo.svg"
       width={size}
       height={size}
       alt=""
@@ -19,7 +19,7 @@ export function Wordmark({ className, markSize = 22 }: { className?: string; mar
   return (
     <span className={cn("inline-flex items-center gap-2", className)}>
       <LogoMark size={markSize} />
-      <span className="font-serif text-[17px] font-semibold tracking-[-0.01em] text-text">IssueLyst</span>
+      <span className="font-display text-[17px] font-semibold tracking-[-0.01em] text-text">IssueLyst</span>
     </span>
   );
 }

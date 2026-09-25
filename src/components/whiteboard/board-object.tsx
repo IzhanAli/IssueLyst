@@ -50,7 +50,7 @@ export function BoardObject({
           onPointerDown={onPointerDown}
           onDoubleClick={onDoubleClick}
           onContextMenu={onContextMenu}
-          className="absolute box-border flex flex-col gap-2 rounded-[4px] p-[15px] text-[19px] leading-[1.3] text-text"
+          className="absolute box-border flex flex-col gap-2 rounded-[6px] p-[15px] text-[19px] leading-[1.3] text-text"
           style={{
             left: obj.x,
             top: obj.y,
@@ -71,7 +71,7 @@ export function BoardObject({
           </div>
           <div className="flex items-center gap-1.5">
             {author && <Avatar user={author} className="h-[22px] w-[22px] text-[10px]" />}
-            <span className="font-mono text-[12.5px] text-text-muted">{compactAgo(obj.createdAt)}</span>
+            <span className="font-display text-[12.5px] font-semibold text-text-muted">{compactAgo(obj.createdAt)}</span>
           </div>
         </div>
       );
@@ -112,7 +112,7 @@ export function BoardObject({
               <path
                 d={ellipsePath(obj)}
                 fill="none"
-                stroke="var(--primary)"
+                stroke="var(--accent)"
                 strokeOpacity={0.2}
                 strokeWidth={10}
                 strokeLinejoin="round"
@@ -125,7 +125,7 @@ export function BoardObject({
               onPointerDown={onPointerDown}
               onContextMenu={onContextMenu}
               fill={FILL[obj.color]}
-              stroke={selected ? "var(--primary)" : "var(--border-strong)"}
+              stroke={selected ? "var(--accent)" : "var(--border-strong)"}
               strokeWidth={selected ? 3 : 2}
               strokeLinejoin="round"
               style={{ pointerEvents: "visiblePainted", cursor }}
@@ -165,8 +165,8 @@ export function BoardObject({
           width={obj.w}
           height={obj.h}
         >
-          {selected && <ellipse {...shape} fill="none" stroke="var(--primary)" strokeOpacity={0.2} strokeWidth={10} />}
-          <ellipse {...shape} fill="none" stroke="var(--primary)" strokeWidth={selected ? 3 : 2} />
+          {selected && <ellipse {...shape} fill="none" stroke="var(--accent)" strokeOpacity={0.2} strokeWidth={10} />}
+          <ellipse {...shape} fill="none" stroke="var(--accent)" strokeWidth={selected ? 3 : 2} />
           {/* Hit area is the outline only, so notes inside the ring stay clickable. */}
           <ellipse
             {...shape}
@@ -189,21 +189,19 @@ export function BoardObject({
           onPointerDown={onPointerDown}
           onDoubleClick={onDoubleClick}
           onContextMenu={onContextMenu}
-          className="absolute box-border flex items-end rounded-[5px] p-2.5"
+          className="absolute box-border flex items-end rounded-[10px] bg-surface-2 p-2.5"
           style={{
             left: obj.x,
             top: obj.y,
             width: obj.w,
             height: obj.h,
-            backgroundColor: "var(--surface-2)",
-            backgroundImage: "repeating-linear-gradient(135deg, var(--surface-hover) 0 6px, var(--surface-2) 6px 12px)",
-            boxShadow: ring,
+            boxShadow: ring ?? "inset 0 0 0 1px var(--border)",
             cursor,
           }}
         >
           <span
             className={cn(
-              "max-w-full rounded bg-surface px-1.5 py-[3px] font-mono text-[14px] text-text-muted",
+              "max-w-full rounded-[7px] bg-surface px-2 py-[3px] font-display text-[14px] font-semibold text-text-muted",
               editing && "min-w-[190px]",
             )}
           >
@@ -221,7 +219,7 @@ export function BoardObject({
           height={Math.max(obj.h, 1)}
         >
           {selected && (
-            <path d={obj.d} {...INK_LINE} stroke="var(--primary)" strokeOpacity={0.25} strokeWidth={INK_WIDTH[obj.size] + 7} />
+            <path d={obj.d} {...INK_LINE} stroke="var(--accent)" strokeOpacity={0.25} strokeWidth={INK_WIDTH[obj.size] + 7} />
           )}
           <path d={obj.d} {...INK_LINE} stroke={INK[obj.color]} strokeWidth={INK_WIDTH[obj.size]} />
           <path

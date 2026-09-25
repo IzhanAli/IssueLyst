@@ -1,5 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
-import { Bell, CheckCheck, AtSign, UserPlus, CircleDot, MessageSquare, Inbox as InboxIcon } from "lucide-react";
+import { CheckCheck, AtSign, UserPlus, CircleDot, MessageSquare, Inbox as InboxIcon } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { EmptyState } from "@/components/ui/empty-state";
 import { useStore } from "@/lib/store/store";
@@ -11,11 +11,11 @@ import { cn } from "@/lib/utils/cn";
 import { DEFAULT_PROJECT_KEY } from "@/lib/constants";
 
 const typeIcon: Record<NotificationType, React.ReactNode> = {
-  assigned: <UserPlus size={12} />,
-  mentioned: <AtSign size={12} />,
-  status_changed: <CircleDot size={12} />,
-  commented: <MessageSquare size={12} />,
-  followed_changed: <CircleDot size={12} />,
+  assigned: <UserPlus size={11} strokeWidth={2.5} />,
+  mentioned: <AtSign size={11} strokeWidth={2.5} />,
+  status_changed: <CircleDot size={11} strokeWidth={2.5} />,
+  commented: <MessageSquare size={11} strokeWidth={2.5} />,
+  followed_changed: <CircleDot size={11} strokeWidth={2.5} />,
 };
 
 export function InboxScreen() {
@@ -46,27 +46,31 @@ export function InboxScreen() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex h-[46px] shrink-0 items-center gap-2.5 border-b border-border bg-surface px-4">
-        <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary-soft text-primary">
-          <Bell size={15} />
-        </div>
-        <h1 className="font-serif text-[16px] font-semibold tracking-[-0.01em]">Inbox</h1>
-        {unread.length > 0 && <span className="rounded-full bg-danger px-1.5 font-mono text-[10px] font-medium text-white">{unread.length}</span>}
+      <div className="flex h-[60px] shrink-0 items-center gap-3 border-b border-border bg-surface px-6">
+        <h1 className="font-display text-[22px] font-extrabold tracking-[-0.025em]">Inbox</h1>
         {unread.length > 0 && (
-          <button onClick={markAll} className="ml-auto flex h-7 items-center gap-1.5 rounded-md px-2 text-[12.5px] text-text-muted hover:bg-surface-hover hover:text-text">
-            <CheckCheck size={14} /> Mark all read
+          <span className="anim-pop flex h-[22px] min-w-[22px] items-center justify-center rounded-full bg-signal px-1.5 font-display text-[12px] font-bold text-signal-fg">
+            {unread.length}
+          </span>
+        )}
+        {unread.length > 0 && (
+          <button
+            onClick={markAll}
+            className="ml-auto flex h-8 items-center gap-1.5 rounded-[10px] border border-border-strong bg-surface px-3 font-display text-[13px] font-semibold text-text transition-[background-color,transform] duration-150 hover:bg-surface-2 active:scale-[0.97]"
+          >
+            <CheckCheck size={15} strokeWidth={2.25} /> Mark all read
           </button>
         )}
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto">
         {!hydrated ? null : list.length === 0 ? (
-          <EmptyState icon={<InboxIcon size={20} />} title="Inbox zero" description="You're all caught up. New mentions, assignments and updates will appear here." />
+          <EmptyState icon={<InboxIcon size={20} strokeWidth={2.25} />} title="Inbox zero" description="You're all caught up. New mentions, assignments and updates will appear here." />
         ) : (
-          <div className="mx-auto max-w-[720px] px-3 py-3">
+          <div className="mx-auto max-w-[760px] px-4 py-5">
             {unread.length > 0 && <SectionTitle>Unread</SectionTitle>}
             {unread.map((n) => <Row key={n.id} n={n} store={store} onOpen={() => openNotification(n)} />)}
-            {earlier.length > 0 && <SectionTitle className="mt-4">Earlier</SectionTitle>}
+            {earlier.length > 0 && <SectionTitle className="mt-6">Earlier</SectionTitle>}
             {earlier.map((n) => <Row key={n.id} n={n} store={store} onOpen={() => openNotification(n)} />)}
           </div>
         )}
@@ -76,7 +80,7 @@ export function InboxScreen() {
 }
 
 function SectionTitle({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <div className={cn("mb-1 px-2 text-[10.5px] font-semibold uppercase tracking-wide text-text-subtle", className)}>{children}</div>;
+  return <div className={cn("mb-1.5 px-3 font-display text-[13.5px] font-semibold text-text-subtle", className)}>{children}</div>;
 }
 
 function Row({ n, store, onOpen }: { n: Notification; store: EntityState; onOpen: () => void }) {
@@ -88,27 +92,25 @@ function Row({ n, store, onOpen }: { n: Notification; store: EntityState; onOpen
   return (
     <button
       onClick={onOpen}
-      className={cn(
-        "flex w-full items-center gap-3 rounded-lg px-2.5 py-2.5 text-left transition-colors hover:bg-surface-hover",
-        unread && "bg-primary-soft/30",
-      )}
+      className="flex w-full items-center gap-3.5 rounded-[12px] px-3 py-3 text-left transition-colors duration-150 hover:bg-surface-2"
     >
       <span className="relative shrink-0">
-        <Avatar user={actor} size="lg" />
-        <span className="absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-surface text-text-muted ring-2 ring-surface">
+        <Avatar user={actor} size="xl" />
+        <span className="absolute -bottom-0.5 -right-0.5 flex h-[18px] w-[18px] items-center justify-center rounded-full bg-primary text-primary-fg ring-2 ring-surface">
           {typeIcon[n.type]}
         </span>
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block text-[13px] text-text">
-          <span className="font-medium">{actor.name}</span> <span className="text-text-muted">{n.summary}</span>
+        <span className="block text-[14px] leading-snug">
+          <span className={cn("font-display tracking-[-0.01em]", unread ? "font-bold text-text" : "font-semibold text-text-muted")}>{actor.name}</span>{" "}
+          <span className={unread ? "text-text" : "text-text-muted"}>{n.summary}</span>
         </span>
-        <span className="block truncate text-[12px] text-text-subtle">
-          <span className="font-mono text-[10.5px]">{issue.number}</span> · {issue.title}
+        <span className="mt-0.5 block truncate text-[12.5px] text-text-subtle">
+          <span className="font-display font-semibold">{issue.number}</span> · {issue.title}
         </span>
       </span>
-      <time className="shrink-0 font-mono text-[10.5px] text-text-subtle">{relativeTime(n.createdAt)}</time>
-      {unread && <span className="h-2 w-2 shrink-0 rounded-full bg-primary" />}
+      <time className="shrink-0 font-display text-[12px] font-semibold text-text-subtle">{relativeTime(n.createdAt)}</time>
+      <span className={cn("h-2.5 w-2.5 shrink-0 rounded-full", unread ? "bg-signal" : "bg-transparent")} aria-hidden />
     </button>
   );
 }

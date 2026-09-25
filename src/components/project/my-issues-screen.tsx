@@ -22,26 +22,29 @@ export function MyIssuesScreen() {
   return (
     <div className="flex h-full flex-col">
       <div className="shrink-0 border-b border-border bg-surface">
-        <div className="flex h-[46px] items-center gap-2.5 px-4">
-          <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary-soft text-primary">
-            <UserRound size={15} />
+        <div className="flex h-[60px] items-center gap-3 px-5">
+          <div className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-primary text-primary-fg">
+            <UserRound size={17} strokeWidth={2.3} />
           </div>
-          <h1 className="font-serif text-[16px] font-semibold tracking-[-0.01em]">My Issues</h1>
-          <span className="font-mono text-[11px] text-text-subtle">{views.length}</span>
+          <h1 className="font-display text-[21px] font-extrabold tracking-[-0.025em]">My Issues</h1>
+          <span className="font-display text-[15px] font-semibold text-text-subtle">{views.length}</span>
         </div>
-        <div className="flex h-[42px] items-center gap-1 border-t border-border px-3">
+        <div className="flex h-[48px] items-center gap-1 px-4 pb-1">
           <GroupMenu />
           <SortMenu />
           <FilterMenu />
           <ColumnsMenu />
           <div className="ml-auto flex items-center gap-1">
             <ExportMenu scopeLabel="my-issues" baseViews={() => views} />
-            <button onClick={() => openCreate({ assigneeId: me?.id ?? null })} className="flex h-7 items-center gap-1.5 rounded-md border border-border bg-surface px-2 text-[12.5px] font-medium hover:bg-surface-hover">
-              <Plus size={14} /> New issue
+            <button
+              onClick={() => openCreate({ assigneeId: me?.id ?? null })}
+              className="ml-1 flex h-8 items-center gap-1.5 rounded-[10px] bg-primary px-3 font-display text-[13px] font-semibold text-primary-fg transition-[background-color,transform] duration-150 hover:bg-primary-hover active:scale-[0.97]"
+            >
+              <Plus size={15} strokeWidth={2.6} /> New issue
             </button>
           </div>
         </div>
-        <div className="px-3 [&:has(>*)]:border-t [&:has(>*)]:border-border [&:has(>*)]:py-2">
+        <div className="px-4 [&:has(>*)]:border-t [&:has(>*)]:border-border [&:has(>*)]:py-2">
           <ActiveFilterChips />
         </div>
       </div>

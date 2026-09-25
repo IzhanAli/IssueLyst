@@ -10,7 +10,7 @@ import { PRIORITIES, PRIORITY_META } from "@/lib/constants";
 import type { Priority } from "@/lib/types";
 
 const CheckMark = ({ on }: { on: boolean }) =>
-  on ? <Check size={14} className="text-primary" /> : <span className="w-3.5" />;
+  on ? <Check size={15} strokeWidth={2.5} className="text-accent" /> : <span className="w-[15px]" />;
 
 /* ── Status ──────────────────────────────────────────────────────── */
 export function StatusPicker({
@@ -183,8 +183,8 @@ export function LabelPicker({
             onToggle(label.id);
           }}
           footer={
-            <div className="flex items-center gap-2 px-2 py-1 text-[11px] text-text-subtle">
-              <Plus size={12} /> Type a new name and press Enter to create
+            <div className="flex items-center gap-2 px-2.5 py-1 font-display text-[12px] font-medium text-text-subtle">
+              <Plus size={13} strokeWidth={2.4} /> Type a new name and press Enter to create
             </div>
           }
         />

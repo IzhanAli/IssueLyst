@@ -38,41 +38,42 @@ export function BoardRail({ boards, activeId }: { boards: Whiteboard[]; activeId
       <button
         onClick={() => setOpen(true)}
         aria-label="Show board list"
-        className="absolute left-0 top-4 z-[5] flex items-center gap-1.5 rounded-r-lg border border-l-0 border-border bg-surface px-1.5 py-2.5 shadow-[var(--shadow-md)] transition-colors [writing-mode:vertical-rl] hover:bg-surface-2"
+        className="absolute left-0 top-4 z-[5] flex items-center gap-2 rounded-r-[12px] border border-l-0 border-border bg-surface px-2 py-3 shadow-[var(--shadow-md)] transition-colors [writing-mode:vertical-rl] hover:bg-surface-2"
       >
-        <span className="text-[10.5px] font-semibold uppercase tracking-[0.08em] text-text-muted">Boards</span>
-        <span className="font-mono text-[10px] text-text-subtle">{boards.length}</span>
+        <span className="font-display text-[13px] font-bold tracking-[-0.01em] text-text">Boards</span>
+        <span className="font-display text-[12px] font-semibold text-text-subtle">{boards.length}</span>
       </button>
     );
   }
 
   return (
-    <div className="anim-scale-in w-[200px] shrink-0 overflow-hidden border-r border-border bg-surface-2">
-      <div className="flex h-full w-[200px] flex-col">
-        <div className="flex h-[34px] shrink-0 items-center gap-1.5 border-b border-border px-2.5">
-          <span className="text-[10.5px] font-semibold uppercase tracking-[0.06em] text-text-subtle">Boards</span>
+    <div className="anim-scale-in w-[212px] shrink-0 overflow-hidden border-r border-border bg-surface-2">
+      <div className="flex h-full w-[212px] flex-col">
+        <div className="flex h-12 shrink-0 items-center gap-1 px-3">
+          <span className="font-display text-[15px] font-bold tracking-[-0.015em] text-text">Boards</span>
+          <span className="ml-1.5 font-display text-[12.5px] font-semibold text-text-subtle">{boards.length}</span>
           <Tooltip content="New board">
             <button
               onClick={addBoard}
               aria-label="New board"
-              className="ml-auto flex h-[22px] w-[22px] items-center justify-center rounded text-text-muted transition-colors hover:bg-surface-hover hover:text-text"
+              className="ml-auto flex h-7 w-7 items-center justify-center rounded-[8px] text-text-muted transition-[background-color,color,transform] hover:bg-surface-hover hover:text-text active:scale-90"
             >
-              <Plus size={14} />
+              <Plus size={16} strokeWidth={2.4} />
             </button>
           </Tooltip>
           <Tooltip content="Hide board list">
             <button
               onClick={() => setOpen(false)}
               aria-label="Hide board list"
-              className="flex h-[22px] w-[22px] items-center justify-center rounded text-text-muted transition-colors hover:bg-surface-hover hover:text-text"
+              className="flex h-7 w-7 items-center justify-center rounded-[8px] text-text-muted transition-[background-color,color,transform] hover:bg-surface-hover hover:text-text active:scale-90"
             >
-              <ChevronsLeft size={14} />
+              <ChevronsLeft size={16} strokeWidth={2.4} />
             </button>
           </Tooltip>
         </div>
 
-        <nav aria-label="Boards" className="flex flex-1 flex-col gap-1.5 overflow-y-auto p-2">
-          {boards.map((b, i) => {
+        <nav aria-label="Boards" className="flex flex-1 flex-col gap-1 overflow-y-auto px-2 pb-3">
+          {boards.map((b) => {
             const active = b.id === activeId;
             return (
               <Link
@@ -81,19 +82,24 @@ export function BoardRail({ boards, activeId }: { boards: Whiteboard[]; activeId
                 search={{ board: b.id }}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "flex w-full flex-col gap-[5px] rounded-lg border p-1.5 text-left transition-colors",
-                  active ? "border-primary/25 bg-primary-soft" : "border-transparent hover:bg-surface-hover",
+                  "flex w-full flex-col gap-1.5 rounded-[10px] p-2 text-left transition-colors duration-150",
+                  active ? "bg-primary-soft" : "hover:bg-surface-hover/70",
                 )}
               >
-                <span className="flex w-full items-center gap-1.5">
-                  <span className="font-mono text-[10px] text-text-subtle">{String(i + 1).padStart(2, "0")}</span>
-                  <span
-                    className={cn("flex-1 truncate text-[12px] font-medium", active ? "text-primary" : "text-text-muted")}
-                  >
-                    {b.name}
-                  </span>
+                <span
+                  className={cn(
+                    "w-full truncate px-0.5 font-display text-[14px] tracking-[-0.012em]",
+                    active ? "font-bold text-text" : "font-medium text-text-muted",
+                  )}
+                >
+                  {b.name}
                 </span>
-                <span className="relative block h-16 w-full overflow-hidden rounded-[5px] bg-surface shadow-[inset_0_0_0_1px_var(--border)]">
+                <span
+                  className={cn(
+                    "relative block h-16 w-full overflow-hidden rounded-[7px] bg-surface transition-shadow",
+                    active ? "shadow-[inset_0_0_0_1.5px_var(--text)]" : "shadow-[inset_0_0_0_1px_var(--border)]",
+                  )}
+                >
                   {b.objects
                     .filter((o) => o.kind !== "ink")
                     .slice(0, 7)

@@ -51,47 +51,38 @@ function LoginPage() {
   };
 
   return (
-    <div className="grid min-h-screen grid-cols-1 lg:grid-cols-[1.05fr_1fr]">
-      {/* Brand panel */}
-      <div className="relative hidden flex-col justify-between overflow-hidden border-r border-border bg-surface-2 p-12 lg:flex">
-        <div
-          className="pointer-events-none absolute inset-0 opacity-[0.5]"
-          style={{
-            backgroundImage:
-              "radial-gradient(circle at 1px 1px, var(--border-strong) 1px, transparent 0)",
-            backgroundSize: "22px 22px",
-            maskImage: "radial-gradient(ellipse at 30% 20%, black, transparent 75%)",
-          }}
-        />
+    <div className="grid min-h-screen grid-cols-1 bg-surface lg:grid-cols-[1.05fr_1fr] lg:bg-rail">
+      {/* Brand panel — solid ink */}
+      <div className="relative hidden flex-col justify-between overflow-hidden bg-rail p-12 text-rail-fg lg:flex">
         <div className="relative flex items-center gap-2.5">
-          <LogoMark size={26} />
-          <span className="font-serif text-[19px] font-semibold tracking-[-0.01em]">IssueLyst</span>
+          <LogoMark size={30} />
+          <span className="font-display text-[20px] font-extrabold tracking-[-0.025em]">IssueLyst</span>
         </div>
-        <div className="relative max-w-md">
-          <p className="font-serif text-[26px] font-medium leading-[1.32] tracking-[-0.01em] text-text">
+        <div className="relative max-w-[520px]">
+          <p className="font-display text-[46px] font-extrabold leading-[1.04] tracking-[-0.04em]">
             A focused, desktop-grade issue tracker for engineering teams.
           </p>
-          <p className="mt-4 text-[14px] leading-relaxed text-text-muted">
+          <p className="mt-6 max-w-[440px] text-[15.5px] leading-relaxed text-rail-muted">
             Dense lists, an instant board, keyboard-first navigation, and a detail
             drawer that never loses your place. Built to move at the speed of thought.
           </p>
         </div>
-        <div className="relative flex items-center gap-2 font-mono text-[11px] text-text-subtle">
-          <span className="inline-block h-1.5 w-1.5 rounded-full bg-success" />
+        <div className="relative flex items-center gap-2 font-display text-[13px] font-semibold text-rail-muted">
+          <span className="inline-block h-2 w-2 rounded-full bg-accent ring-2 ring-rail-hover" />
           {workspace.name} workspace · {project.name}
         </div>
       </div>
 
-      {/* Form */}
-      <div className="flex items-center justify-center px-6 py-12">
-        <div className="w-full max-w-[360px]">
-          <div className="mb-8 lg:hidden">
-            <LogoMark size={26} />
+      {/* Form — paper, set into the ink with a rounded edge like the app frame */}
+      <div className="flex items-center justify-center bg-surface px-6 py-12 lg:rounded-l-[28px]">
+        <div className="anim-scale-in w-full max-w-[380px]">
+          <div className="mb-10 lg:hidden">
+            <LogoMark size={30} />
           </div>
-          <h1 className="font-serif text-[22px] font-semibold tracking-[-0.01em]">Sign in</h1>
-          <p className="mt-1 text-[13.5px] text-text-muted">Welcome back. Sign in to continue.</p>
+          <h1 className="font-display text-[34px] font-extrabold leading-none tracking-[-0.035em]">Sign in</h1>
+          <p className="mt-2.5 text-[14.5px] text-text-muted">Welcome back. Sign in to continue.</p>
 
-          <form onSubmit={onSubmit} className="mt-7 space-y-3.5">
+          <form onSubmit={onSubmit} className="mt-8 space-y-4">
             <Field label="Email">
               <input
                 type="email"
@@ -111,13 +102,13 @@ function LoginPage() {
                 className="input"
               />
             </Field>
-            {error && <p className="text-[12.5px] text-danger">{error}</p>}
+            {error && <p className="font-display text-[13px] font-semibold text-danger">{error}</p>}
             <button type="submit" disabled={busy} className="btn-primary w-full">
-              {busy ? <Loader2 size={15} className="animate-spin" /> : <>Sign in <ArrowRight size={15} /></>}
+              {busy ? <Loader2 size={16} strokeWidth={2.4} className="animate-spin" /> : <>Sign in <ArrowRight size={16} strokeWidth={2.4} /></>}
             </button>
           </form>
 
-          <div className="my-6 flex items-center gap-3 text-[11px] uppercase tracking-wide text-text-subtle">
+          <div className="my-7 flex items-center gap-3 font-display text-[12.5px] font-semibold text-text-subtle">
             <span className="h-px flex-1 bg-border" /> Or use a demo account <span className="h-px flex-1 bg-border" />
           </div>
 
@@ -127,14 +118,14 @@ function LoginPage() {
                 key={u.id}
                 onClick={() => doSignIn(u.id)}
                 disabled={busy}
-                className="flex w-full items-center gap-2.5 rounded-lg border border-transparent px-2 py-1.5 text-left transition-colors hover:border-border hover:bg-surface-hover"
+                className="group flex w-full items-center gap-3 rounded-[12px] px-2.5 py-2 text-left transition-[background-color,transform] duration-150 hover:bg-surface-2 active:scale-[0.99]"
               >
                 <Avatar user={u} size="lg" />
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-[13px] font-medium text-text">{u.name}</span>
-                  <span className="block truncate font-mono text-[11px] text-text-subtle">{u.email}</span>
+                  <span className="block truncate font-display text-[14px] font-bold tracking-[-0.01em] text-text">{u.name}</span>
+                  <span className="block truncate text-[12px] text-text-subtle">{u.email}</span>
                 </span>
-                <span className="rounded border border-border px-1.5 py-0.5 text-[10px] font-medium uppercase text-text-subtle">
+                <span className="rounded-[6px] bg-surface-2 px-1.5 py-0.5 font-display text-[11px] font-semibold capitalize text-text-muted shadow-[inset_0_0_0_1px_var(--border)] group-hover:bg-surface">
                   {u.role}
                 </span>
               </button>
@@ -149,7 +140,7 @@ function LoginPage() {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <span className="mb-1.5 block text-[12px] font-medium text-text-muted">{label}</span>
+      <span className="mb-1.5 block font-display text-[13px] font-semibold text-text-muted">{label}</span>
       {children}
     </label>
   );

@@ -26,39 +26,41 @@ export function IssueCard({
     <div
       onClick={onOpen}
       className={cn(
-        "group cursor-pointer select-none rounded-lg border border-border bg-surface p-2.5 shadow-[var(--shadow-sm)] transition-shadow",
-        dragging ? "shadow-[var(--shadow-lg)] rotate-[1.2deg]" : "hover:border-border-strong hover:shadow-[var(--shadow-md)]",
+        "group cursor-pointer select-none rounded-[14px] bg-surface p-3 shadow-[inset_0_0_0_1px_var(--border),var(--shadow-sm)] transition-[box-shadow,transform] duration-150",
+        dragging
+          ? "rotate-[1.5deg] scale-[1.02] shadow-[inset_0_0_0_1px_var(--border-strong),var(--shadow-lg)]"
+          : "hover:-translate-y-px hover:shadow-[inset_0_0_0_1px_var(--border-strong),var(--shadow-md)]",
       )}
     >
       <div className="mb-1.5 flex items-center gap-1.5">
         <PriorityPicker value={view.priority} onChange={(p: Priority) => updateIssue(view.id, { priority: p })} disabled={!editable}>
-          <button onClick={(e) => e.stopPropagation()} className="rounded p-0.5 hover:bg-surface-hover" aria-label="Priority">
+          <button onClick={(e) => e.stopPropagation()} className="rounded-[6px] p-0.5 transition-colors hover:bg-surface-hover" aria-label="Priority">
             <PriorityIcon priority={view.priority} />
           </button>
         </PriorityPicker>
-        <span className="font-mono text-[10.5px] text-text-subtle">{view.issueKey}</span>
+        <span className="font-display text-[12px] font-semibold text-text-subtle">{view.issueKey}</span>
         {view.dueDate && (
-          <span className={cn("ml-auto flex items-center gap-0.5 font-mono text-[10px]", overdue ? "text-danger" : "text-text-subtle")}>
-            <Calendar size={10} /> {shortDate(view.dueDate)}
+          <span className={cn("ml-auto flex items-center gap-1 font-display text-[11.5px] font-semibold", overdue ? "text-danger" : "text-text-subtle")}>
+            <Calendar size={11} strokeWidth={2.3} /> {shortDate(view.dueDate)}
           </span>
         )}
       </div>
 
-      <p className="mb-2 line-clamp-3 text-[13px] leading-snug text-text">{view.title}</p>
+      <p className="mb-2.5 line-clamp-3 text-[13.5px] font-medium leading-snug text-text">{view.title}</p>
 
       {view.labels.length > 0 && (
-        <div className="mb-2 flex flex-wrap gap-1">
+        <div className="mb-2.5 flex flex-wrap gap-1">
           {view.labels.slice(0, 3).map((l) => (
             <LabelChip key={l.id} label={l} />
           ))}
-          {view.labels.length > 3 && <span className="text-[10px] text-text-subtle">+{view.labels.length - 3}</span>}
+          {view.labels.length > 3 && <span className="self-center font-display text-[11.5px] font-semibold text-text-subtle">+{view.labels.length - 3}</span>}
         </div>
       )}
 
       <div className="flex items-center gap-2">
         <div className="flex items-center gap-2 text-text-subtle">
-          {view.commentCount > 0 && <span className="flex items-center gap-0.5 text-[10.5px]"><MessageSquare size={11} />{view.commentCount}</span>}
-          {view.attachmentCount > 0 && <span className="flex items-center gap-0.5 text-[10.5px]"><Paperclip size={11} />{view.attachmentCount}</span>}
+          {view.commentCount > 0 && <span className="flex items-center gap-0.5 font-display text-[11.5px] font-semibold"><MessageSquare size={12} strokeWidth={2.3} />{view.commentCount}</span>}
+          {view.attachmentCount > 0 && <span className="flex items-center gap-0.5 font-display text-[11.5px] font-semibold"><Paperclip size={12} strokeWidth={2.3} />{view.attachmentCount}</span>}
         </div>
         <div className="ml-auto">
           <AssigneePicker value={view.assigneeId} onChange={(id) => updateIssue(view.id, { assigneeId: id })} placement="bottom-end" disabled={!editable}>

@@ -26,19 +26,22 @@ export function ProjectHeader({ showControls = true }: { showControls?: boolean 
 
   return (
     <div className="shrink-0 border-b border-border bg-surface">
-      {/* Title row */}
-      <div className="flex h-[46px] items-center gap-2.5 px-4">
-        <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary-soft text-primary">
-          <Box size={15} />
+      {/* Title row — the top of the canvas now the top bar is gone */}
+      <div className="flex h-[60px] items-center gap-3 px-5">
+        <div className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-primary text-primary-fg">
+          <Box size={17} strokeWidth={2.3} />
         </div>
-        <h1 className="font-serif text-[16px] font-semibold tracking-[-0.01em] text-text">{project.name}</h1>
+        <h1 className="font-display text-[21px] font-extrabold tracking-[-0.025em] text-text">{project.name}</h1>
         <Tooltip content={isFav ? "Remove from favorites" : "Add to favorites"}>
           <button
             onClick={() => toggleFavorite(project.id)}
-            className={cn("rounded-md p-1 transition-colors", isFav ? "text-warning" : "text-text-subtle hover:bg-surface-hover hover:text-text")}
+            className={cn(
+              "rounded-[8px] p-1.5 transition-[background-color,color,transform] duration-150 active:scale-90",
+              isFav ? "text-warning hover:bg-warning-soft" : "text-text-subtle hover:bg-surface-2 hover:text-text",
+            )}
             aria-label="Favorite"
           >
-            <Star size={15} className={cn(isFav && "fill-warning")} />
+            <Star size={17} strokeWidth={2.2} className={cn(isFav && "anim-pop fill-warning")} />
           </button>
         </Tooltip>
 
@@ -46,28 +49,28 @@ export function ProjectHeader({ showControls = true }: { showControls?: boolean 
           <div className="flex items-center -space-x-1.5">
             {online.slice(0, 6).map((u) => (
               <span key={u.id} className="relative">
-                <Avatar user={u} size="md" ring />
-                <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-success ring-2 ring-surface" />
+                <Avatar user={u} size="lg" ring />
+                <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-success ring-2 ring-surface" />
               </span>
             ))}
           </div>
-          <span className="ml-2 flex items-center gap-1 font-mono text-[11px] text-text-subtle">
+          <span className="ml-2 flex items-center gap-1 font-display text-[12px] font-semibold text-text-subtle">
       
           </span>
         </div>
       </div>
 
       {/* Controls row */}
-      <div className="flex h-[42px] items-center gap-1 border-t border-border px-3">
-        {/* view tabs */}
-        <div className="flex items-center gap-0.5">
-          <ViewTab to="/app/project/$key/list" params={projectParams} active={!isBoard} icon={<ListIcon size={14} />}>List</ViewTab>
-          <ViewTab to="/app/project/$key/board" params={projectParams} active={isBoard} icon={<Columns3 size={14} />}>Board</ViewTab>
+      <div className="flex h-[48px] items-center gap-1 px-4 pb-1">
+        {/* view tabs — a segmented control */}
+        <div className="flex items-center gap-0.5 rounded-[10px] bg-surface-2 p-[3px]">
+          <ViewTab to="/app/project/$key/list" params={projectParams} active={!isBoard} icon={<ListIcon size={15} strokeWidth={2.3} />}>List</ViewTab>
+          <ViewTab to="/app/project/$key/board" params={projectParams} active={isBoard} icon={<Columns3 size={15} strokeWidth={2.3} />}>Board</ViewTab>
         </div>
 
         {showControls && (
           <>
-            <div className="mx-1.5 h-4 w-px bg-border" />
+            <div className="mx-2 h-5 w-px bg-border" />
             <GroupMenu />
             <SortMenu />
             <FilterMenu />
@@ -76,9 +79,9 @@ export function ProjectHeader({ showControls = true }: { showControls?: boolean 
               <ExportMenu scopeLabel="engineering" />
               <button
                 onClick={() => openCreate()}
-                className="flex h-7 items-center gap-1.5 rounded-md border border-border bg-surface px-2 text-[12.5px] font-medium text-text transition-colors hover:bg-surface-hover"
+                className="ml-1 flex h-8 items-center gap-1.5 rounded-[10px] bg-primary px-3 font-display text-[13px] font-semibold text-primary-fg transition-[background-color,transform] duration-150 hover:bg-primary-hover active:scale-[0.97]"
               >
-                <Plus size={14} /> New issue
+                <Plus size={15} strokeWidth={2.6} /> New issue
               </button>
             </div>
           </>
@@ -101,7 +104,7 @@ function FilterChipsBar() {
 
 function ActiveFilterChipsWrapper() {
   return (
-    <div className="px-3 [&:has(>*)]:border-t [&:has(>*)]:border-border [&:has(>*)]:py-2">
+    <div className="px-4 [&:has(>*)]:border-t [&:has(>*)]:border-border [&:has(>*)]:py-2">
       <ActiveFilterChips />
     </div>
   );
@@ -117,8 +120,10 @@ function ViewTab({
     <Link
       {...link}
       className={cn(
-        "flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[12.5px] font-medium transition-colors",
-        active ? "bg-surface-active text-text" : "text-text-muted hover:bg-surface-hover hover:text-text",
+        "flex h-[26px] items-center gap-1.5 rounded-[8px] px-3 font-display text-[13px] transition-all duration-150",
+        active
+          ? "bg-surface font-bold text-text shadow-[var(--shadow-sm)] dark:bg-surface-active"
+          : "font-semibold text-text-muted hover:text-text",
       )}
     >
       {icon}

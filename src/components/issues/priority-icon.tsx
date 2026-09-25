@@ -31,8 +31,8 @@ export function PriorityIcon({
     return (
       <svg width={size} height={size} viewBox="0 0 16 16" className={cn("shrink-0", className)} aria-hidden>
         <rect x="1.5" y="1.5" width="13" height="13" rx="3.5" fill={color} />
-        <rect x="7" y="4" width="2" height="5" rx="1" fill="white" />
-        <circle cx="8" cy="11.4" r="1.1" fill="white" />
+        <rect x="7" y="4" width="2" height="5" rx="1" fill="var(--signal-fg)" />
+        <circle cx="8" cy="11.4" r="1.1" fill="var(--signal-fg)" />
       </svg>
     );
   }
@@ -49,7 +49,7 @@ export function PriorityIcon({
           height={heights[i]}
           rx="0.8"
           fill={color}
-          opacity={i < filled ? 1 : 0.22}
+          opacity={i < filled ? 1 : 0.18}
         />
       ))}
     </svg>

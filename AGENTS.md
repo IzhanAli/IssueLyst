@@ -12,21 +12,47 @@ Nothing here is Next. There is no `app/` directory, no server components, no
 - React 19, Tailwind v4 via `@tailwindcss/vite`
 - Zustand (+immer, persist) — all app data lives in `localStorage`
 - `@dnd-kit`, `@floating-ui/react`, `motion`, `lucide-react`
-- Fonts self-hosted through `@fontsource` (Roboto + IBM Plex Mono)
+- Fonts self-hosted through `@fontsource`: Roboto (text), Geist (display), IBM Plex Mono (inline code and the landing page only)
 
 ## Layout
 
 ```
 src/routes/          file-based routes; routeTree.gen.ts is generated, never edit it
-src/components/      unchanged from projex-app
+src/components/      same components as projex-app, restyled (see Design system)
 src/lib/             unchanged, except store/query.ts, store/search.ts, hooks/use-drawer.ts
 src/lib/db/          drizzle schema, repository, server functions (Neon)
 drizzle/             generated migrations — commit them, never hand-edit
 src/styles/          globals.css (design tokens) + fonts.css
 scripts/             optimize-images.mjs — pre-generates AVIF/WebP for the landing shots
+                     brand-icons.mjs — renders every favicon/app icon from public/brand/logo.svg
 e2e/                 Playwright suite, self-contained; delete the folder to remove it
 mcp-server/          separate package, untouched by the migration
 ```
+
+## Design system
+
+Tokens live in `src/styles/globals.css`, and the header comment there is the
+authority. In short: a four-colour, high-contrast palette where each colour has
+one job. Ink (`primary`) is structure and emphasis, paper (`surface`) is the
+canvas, magenta (`signal`, also `danger`/`warning`) marks attention only, and
+azure (`accent`, also `success`/`info`) covers selection, focus and activity.
+Greys are neutral tints of ink, never warm.
+
+- Roboto is the default text face; `font-display` (Geist) carries headings,
+  navigation, buttons, badges, counts and issue keys at heavy weights.
+- No monospace labels (`font-mono` is for inline `code` only), no italics, no
+  uppercase letter-spaced eyebrows, no "01 / 02" numbering.
+- Rounded rectangles, never pills: `rounded-full` is for avatars, count badges
+  and dots only.
+- Solid colours only: no gradients, glows, or dot or grid backgrounds.
+- User-chosen colours (labels, field options) render as small swatches on a
+  neutral chip, never as tinted plates.
+
+The shell is a black `Rail` plus the grey `Sidebar` panel
+(`src/components/shell/sidebar.tsx`). There is no top bar: search sits at the
+top of the panel, New issue is the rail's lead action, and each screen's own
+header is the top of the canvas. The landing page keeps its own self-contained
+palette in `landing.module.css`.
 
 ## Two things to know before editing routes
 
@@ -82,11 +108,12 @@ npm run build       # production build
 npm run typecheck   # tsc --noEmit; catches bad route paths and params
 npm run lint
 npm run images      # regenerate AVIF/WebP after re-capturing screenshots
+npm run icons       # regenerate favicons and app icons after editing public/brand/logo.svg
 npm run test:e2e    # Playwright, 244 tests, uses the machine's Chrome
 
-npm run db:generate # regenerate drizzle/ after editing src/lib/db/schema.ts
-npm run db:migrate  # apply migrations
-npm run db:seed     # replace all rows with the demo dataset (destructive)
+npm run db:generate  # regenerate drizzle/ after editing src/lib/db/schema.ts
+npm run db:migrate   # apply migrations
+npm run db:bootstrap # workspace/project/user/structure, no issues (see TODO)
 ```
 
 `npm run typecheck` is the load-bearing check: route paths, params and search
@@ -100,6 +127,52 @@ nothing reads yet). `beforeLoad` on `/app` and `/onboarding` redirects
 signed-out visitors, but only in the browser — there is no session to read
 during SSR — so the layout component keeps its own client-side guard for cold
 loads. When auth moves server-side, the component guard is what to delete.
+
+## TODO — bootstrap the Neon database
+
+Nothing has been written to Neon yet, and an empty database is
+indistinguishable from no database in the browser: `loadSnapshot()` returns
+`null` the moment it finds no workspace or project row, and `null` is what
+sends the store back to its in-memory demo seed. So the app still shows the 23
+demo issues even with `DATABASE_URL` set and the tables created.
+
+Remaining steps, in order:
+
+1. `npm run db:migrate` — `drizzle/0001_hot_the_liberteens.sql` adds
+   `projects.setup_completed_at`. It is generated but not yet applied.
+2. Edit the block at the top of `scripts/db-bootstrap.ts`: workspace and
+   project names, and `PEOPLE`, which holds a single admin and makes for a
+   lonely assignee picker.
+3. `npm run db:bootstrap` — writes a workspace, a project, the users and the
+   statuses and field defs, leaving issues, comments, attachments, activities,
+   notifications and whiteboards empty.
+4. Sign in as an admin. The first-run gate below should drop you straight into
+   `/onboarding`; labels are best created there, which is why `KEEP.labels`
+   defaults to false.
+
+Bootstrap upserts the workspace, project and users rather than wiping them, so
+re-running keeps their identity — but it does re-clear the content tables every
+run.
+
+There is deliberately no command that loads demo content into Neon; `db:seed`
+was removed. `src/lib/data/seed.ts` stays, because the store still falls back
+to it offline and the e2e suite asserts against its issue numbers and names.
+
+## First-run setup gate
+
+`project.setupCompletedAt` is what decides whether an admin sees the wizard.
+`db:bootstrap` leaves it null, the wizard's `finish()` stamps it via
+`completeProjectSetup()`, and the layout at `src/routes/app.tsx` redirects
+admins to `/onboarding` while it is null. Members are never redirected — the
+wizard turns non-admins away, so bouncing them would trap them in a loop.
+
+The check sits in an effect rather than in `beforeLoad` next to the session
+guard, because in database mode the project arrives with the store's snapshot:
+there is nothing to read until `useHydrated()` is true.
+
+The demo seed sets `setupCompletedAt`, so localStorage mode and the e2e suite
+go straight to the app as they always did. A new project that should open the
+wizard must leave it null.
 
 ## Gotcha when verifying by hand
 

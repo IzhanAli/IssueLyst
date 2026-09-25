@@ -13,9 +13,9 @@ import { cn } from "@/lib/utils/cn";
 import { relativeTime } from "@/lib/utils/format";
 
 /**
- * The board's title bar. It stands in for the app's top bar on this screen
- * (see AppLayout), so it keeps the top bar's height and lines up with the
- * sidebar header. The board list opens from its own tab on the canvas edge.
+ * The board's title bar: the top of the canvas, like every screen's own
+ * header, and 60px tall so it lines up with the sidebar's workspace header.
+ * The board list opens from its own tab on the canvas edge.
  */
 export function WhiteboardHeader({ board, index, total }: { board: Whiteboard; index: number; total: number }) {
   const navigate = useNavigate();
@@ -58,9 +58,9 @@ export function WhiteboardHeader({ board, index, total }: { board: Whiteboard; i
   };
 
   return (
-    <div className="flex h-12 shrink-0 items-center gap-2.5 border-b border-border bg-surface px-4">
-      <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-primary-soft text-primary">
-        <Presentation size={15} />
+    <div className="flex h-[60px] shrink-0 items-center gap-3 border-b border-border bg-surface px-5">
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[9px] bg-primary text-primary-fg">
+        <Presentation size={17} strokeWidth={2.25} />
       </div>
       {renaming ? (
         <RenameField
@@ -74,12 +74,12 @@ export function WhiteboardHeader({ board, index, total }: { board: Whiteboard; i
       ) : (
         <h1
           onDoubleClick={() => setRenaming(true)}
-          className="min-w-0 truncate font-serif text-[16px] font-semibold tracking-[-0.01em] text-text"
+          className="min-w-0 truncate font-display text-[21px] font-extrabold tracking-[-0.025em] text-text"
         >
           {board.name}
         </h1>
       )}
-      <span className="hidden shrink-0 font-mono text-[10.5px] text-text-subtle sm:inline">
+      <span className="hidden shrink-0 font-display text-[12.5px] font-semibold text-text-subtle sm:inline">
         edited {relativeTime(board.updatedAt)}
       </span>
       <Tooltip content={isFav ? "Remove from favorites" : "Add to favorites"}>
@@ -88,11 +88,11 @@ export function WhiteboardHeader({ board, index, total }: { board: Whiteboard; i
           aria-label="Favorite"
           aria-pressed={isFav}
           className={cn(
-            "shrink-0 rounded-md p-1 transition-colors",
+            "shrink-0 rounded-[8px] p-1.5 transition-[background-color,color,transform] active:scale-90",
             isFav ? "text-warning" : "text-text-subtle hover:bg-surface-hover hover:text-text",
           )}
         >
-          <Star size={15} className={cn(isFav && "fill-warning")} />
+          <Star size={17} strokeWidth={2.25} className={cn(isFav && "anim-pop fill-warning")} />
         </button>
       </Tooltip>
 
@@ -107,17 +107,17 @@ export function WhiteboardHeader({ board, index, total }: { board: Whiteboard; i
         </div>
         <button
           onClick={share}
-          className="flex h-7 items-center gap-1.5 rounded-md border border-border bg-surface px-2 text-[12.5px] font-medium text-text transition-colors hover:bg-surface-hover"
+          className="flex h-8 items-center gap-1.5 rounded-[10px] border border-border-strong bg-surface px-3 font-display text-[13px] font-semibold text-text transition-[background-color,transform] duration-150 hover:bg-surface-2 active:scale-[0.97]"
         >
-          <Share2 size={14} /> Share
+          <Share2 size={15} strokeWidth={2.25} /> Share
         </button>
         <Popover
           placement="bottom-end"
-          className="w-52 p-1"
+          className="w-56 p-1.5"
           render={({ close }) => (
             <div>
               <MenuItem
-                icon={<Pencil size={14} />}
+                icon={<Pencil size={15} strokeWidth={2.25} />}
                 onClick={() => {
                   close();
                   setRenaming(true);
@@ -126,7 +126,7 @@ export function WhiteboardHeader({ board, index, total }: { board: Whiteboard; i
                 Rename board
               </MenuItem>
               <MenuItem
-                icon={showGrid ? <Check size={14} /> : null}
+                icon={showGrid ? <Check size={15} strokeWidth={2.5} className="text-accent" /> : null}
                 pressed={showGrid}
                 onClick={() => {
                   setGrid(!showGrid);
@@ -135,9 +135,9 @@ export function WhiteboardHeader({ board, index, total }: { board: Whiteboard; i
               >
                 Show dot grid
               </MenuItem>
-              <div className="my-1 h-px bg-border" />
+              <div className="mx-1 my-1 h-px bg-border" />
               <MenuItem
-                icon={<Trash2 size={14} />}
+                icon={<Trash2 size={15} strokeWidth={2.25} />}
                 danger
                 disabled={total < 2}
                 onClick={() => {
@@ -148,16 +148,16 @@ export function WhiteboardHeader({ board, index, total }: { board: Whiteboard; i
                 Delete board
               </MenuItem>
               {total < 2 && (
-                <div className="px-2 pb-1 pt-0.5 text-[10.5px] text-text-subtle">The last board can't be deleted.</div>
+                <div className="px-2.5 pb-1 pt-0.5 text-[12px] text-text-subtle">The last board can't be deleted.</div>
               )}
             </div>
           )}
         >
           <button
             aria-label="More"
-            className="flex h-7 w-7 items-center justify-center rounded-md text-text-muted transition-colors hover:bg-surface-hover hover:text-text data-[state=open]:bg-surface-hover"
+            className="flex h-8 w-8 items-center justify-center rounded-[10px] text-text-muted transition-colors hover:bg-surface-hover hover:text-text data-[state=open]:bg-surface-hover data-[state=open]:text-text"
           >
-            <Ellipsis size={15} />
+            <Ellipsis size={17} strokeWidth={2.25} />
           </button>
         </Popover>
       </div>
@@ -186,11 +186,11 @@ function MenuItem({
       disabled={disabled}
       aria-pressed={pressed}
       className={cn(
-        "flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-left text-[13px] transition-colors hover:bg-surface-hover disabled:pointer-events-none disabled:opacity-50",
-        danger ? "text-danger" : "text-text",
+        "flex w-full items-center gap-2.5 rounded-[8px] px-2.5 py-[7px] text-left font-display text-[13.5px] font-medium transition-colors disabled:pointer-events-none disabled:opacity-45",
+        danger ? "text-danger hover:bg-danger-soft" : "text-text hover:bg-surface-2",
       )}
     >
-      <span className={cn("flex w-3.5 justify-center", !danger && "text-text-muted")}>{icon}</span>
+      <span className={cn("flex w-4 justify-center", !danger && "text-text-muted")}>{icon}</span>
       <span className="flex-1">{children}</span>
     </button>
   );
@@ -231,7 +231,7 @@ function RenameField({ value, onDone }: { value: string; onDone: (name: string |
         if (e.key === "Enter") e.currentTarget.blur();
         if (e.key === "Escape") finish(null);
       }}
-      className="h-7 min-w-0 max-w-[360px] flex-1 rounded-md border border-ring bg-surface px-1.5 font-serif text-[16px] font-semibold tracking-[-0.01em] text-text"
+      className="h-9 min-w-0 max-w-[380px] flex-1 rounded-[10px] border border-ring bg-surface px-2 font-display text-[21px] font-extrabold tracking-[-0.025em] text-text shadow-[0_0_0_3px_color-mix(in_srgb,var(--ring)_22%,transparent)]"
     />
   );
 }

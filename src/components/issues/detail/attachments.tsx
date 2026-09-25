@@ -25,10 +25,10 @@ interface PendingUpload {
 }
 
 function fileIcon(mime: string) {
-  if (mime.startsWith("image/")) return <ImageIcon size={14} />;
-  if (mime.includes("json")) return <FileJson size={14} />;
-  if (mime.startsWith("text/")) return <FileText size={14} />;
-  return <FileIcon size={14} />;
+  if (mime.startsWith("image/")) return <ImageIcon size={15} strokeWidth={2.1} />;
+  if (mime.includes("json")) return <FileJson size={15} strokeWidth={2.1} />;
+  if (mime.startsWith("text/")) return <FileText size={15} strokeWidth={2.1} />;
+  return <FileIcon size={15} strokeWidth={2.1} />;
 }
 
 export function Attachments({ issueId }: { issueId: string }) {
@@ -91,7 +91,7 @@ export function Attachments({ issueId }: { issueId: string }) {
       onDragLeave={() => setDrag(false)}
       onDrop={(e) => { e.preventDefault(); setDrag(false); handleFiles(e.dataTransfer.files); }}
     >
-      <div className="space-y-1">
+      <div className="space-y-1.5">
         {attachments.map((a) => (
           <AttachmentRow key={a.id} a={a} onRemove={() => removeAttachment(a.id)} />
         ))}
@@ -102,19 +102,19 @@ export function Attachments({ issueId }: { issueId: string }) {
 
       <input ref={inputRef} type="file" multiple hidden onChange={(e) => handleFiles(e.target.files)} />
 
-      <div className="mt-1.5">
+      <div className="mt-2">
         <button
           onClick={() => inputRef.current?.click()}
           className={cn(
-            "flex w-full items-center justify-center gap-1.5 rounded-md border border-dashed py-1.5 text-[11.5px] transition-colors",
-            drag ? "border-ring bg-primary-soft text-primary" : "border-border-strong text-text-subtle hover:border-text-subtle hover:text-text-muted",
+            "flex h-9 w-full items-center justify-center gap-1.5 rounded-[12px] border-[1.5px] border-dashed font-display text-[12.5px] font-semibold transition-colors",
+            drag ? "border-accent bg-accent-soft text-accent" : "border-border-strong text-text-muted hover:border-text-subtle hover:bg-surface hover:text-text",
           )}
         >
-          <Paperclip size={13} /> {drag ? "Drop to attach" : "Upload"}
+          <Paperclip size={14} strokeWidth={2.25} /> {drag ? "Drop to attach" : "Upload"}
         </button>
 
         {!hosted && (
-          <p className="mt-1.5 flex gap-1.5 text-[11px] leading-relaxed text-text-subtle">
+          <p className="mt-2 flex gap-1.5 text-[11.5px] leading-relaxed text-text-subtle">
             <Info size={12} className="mt-[3px] shrink-0" />
             <span>
               Files stay in this tab until{" "}
@@ -130,18 +130,20 @@ export function Attachments({ issueId }: { issueId: string }) {
 
 function UploadingRow({ upload }: { upload: PendingUpload }) {
   return (
-    <div className="flex items-center gap-2 rounded-md border border-border bg-surface px-2 py-1.5">
-      <Loader2 size={14} className="shrink-0 animate-spin text-text-subtle" />
+    <div className="flex items-center gap-2.5 rounded-[12px] bg-surface p-1.5 pr-2.5 shadow-[inset_0_0_0_1px_var(--border)]">
+      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[9px] bg-accent-soft text-accent">
+        <Loader2 size={15} strokeWidth={2.25} className="animate-spin" />
+      </span>
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-[12px] text-text">{upload.name}</span>
-        <span className="mt-1 block h-[3px] overflow-hidden rounded-full bg-surface-hover">
+        <span className="block truncate font-display text-[12.5px] font-semibold text-text">{upload.name}</span>
+        <span className="mt-1.5 block h-[4px] overflow-hidden rounded-full bg-surface-hover">
           <span
-            className="block h-full rounded-full bg-primary transition-[width] duration-200"
+            className="block h-full rounded-full bg-accent transition-[width] duration-200"
             style={{ width: `${upload.pct}%` }}
           />
         </span>
       </span>
-      <span className="shrink-0 font-mono text-[10px] text-text-subtle">{upload.pct}%</span>
+      <span className="shrink-0 font-display text-[11.5px] font-bold text-text-subtle">{upload.pct}%</span>
     </div>
   );
 }
@@ -149,28 +151,31 @@ function UploadingRow({ upload }: { upload: PendingUpload }) {
 function AttachmentRow({ a, onRemove }: { a: Attachment; onRemove: () => void }) {
   const isHosted = a.source === "cloudinary";
   return (
-    <div className="group flex items-center gap-2 rounded-md border border-border bg-surface px-2 py-1.5">
-      <span className="shrink-0 text-text-muted">{fileIcon(a.mimeType)}</span>
+    <div className="group relative flex items-center gap-2 rounded-[12px] bg-surface p-1.5 pr-2 shadow-[inset_0_0_0_1px_var(--border)] transition-shadow hover:shadow-[inset_0_0_0_1px_var(--border-strong)]">
+      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[8px] bg-surface-2 text-text">{fileIcon(a.mimeType)}</span>
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-[12px] text-text">{a.filename}</span>
-        <span className="block font-mono text-[10px] text-text-subtle">
+        <span className="block truncate font-display text-[12.5px] font-semibold text-text">{a.filename}</span>
+        <span className="block truncate font-display text-[11px] font-medium text-text-subtle">
           {formatBytes(a.size)}{isHosted ? " · Hosted" : ""}
         </span>
       </span>
+      {/* Actions float over the row's end on hover, so they never squeeze the name */}
+      <span className="absolute right-1.5 top-1/2 flex -translate-y-1/2 items-center gap-0.5 rounded-[8px] bg-surface p-0.5 opacity-0 shadow-[var(--shadow-md)] transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
       {isHosted ? (
         // A cross-origin `download` attribute is ignored by browsers, so a
         // hosted file opens in a tab and the browser handles it from there.
-        <a href={a.url} target="_blank" rel="noopener noreferrer" className="rounded p-1 text-text-subtle opacity-0 transition-opacity hover:bg-surface-hover hover:text-text group-hover:opacity-100" aria-label="Open">
-          <ExternalLink size={12} />
+        <a href={a.url} target="_blank" rel="noopener noreferrer" className="rounded-[6px] p-1 text-text-subtle hover:bg-surface-hover hover:text-text" aria-label="Open">
+          <ExternalLink size={13} strokeWidth={2.25} />
         </a>
       ) : (
-        <a href={a.url} download={a.filename} className="rounded p-1 text-text-subtle opacity-0 transition-opacity hover:bg-surface-hover hover:text-text group-hover:opacity-100" aria-label="Download">
-          <Download size={12} />
+        <a href={a.url} download={a.filename} className="rounded-[6px] p-1 text-text-subtle hover:bg-surface-hover hover:text-text" aria-label="Download">
+          <Download size={13} strokeWidth={2.25} />
         </a>
       )}
-      <button onClick={onRemove} className="rounded p-1 text-text-subtle opacity-0 transition-opacity hover:bg-danger-soft hover:text-danger group-hover:opacity-100" aria-label="Remove">
-        <Trash2 size={12} />
+      <button onClick={onRemove} className="rounded-[6px] p-1 text-text-subtle hover:bg-danger-soft hover:text-danger" aria-label="Remove">
+        <Trash2 size={13} strokeWidth={2.25} />
       </button>
+      </span>
     </div>
   );
 }

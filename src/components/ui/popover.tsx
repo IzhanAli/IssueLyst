@@ -103,7 +103,7 @@ export function Popover({
                 // Popovers must sit above a modal: pickers inside the create-issue
                 // modal are opened from it, and anything below its overlay would
                 // swallow the click and dismiss the modal instead.
-                "anim-scale-in z-[180] overflow-hidden rounded-lg border border-border-strong bg-surface shadow-[var(--shadow-lg)]",
+                "anim-scale-in z-[180] overflow-hidden rounded-[14px] border border-border bg-surface shadow-[var(--shadow-lg)]",
                 className,
               )}
             >
