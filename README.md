@@ -1,22 +1,13 @@
 # IssueLyst — Issue Tracker (TanStack Start)
 
-A focused, desktop-grade issue tracker for engineering teams, inspired by the
-interaction quality of ClickUp/Linear but with its own visual identity. Built
-frontend-first as a polished, fully interactive prototype whose data layer is
-isolated behind a clean seam — which is how it now runs on either
-`localStorage` or a real Neon/Postgres backend without the UI knowing.
-
-This is the TanStack Start port of `projex-app`. Same product and components;
-the router, the build and the URL-state layer are different. See `AGENTS.md`
-for the two non-obvious details (where the search schema lives, and why the
-search-param codec is customised).
+A focused, desktop-grade issue tracker for engineering teams.
 
 ## Stack
 
 - **TanStack Start v1** (TanStack Router, file-based routes, Vite 8) · **React 19** · **TypeScript**
 - **Tailwind CSS v4** with a semantic design-token system (light + dark)
 - **Zustand** (+ immer, persist) — optimistic client store, seeded with demo data
-- **Drizzle + Neon Postgres** — optional; unset `DATABASE_URL` keeps it local
+- **Drizzle + Neon Postgres** — optional; 
 - **Floating UI** — popovers, menus, tooltips, dialogs
 - **@dnd-kit** — board drag-and-drop
 - **Motion** — subtle drawer / reorder transitions
@@ -35,7 +26,6 @@ Data persists in the browser (localStorage). Reset it any time from
 
 ## What's in it
 
-- **App shell** — black icon rail, collapsible sidebar with search, workspace switcher, command bar
 - **List view** — dense grouped rows (by status / priority / assignee), inline
   editing of status, priority, assignee, labels; multi-select + bulk actions
 - **Board view** — kanban with drag-and-drop between statuses (optimistic)
@@ -68,11 +58,6 @@ entirely client-side, no backend, no API secret in the bundle. Copy
 VITE_CLOUDINARY_CLOUD_NAME=...
 VITE_CLOUDINARY_UPLOAD_PRESET=...
 ```
-
-Until those are set, uploads fall back to an in-tab object URL so the flow
-stays usable — but those attachments do not survive a reload. Because the
-preset is public, cap its allowed formats and max file size in the Cloudinary
-console. Full setup steps are in `.env.local.example`.
 
 ## MCP server
 
