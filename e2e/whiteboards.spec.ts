@@ -1,5 +1,5 @@
 import type { Page } from "@playwright/test";
-import { ROUTES, WHITEBOARDS_KEY, expect, menu, sidebar, test, toast } from "./helpers";
+import { ROUTES, UI_KEY, USERS, WHITEBOARDS_KEY, expect, menu, sidebar, test, toast } from "./helpers";
 
 /** Seeded boards (src/lib/data/whiteboards-seed.ts). */
 const BOARDS = {
@@ -36,6 +36,28 @@ async function sheetMatrix(page: Page): Promise<number[]> {
   return (transform.match(/-?\d+(\.\d+)?(e-?\d+)?/g) ?? []).map(Number);
 }
 
+const handle = (page: Page, which: string) => page.locator(`[data-wb-handle="${which}"]`);
+
+/** Presses a resize handle and drags it by (dx, dy) screen pixels; `during` runs before the release. */
+async function dragHandle(page: Page, which: string, dx: number, dy: number, during?: () => Promise<void>) {
+  const box = await handle(page, which).boundingBox();
+  if (!box) throw new Error(`handle ${which} is not visible`);
+  const x = box.x + box.width / 2;
+  const y = box.y + box.height / 2;
+  await page.mouse.move(x, y);
+  await page.mouse.down();
+  await page.mouse.move(x + dx, y + dy, { steps: 6 });
+  await during?.();
+  await page.mouse.up();
+}
+
+/** Picks a shape kind from the Shape tool's menu, which also picks the tool. */
+async function pickShape(page: Page, name: "Rectangle" | "Ellipse") {
+  await tool(page, "Shape").click({ button: "right" });
+  await page.getByRole("toolbar", { name: "Shape style" }).getByRole("button", { name: `Shape ${name}` }).click();
+  await page.keyboard.press("Escape");
+}
+
 async function openBoard(page: Page, id?: string) {
   await page.goto(id ? `${ROUTES.whiteboards}?board=${id}` : ROUTES.whiteboards);
   await expect(sheet(page)).toBeVisible();
@@ -49,6 +71,10 @@ interface StoredObject {
   text?: string;
   color?: string;
   shape?: string;
+  w?: number;
+  h?: number;
+  label?: string;
+  linkCards?: boolean;
 }
 
 /** A board's objects straight out of localStorage (written on the first edit). */
@@ -74,8 +100,11 @@ test.describe("whiteboards", () => {
     await expect(heading(page, BOARDS.q3.name)).toBeVisible();
     await expect(page.getByRole("button", { name: "Show board list" })).toContainText("5");
     await expect(object(page, "Saved views + share links")).toBeVisible();
-    // the board's title bar takes the app top bar's place
-    await expect(page.getByRole("button", { name: /Search issues/ })).toHaveCount(0);
+    // the board's own title bar heads the canvas
+    const main = page.getByRole("main");
+    for (const name of ["Favorite", "Share", "More"]) {
+      await expect(main.getByRole("button", { name, exact: true })).toBeVisible();
+    }
   });
 
   test("the board list switches boards, deep-links them and stays open", async ({ page }) => {
@@ -302,7 +331,8 @@ test.describe("whiteboards", () => {
     await expect(shapeMenu).toBeVisible();
     await page.mouse.up();
     await expect(tool(page, "Shape")).toHaveAttribute("aria-pressed", "true");
-    await expect(shapeMenu.getByRole("button", { name: "Color Gray" })).toHaveAttribute("aria-pressed", "true");
+    // shapes start outline-only
+    await expect(shapeMenu.getByRole("button", { name: "Color None" })).toHaveAttribute("aria-pressed", "true");
     await shapeMenu.getByRole("button", { name: "Color Green" }).click();
     await page.keyboard.press("Escape");
     await sheet(page).click({ position: { x: 650, y: 250 } });
@@ -366,6 +396,190 @@ test.describe("whiteboards", () => {
     await expect
       .poll(() => storedObjects(page, "wb_saved"))
       .toEqual([expect.objectContaining({ kind: "shape", shape: "rect", x: 100, y: 100, color: "amber" })]);
+  });
+
+  test("a double-clicked shape takes a label, centred inside it; a blank label removes it", async ({ page }) => {
+    await openBoard(page, BOARDS.blank.id);
+    await pickShape(page, "Rectangle");
+    await sheet(page).click({ position: { x: 300, y: 250 } });
+    const shapes = () => storedObjects(page, BOARDS.blank.id);
+    await expect.poll(shapes).toEqual([expect.objectContaining({ kind: "shape", shape: "rect", color: "none" })]);
+    // placing a shape doesn't open an editor; a double-click does
+    await expect(editor(page)).toHaveCount(0);
+
+    const rect = page.locator("[data-wb-object]");
+    await rect.dblclick();
+    await expect(editor(page)).toBeFocused();
+    await editor(page).fill("Auth service");
+    await editor(page).press("Escape");
+    await expect(editor(page)).toHaveCount(0);
+    await expect.poll(async () => (await shapes())[0]?.label).toBe("Auth service");
+
+    const centreOf = async (locator: ReturnType<Page["locator"]>) => {
+      const b = await locator.boundingBox();
+      if (!b) throw new Error("not visible");
+      return [b.x + b.width / 2, b.y + b.height / 2];
+    };
+    const label = page.getByText("Auth service", { exact: true });
+    const [lx, ly] = await centreOf(label);
+    const [rx, ry] = await centreOf(rect);
+    expect(Math.abs(lx - rx)).toBeLessThanOrEqual(2);
+    expect(Math.abs(ly - ry)).toBeLessThanOrEqual(2);
+
+    // the label rides along when the rectangle becomes an ellipse, and an ellipse edits the same way
+    await rect.click({ button: "right" });
+    await page.getByRole("toolbar", { name: "Shape style" }).getByRole("button", { name: "Shape Ellipse" }).click();
+    await page.keyboard.press("Escape");
+    await expect(label).toBeVisible();
+    await page.locator("[data-wb-object]").dblclick();
+    await expect(editor(page)).toHaveValue("Auth service");
+    await editor(page).fill("   ");
+    await editor(page).press("Escape");
+    await expect(label).toHaveCount(0);
+    await expect.poll(async () => (await shapes())[0]).toEqual(expect.objectContaining({ shape: "ellipse" }));
+    expect((await shapes())[0]).not.toHaveProperty("label");
+  });
+
+  test("a click in an ellipse's empty corner reaches the shape underneath; inside, it selects the ellipse", async ({
+    page,
+  }) => {
+    await openBoard(page, BOARDS.blank.id);
+    const [k] = await sheetMatrix(page);
+    const box = await sheet(page).boundingBox();
+    if (!box) throw new Error("sheet is not visible");
+    // A 250×175 rectangle centred on r, then an ellipse of the same size centred
+    // 150×100 sheet pixels further on, its box's top-left corner over the rectangle.
+    const r = { x: box.x + 300, y: box.y + 250 };
+    const e = { x: r.x + 150 * k, y: r.y + 100 * k };
+    await pickShape(page, "Rectangle");
+    await page.mouse.click(r.x, r.y);
+    await pickShape(page, "Ellipse");
+    await page.mouse.click(e.x, e.y);
+    await expect.poll(async () => (await storedObjects(page, BOARDS.blank.id)).map((o) => o.shape)).toEqual([
+      "rect",
+      "ellipse",
+    ]);
+
+    // Placing left the ellipse selected, and a selected object's corners are its resize handles.
+    await page.keyboard.press("Escape");
+    await expect(page.locator("[data-wb-handle]")).toHaveCount(0);
+
+    const shapeMenu = page.getByRole("toolbar", { name: "Shape style" });
+    // inside the ellipse's box, outside the curve, over the rectangle
+    await page.mouse.click(e.x - 115 * k, e.y - 80 * k, { button: "right" });
+    await expect(shapeMenu.getByRole("button", { name: "Shape Rectangle" })).toHaveAttribute("aria-pressed", "true");
+    await page.keyboard.press("Escape");
+
+    await page.mouse.click(e.x, e.y, { button: "right" });
+    await expect(shapeMenu.getByRole("button", { name: "Shape Ellipse" })).toHaveAttribute("aria-pressed", "true");
+    await page.keyboard.press("Escape");
+
+    // and an ellipse's empty corner over bare sheet is bare sheet: it deselects the rectangle
+    await page.mouse.click(r.x, r.y);
+    await expect(page.getByRole("toolbar", { name: "Selection" })).toBeVisible();
+    await page.mouse.click(e.x + 115 * k, e.y - 80 * k);
+    await expect(page.getByRole("toolbar", { name: "Selection" })).toHaveCount(0);
+  });
+
+  test("a corner handle resizes a shape, never below 40px; undo waits for the release, then takes it back", async ({
+    page,
+  }) => {
+    await openBoard(page, BOARDS.blank.id);
+    const [k] = await sheetMatrix(page);
+    await pickShape(page, "Rectangle");
+    await sheet(page).click({ position: { x: 300, y: 250 } });
+    await expect(page.locator("[data-wb-handle]")).toHaveCount(4);
+    const shape = async () => (await storedObjects(page, BOARDS.blank.id))[0];
+    await expect.poll(shape).toEqual(expect.objectContaining({ w: 250, h: 175 }));
+    const placed = (await shape())!;
+
+    await dragHandle(page, "se", 100, 50, async () => {
+      // mid-resize, undo would take back placing the shape: it does nothing instead
+      await expect(tool(page, "Undo")).toBeDisabled();
+      await page.keyboard.press("ControlOrMeta+z");
+    });
+    await expect.poll(async () => (await shape())?.w).toBeGreaterThan(250);
+    const grown = (await shape())!;
+    expect(Math.abs(grown.w! - 250 - 100 / k)).toBeLessThanOrEqual(1);
+    expect(Math.abs(grown.h! - 175 - 50 / k)).toBeLessThanOrEqual(1);
+    expect([grown.x, grown.y]).toEqual([placed.x, placed.y]);
+
+    // dragged far past the opposite corner, the box stops at the minimum, its far corner fixed
+    await dragHandle(page, "nw", 600, 600);
+    await expect.poll(async () => (await shape())?.w).toBe(40);
+    const small = (await shape())!;
+    expect(small.h).toBe(40);
+    expect(small.x + 40).toBe(grown.x + grown.w!);
+    expect(small.y + 40).toBe(grown.y + grown.h!);
+
+    // each resize is one undo step
+    await page.keyboard.press("ControlOrMeta+z");
+    await expect.poll(shape).toEqual(expect.objectContaining({ x: grown.x, y: grown.y, w: grown.w, h: grown.h }));
+    await page.keyboard.press("ControlOrMeta+z");
+    await expect.poll(shape).toEqual(expect.objectContaining({ w: 250, h: 175 }));
+  });
+
+  test("text has only side handles, and resizing it changes only its width", async ({ page }) => {
+    await openBoard(page, BOARDS.blank.id);
+    const [k] = await sheetMatrix(page);
+    await tool(page, "Text").click();
+    await sheet(page).click({ position: { x: 300, y: 300 } });
+    await editor(page).fill("Launch notes");
+    await editor(page).press("Escape");
+
+    // the handles wait for the editor to close
+    await expect(page.locator("[data-wb-handle]")).toHaveCount(2);
+    await expect(handle(page, "w")).toBeVisible();
+    await expect(handle(page, "e")).toBeVisible();
+
+    const text = async () => (await storedObjects(page, BOARDS.blank.id))[0];
+    const before = (await text())!;
+    await dragHandle(page, "e", 120, 80);
+    await expect.poll(async () => (await text())?.w).toBeGreaterThan(400);
+    const after = (await text())!;
+    expect(Math.abs(after.w! - 400 - 120 / k)).toBeLessThanOrEqual(1);
+    expect([after.x, after.y]).toEqual([before.x, before.y]);
+    expect(after).not.toHaveProperty("h");
+
+    // a double-click to edit hides them again
+    await object(page, "Launch notes").dblclick();
+    await expect(editor(page)).toBeFocused();
+    await expect(page.locator("[data-wb-handle]")).toHaveCount(0);
+  });
+
+  test("a gray shape saved before fills could be none loads as an outline", async ({ page }) => {
+    await page.addInitScript(
+      ([boardsKey, uiKey]) => {
+        const at = "2026-09-20T00:00:00.000Z";
+        const board = {
+          id: "wb_saved",
+          workspaceId: "ws_meridian",
+          name: "Saved board",
+          createdById: "u_izhan",
+          createdAt: at,
+          updatedAt: at,
+          objects: [
+            { id: "wo_g", kind: "shape", shape: "rect", x: 100, y: 100, w: 250, h: 175, color: "neutral" },
+            { id: "wo_b", kind: "shape", shape: "ellipse", x: 500, y: 100, w: 250, h: 175, color: "blue" },
+          ],
+        };
+        window.localStorage.setItem(boardsKey, JSON.stringify({ state: { boards: [board] }, version: 5 }));
+        if (!window.localStorage.getItem(uiKey)) {
+          window.localStorage.setItem(uiKey, JSON.stringify({ state: { whiteboardShape: "neutral" }, version: 1 }));
+        }
+      },
+      [WHITEBOARDS_KEY, UI_KEY] as const,
+    );
+
+    await openBoard(page, "wb_saved");
+    await expect
+      .poll(async () => (await storedObjects(page, "wb_saved")).map((o) => o.color))
+      .toEqual(["none", "blue"]);
+
+    await tool(page, "Shape").click({ button: "right" });
+    await expect(
+      page.getByRole("toolbar", { name: "Shape style" }).getByRole("button", { name: "Color None" }),
+    ).toHaveAttribute("aria-pressed", "true");
   });
 
   test("dragging a note moves it by the pointer distance, in sheet pixels", async ({ page }) => {
@@ -514,5 +728,72 @@ test.describe("whiteboards", () => {
     await page.getByRole("main").getByRole("button", { name: "Favorite" }).click();
     await sidebar(page).getByRole("link", { name: BOARDS.roadmap.name }).click();
     await expect(heading(page, BOARDS.roadmap.name)).toBeVisible();
+  });
+
+  test("a private board shows a lock and disappears for everyone but its creator, who alone can change it", async ({
+    page,
+  }) => {
+    await openBoard(page, BOARDS.retro.id);
+    await page.getByRole("button", { name: "Show board list" }).click();
+    const retro = boardList(page).getByRole("link", { name: /Auth rewrite — retro/ });
+    await expect(retro.getByRole("img", { name: "Private" })).toHaveCount(0);
+
+    await page.getByRole("button", { name: "Visibility: Team" }).click();
+    await menu(page).getByRole("button", { name: /^Private/ }).click();
+    await expect(page.getByRole("button", { name: "Visibility: Private" })).toBeVisible();
+    await expect(retro.getByRole("img", { name: "Private" })).toBeVisible();
+    await expect
+      .poll(() =>
+        page.evaluate((key) => JSON.parse(localStorage.getItem(key) ?? "{}").state?.boards?.[1]?.visibility, WHITEBOARDS_KEY),
+      )
+      .toBe("private");
+
+    await page.getByRole("button", { name: `Account: ${USERS.admin.name}` }).click();
+    await menu(page).getByRole("button", { name: /Switch user/ }).click();
+    await menu(page).getByRole("button", { name: new RegExp(USERS.member.name) }).click();
+    await expect(page.getByRole("button", { name: `Account: ${USERS.member.name}` })).toBeVisible();
+    await expect(boardList(page).getByRole("link")).toHaveCount(4);
+    await expect(boardList(page).getByRole("link", { name: /Auth rewrite — retro/ })).toHaveCount(0);
+    await expect(sidebar(page).getByRole("link", { name: /^Whiteboards/ })).toContainText("4");
+    // a deep link to it falls back to the first board
+    await openBoard(page, BOARDS.retro.id);
+    await expect(heading(page, BOARDS.q3.name)).toBeVisible();
+
+    // someone else's team board: the setting shows, but only its creator can change it
+    await page.getByRole("button", { name: "Visibility: Team" }).click();
+    await expect(menu(page).getByRole("button", { name: /^Private/ })).toBeDisabled();
+    await expect(menu(page)).toContainText(`Only ${USERS.admin.name} can change who sees this board.`);
+  });
+
+  test("links in a text can show as cards, from the selection bar or the text's style menu", async ({ page }) => {
+    await openBoard(page, BOARDS.blank.id);
+    await tool(page, "Text").click();
+    await sheet(page).click({ position: { x: 300, y: 300 } });
+    await editor(page).fill("Spec lives at\nhttps://www.example.com/docs/whiteboards?v=2.");
+    await editor(page).press("Escape");
+
+    const text = object(page, "Spec lives at");
+    const card = text.locator("[data-wb-link-card]");
+    await expect(card).toHaveCount(0);
+
+    const bar = page.getByRole("toolbar", { name: "Selection" });
+    await bar.getByRole("button", { name: "Show links as cards" }).click();
+    await expect(card).toContainText("example.com");
+    await expect(card).toContainText("/docs/whiteboards?v=2");
+    // the trailing full stop ends the sentence, not the link
+    await expect(card.getByRole("link", { name: "Open example.com" })).toHaveAttribute(
+      "href",
+      "https://www.example.com/docs/whiteboards?v=2",
+    );
+    await expect
+      .poll(() => storedObjects(page, BOARDS.blank.id))
+      .toEqual([expect.objectContaining({ kind: "text", linkCards: true })]);
+
+    await text.click({ button: "right" });
+    const toggle = page.getByRole("toolbar", { name: "Text style" }).getByRole("button", { name: "Show links as cards" });
+    await expect(toggle).toHaveAttribute("aria-pressed", "true");
+    await toggle.click();
+    await expect(card).toHaveCount(0);
+    await expect(text).toContainText("https://www.example.com/docs/whiteboards?v=2.");
   });
 });

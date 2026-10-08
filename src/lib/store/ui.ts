@@ -99,7 +99,7 @@ export const useUI = create<UIState>()(
             : { whiteboardText: { ...s.whiteboardText, ...patch } },
         ),
       whiteboardSticky: "amber",
-      whiteboardShape: "neutral",
+      whiteboardShape: "none",
       setWhiteboardFill: (tool, color) =>
         set(tool === "sticky" ? { whiteboardSticky: color } : { whiteboardShape: color }),
       whiteboardShapeKind: "rect",
@@ -109,10 +109,13 @@ export const useUI = create<UIState>()(
       name: "issuelyst.ui.v1",
       storage: createJSONStorage(() => localStorage),
       // v1: the Claude app became the default surface; move saved sessions onto it once
-      version: 1,
+      // v2: the shape tool's gray fill became no fill
+      version: 2,
       migrate: (persisted, version) => {
-        const s = persisted as Partial<UIState>;
-        return version < 1 ? { ...s, claudeSurface: "desktop" } : s;
+        let s = persisted as Partial<UIState>;
+        if (version < 1) s = { ...s, claudeSurface: "desktop" };
+        if (version < 2 && (s.whiteboardShape as string | undefined) === "neutral") s = { ...s, whiteboardShape: "none" };
+        return s;
       },
       partialize: (s) => ({
         sidebarCollapsed: s.sidebarCollapsed,

@@ -205,8 +205,8 @@ export interface Notification {
 
 /* ── Whiteboards ─────────────────────────────────────────────────── */
 
-/** Soft fills for stickies and shapes; each resolves to a theme token. */
-export type WhiteboardColor = "neutral" | "amber" | "blue" | "green" | "red" | "indigo";
+/** Soft fills for stickies and shapes; each resolves to a theme token. "none" (shapes only) is outline-only. */
+export type WhiteboardColor = "none" | "amber" | "blue" | "green" | "red" | "indigo";
 
 /** Strong colours for text and pen strokes; each resolves to a theme token. */
 export type InkColor = "default" | "gray" | "red" | "orange" | "green" | "blue";
@@ -243,6 +243,8 @@ export interface TextObject extends WhiteboardObjectBase, InkStyle {
   kind: "text";
   weight: 400 | 700;
   text: string;
+  /** web links in the text render as cards rather than inline links */
+  linkCards?: boolean;
 }
 
 /** What the Shape tool draws. */
@@ -253,6 +255,8 @@ export interface ShapeObject extends WhiteboardObjectBase {
   shape: ShapeKind;
   h: number;
   color: WhiteboardColor;
+  /** text centred inside the shape; absent until someone types one */
+  label?: string;
 }
 
 /** An outline ring drawn around something to call it out. Not one of the Shape tool's shapes. */
@@ -283,10 +287,15 @@ export type WhiteboardObject =
   | ImageObject
   | InkObject;
 
+/** Team boards are open to the whole workspace; private ones only to their creator. */
+export type WhiteboardVisibility = "private" | "team";
+
 export interface Whiteboard {
   id: ID;
   workspaceId: ID;
   name: string;
+  /** only the creator can change it */
+  visibility: WhiteboardVisibility;
   /** paint order: later objects draw on top */
   objects: WhiteboardObject[];
   createdById: ID;

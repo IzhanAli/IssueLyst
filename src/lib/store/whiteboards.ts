@@ -1,7 +1,8 @@
+import { useMemo } from "react";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { nanoid } from "nanoid";
-import type { Whiteboard, WhiteboardObject } from "@/lib/types";
+import type { ID, Whiteboard, WhiteboardObject, WhiteboardVisibility } from "@/lib/types";
 import { seedWhiteboards } from "@/lib/data/whiteboards-seed";
 import { useStore } from "./store";
 
@@ -17,6 +18,8 @@ interface WhiteboardState {
 
   createBoard: () => Whiteboard;
   renameBoard: (id: string, name: string) => void;
+  /** a no-op unless the current user created the board */
+  setVisibility: (id: string, visibility: WhiteboardVisibility) => void;
   deleteBoard: (id: string) => void;
   /** puts a deleted board back where it was (the delete toast's Undo) */
   restoreBoard: (board: Whiteboard, index: number) => void;
@@ -49,6 +52,7 @@ export const useWhiteboards = create<WhiteboardState>()(
           id: `wb_${nanoid(8)}`,
           workspaceId: workspace.id,
           name: "Untitled board",
+          visibility: "team",
           objects: [],
           createdById: currentUserId,
           createdAt: at,
@@ -62,6 +66,17 @@ export const useWhiteboards = create<WhiteboardState>()(
         set((s) => ({
           boards: s.boards.map((b) => (b.id === id ? { ...b, name, updatedAt: nowIso() } : b)),
         })),
+
+      setVisibility: (id, visibility) => {
+        const me = useStore.getState().currentUserId;
+        set((s) => ({
+          boards: s.boards.map((b) =>
+            b.id === id && b.createdById === me && b.visibility !== visibility
+              ? { ...b, visibility, updatedAt: nowIso() }
+              : b,
+          ),
+        }));
+      },
 
       deleteBoard: (id) =>
         set((s) => {
@@ -109,13 +124,24 @@ export const useWhiteboards = create<WhiteboardState>()(
     }),
     {
       name: "issuelyst.whiteboards.v1",
-      version: 5,
+      version: 7,
       storage: createJSONStorage(() => localStorage),
       partialize: (s) => ({ boards: s.boards }),
       migrate: migrateBoards,
     },
   ),
 );
+
+/** Whether a user can open a board: a team board, or a private one they created. */
+export const canSeeBoard = (board: Whiteboard, userId: ID) =>
+  board.visibility !== "private" || board.createdById === userId;
+
+/** The boards the current user can open, in list order. */
+export function useVisibleBoards(): Whiteboard[] {
+  const boards = useWhiteboards((s) => s.boards);
+  const me = useStore((s) => s.currentUserId);
+  return useMemo(() => boards.filter((b) => canSeeBoard(b, me)), [boards, me]);
+}
 
 /* ── storage upgrades ────────────────────────────────────────────── */
 
@@ -174,8 +200,13 @@ function upgradeToV5(o: StoredObject): StoredObject {
   return o.kind === "shape" && o.shape === "triangle" ? { ...o, shape: "rect" } : o;
 }
 
+/** v6 replaces the gray shape fill with no fill: a gray shape becomes an outline. */
+function upgradeToV6(o: StoredObject): StoredObject {
+  return o.kind === "shape" && o.color === "neutral" ? { ...o, color: "none" } : o;
+}
+
 function migrateBoards(persisted: unknown, version: number): { boards: Whiteboard[] } {
-  const state = persisted as { boards?: Array<{ objects: StoredObject[] }> };
+  const state = persisted as { boards?: Array<{ objects: StoredObject[]; visibility?: string }> };
   if (!Array.isArray(state?.boards)) return state as unknown as { boards: Whiteboard[] };
   let boards = state.boards;
   const upgrade = (step: (o: StoredObject) => StoredObject) => {
@@ -185,5 +216,8 @@ function migrateBoards(persisted: unknown, version: number): { boards: Whiteboar
   if (version < 3) upgrade(upgradeToV3);
   if (version < 4) upgrade(upgradeToV4);
   if (version < 5) upgrade(upgradeToV5);
+  if (version < 6) upgrade(upgradeToV6);
+  // v7 adds private boards: every board saved before then was open to the team
+  if (version < 7) boards = boards.map((b) => ({ ...b, visibility: b.visibility ?? "team" }));
   return { boards: boards as unknown as Whiteboard[] };
 }

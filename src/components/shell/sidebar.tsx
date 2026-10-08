@@ -28,7 +28,7 @@ import { Tooltip } from "@/components/ui/tooltip";
 import { useCurrentUser, useUnreadCount } from "@/lib/store/hooks";
 import { useStore } from "@/lib/store/store";
 import { useUI } from "@/lib/store/ui";
-import { useWhiteboards } from "@/lib/store/whiteboards";
+import { useVisibleBoards } from "@/lib/store/whiteboards";
 import { useTheme } from "@/components/theme/use-theme";
 import { signOut } from "@/lib/auth/session";
 import { isMac } from "@/lib/utils/platform";
@@ -175,7 +175,7 @@ export function Sidebar() {
   );
 
   const isFav = favorites.includes(project.id);
-  const boards = useWhiteboards((s) => s.boards);
+  const boards = useVisibleBoards();
   const favBoards = boards.filter((b) => favorites.includes(b.id));
 
   return (

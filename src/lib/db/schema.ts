@@ -24,6 +24,7 @@ import type {
   Status,
   StatusIcon,
   WhiteboardObject,
+  WhiteboardVisibility,
 } from "@/lib/types";
 
 const id = () => text("id").primaryKey();
@@ -164,6 +165,7 @@ export const whiteboards = pgTable("whiteboards", {
   id: id(),
   workspaceId: text("workspace_id").notNull().references(() => workspaces.id, { onDelete: "cascade" }),
   name: text("name").notNull(),
+  visibility: text("visibility").$type<WhiteboardVisibility>().notNull().default("team"),
   // The object list is a document: always read and written whole.
   objects: jsonb("objects").$type<WhiteboardObject[]>().notNull().default([]),
   createdById: text("created_by_id").notNull().references(() => users.id),
