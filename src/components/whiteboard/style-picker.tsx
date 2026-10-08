@@ -19,11 +19,14 @@ function Swatch({
   fill,
   label,
   pressed,
+  empty = false,
   onPick,
 }: {
   fill: string;
   label: string;
   pressed: boolean;
+  /** no fill at all: a blank chip struck through, like a fill picker's "none" anywhere */
+  empty?: boolean;
   onPick: () => void;
 }) {
   return (
@@ -32,11 +35,18 @@ function Swatch({
       aria-label={`Color ${label}`}
       aria-pressed={pressed}
       className={cn(
-        "h-[22px] w-[22px] shrink-0 rounded-[7px] shadow-[inset_0_0_0_1px_var(--border-strong)] transition-[box-shadow,transform] duration-150 hover:scale-110 active:scale-95",
+        "relative h-[22px] w-[22px] shrink-0 overflow-hidden rounded-[7px] shadow-[inset_0_0_0_1px_var(--border-strong)] transition-[box-shadow,transform] duration-150 hover:scale-110 active:scale-95",
         pressed && "shadow-[inset_0_0_0_1px_var(--border-strong),0_0_0_2px_var(--surface),0_0_0_4px_var(--accent)]",
       )}
-      style={{ background: fill }}
-    />
+      style={{ background: empty ? "var(--surface)" : fill }}
+    >
+      {empty && (
+        <span
+          aria-hidden
+          className="absolute left-1/2 top-1/2 h-[2px] w-[28px] -translate-x-1/2 -translate-y-1/2 -rotate-45 bg-text-subtle"
+        />
+      )}
+    </button>
   );
 }
 
@@ -104,6 +114,7 @@ export function FillPicker({
           fill={FILL[s.color]}
           label={s.label}
           pressed={value === s.color}
+          empty={s.color === "none"}
           onPick={() => onChange(s.color)}
         />
       ))}

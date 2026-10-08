@@ -16,7 +16,8 @@ export const ZOOM = { min: 25, max: 400, step: 10 } as const;
  * light and dark mode.
  */
 export const FILL: Record<WhiteboardColor, string> = {
-  neutral: "color-mix(in srgb, var(--surface-2) 55%, transparent)",
+  // transparent rather than SVG's "none", so an ellipse's inside still takes clicks
+  none: "transparent",
   amber: "color-mix(in srgb, #ffcc00 42%, var(--surface))",
   blue: "color-mix(in srgb, var(--accent) 20%, var(--surface))",
   green: "color-mix(in srgb, #34c759 26%, var(--surface))",
@@ -33,9 +34,9 @@ export const STICKY_SWATCHES: { color: WhiteboardColor; label: string }[] = [
   { color: "indigo", label: "Indigo" },
 ];
 
-/** Shape fills: the soft gray shapes start with, then the note colours. */
+/** Shape fills: none, the outline-only shapes start with, then the note colours. */
 export const SHAPE_SWATCHES: { color: WhiteboardColor; label: string }[] = [
-  { color: "neutral", label: "Gray" },
+  { color: "none", label: "None" },
   ...STICKY_SWATCHES,
 ];
 
@@ -71,6 +72,12 @@ export const TEXT_SIZE: Record<WhiteboardSize, number> = { s: 16, m: 22, l: 34 }
 
 /** A pen stroke's width, in sheet pixels. */
 export const INK_WIDTH: Record<WhiteboardSize, number> = { s: 3, m: 5, l: 9 };
+
+/** The smallest width or height a resize leaves an object, in sheet pixels. */
+export const MIN_OBJECT_SIZE = 40;
+
+/** A resize handle's visible square, in screen pixels at any zoom. */
+export const HANDLE_SIZE = 10;
 
 /** Selection is azure, like every other selection in the app. */
 export const SELECTION_RING =

@@ -99,44 +99,49 @@ export function BoardObject({
         </div>
       );
 
-    case "shape":
+    case "shape": {
+      const label = <ShapeLabel obj={obj} editing={editing} onCommit={commit} />;
       if (obj.shape === "ellipse") {
         return (
-          <svg
-            className="pointer-events-none absolute overflow-visible"
-            style={{ left: obj.x, top: obj.y }}
-            width={obj.w}
-            height={obj.h}
+          // the box itself takes no clicks: only the painted ellipse does
+          <div
+            className="pointer-events-none absolute"
+            style={{ left: obj.x, top: obj.y, width: obj.w, height: obj.h }}
           >
-            {selected && (
+            <svg className="absolute inset-0 overflow-visible" width={obj.w} height={obj.h}>
+              {selected && (
+                <path
+                  d={ellipsePath(obj)}
+                  fill="none"
+                  stroke="var(--accent)"
+                  strokeOpacity={0.2}
+                  strokeWidth={10}
+                  strokeLinejoin="round"
+                />
+              )}
+              {/* painted area only: a click in the box's corners, outside the ellipse, reaches what's underneath */}
               <path
                 d={ellipsePath(obj)}
-                fill="none"
-                stroke="var(--accent)"
-                strokeOpacity={0.2}
-                strokeWidth={10}
+                data-wb-object={obj.id}
+                onPointerDown={onPointerDown}
+                onDoubleClick={onDoubleClick}
+                onContextMenu={onContextMenu}
+                fill={FILL[obj.color]}
+                stroke={selected ? "var(--accent)" : "var(--border-strong)"}
+                strokeWidth={selected ? 3 : 2}
                 strokeLinejoin="round"
+                style={{ pointerEvents: "visiblePainted", cursor }}
               />
-            )}
-            {/* painted area only: a click in the box's corners, outside the ellipse, reaches what's underneath */}
-            <path
-              d={ellipsePath(obj)}
-              data-wb-object={obj.id}
-              onPointerDown={onPointerDown}
-              onContextMenu={onContextMenu}
-              fill={FILL[obj.color]}
-              stroke={selected ? "var(--accent)" : "var(--border-strong)"}
-              strokeWidth={selected ? 3 : 2}
-              strokeLinejoin="round"
-              style={{ pointerEvents: "visiblePainted", cursor }}
-            />
-          </svg>
+            </svg>
+            {label}
+          </div>
         );
       }
       return (
         <div
           data-wb-object={obj.id}
           onPointerDown={onPointerDown}
+          onDoubleClick={onDoubleClick}
           onContextMenu={onContextMenu}
           className="absolute box-border rounded-[12px] border-2 border-border-strong"
           style={{
@@ -148,8 +153,11 @@ export function BoardObject({
             boxShadow: ring,
             cursor,
           }}
-        />
+        >
+          {label}
+        </div>
       );
+    }
 
     case "ellipse": {
       const shape = {
@@ -237,6 +245,38 @@ export function BoardObject({
   }
 }
 
+/**
+ * A shape's label, centred in its box. An ellipse insets it to the largest
+ * rectangle inside the curve (1/√2 of each axis). The layer takes no clicks,
+ * so the shape underneath still selects and drags; only the editor does.
+ */
+function ShapeLabel({
+  obj,
+  editing,
+  onCommit,
+}: {
+  obj: ShapeObject;
+  editing: boolean;
+  onCommit: (value: string) => void;
+}) {
+  if (!editing && !obj.label?.trim()) return null;
+  const inset = obj.shape === "ellipse" ? (1 - Math.SQRT1_2) / 2 : 0;
+  return (
+    <div
+      className="pointer-events-none absolute inset-0 box-border flex items-center justify-center whitespace-pre-wrap break-words p-3.5 text-center text-[19px] leading-[1.3] text-text"
+      style={inset ? { padding: `${obj.h * inset}px ${obj.w * inset}px` } : undefined}
+    >
+      {editing ? (
+        <div className="pointer-events-auto w-full">
+          <TextEditor initial={obj.label ?? ""} placeholder="Label" onCommit={onCommit} />
+        </div>
+      ) : (
+        <span className="min-w-0">{obj.label}</span>
+      )}
+    </div>
+  );
+}
+
 /** An ellipse filling the shape's box, inset so its 2px stroke stays inside. */
 function ellipsePath({ w, h }: ShapeObject) {
   const rx = Math.max(w / 2 - 1, 0);
@@ -302,7 +342,7 @@ function TextEditor({
         }
       }}
       className="block w-full select-text resize-none overflow-hidden border-0 bg-transparent p-0 placeholder:text-text-subtle focus:outline-none"
-      style={{ font: "inherit", letterSpacing: "inherit", lineHeight: "inherit", color: "inherit" }}
+      style={{ font: "inherit", letterSpacing: "inherit", lineHeight: "inherit", color: "inherit", textAlign: "inherit" }}
     />
   );
 }

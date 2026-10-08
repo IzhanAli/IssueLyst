@@ -62,7 +62,7 @@ export function seedWhiteboards(): Whiteboard[] {
   });
 
   const rect = (x: number, y: number, w: number, h: number): ShapeObject =>
-    ({ id: oid(), kind: "shape", shape: "rect", x, y, w, h, color: "neutral" });
+    ({ id: oid(), kind: "shape", shape: "rect", x, y, w, h, color: "none" });
   const ellipse = (x: number, y: number, w: number, h: number): EllipseObject =>
     ({ id: oid(), kind: "ellipse", x, y, w, h });
   const image = (x: number, y: number, w: number, h: number, caption: string): ImageObject =>

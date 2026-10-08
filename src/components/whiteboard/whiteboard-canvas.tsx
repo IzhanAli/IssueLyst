@@ -23,6 +23,7 @@ import { cn } from "@/lib/utils/cn";
 import { isMac, isTypingTarget } from "@/lib/utils/platform";
 import { BoardObject, type ObjectHandlers } from "./board-object";
 import { INK, INK_LINE, INK_WIDTH, SHAPE_SWATCHES, SHEET, STICKY_SWATCHES, ZOOM } from "./constants";
+import { type Box, type Handle, ResizeHandles, handlesOf, resizeBox, withBox } from "./resize-handles";
 import { FillPicker, InkStylePicker, SHAPES, ShapePicker, StyleMenu } from "./style-picker";
 
 type Tool = "select" | "hand" | "text" | "sticky" | "pen" | "shape" | "image";
@@ -106,7 +107,8 @@ const FIT_MARGIN = 24;
 const newId = () => `wo_${nanoid(8)}`;
 const clamp = (n: number, min: number, max: number) => Math.min(max, Math.max(min, n));
 const sizeOf = (el: HTMLElement): Size => ({ w: el.clientWidth, h: el.clientHeight });
-const isEditable = (o: WhiteboardObject) => o.kind === "sticky" || o.kind === "text" || o.kind === "image";
+const isEditable = (o: WhiteboardObject) =>
+  o.kind === "sticky" || o.kind === "text" || o.kind === "shape" || o.kind === "image";
 const inkStyleOf = (o: WhiteboardObject): InkStyle | null =>
   o.kind === "text" || o.kind === "ink" ? { color: o.color, size: o.size } : null;
 
@@ -134,6 +136,26 @@ function zoomAround(v: View, zoom: number, ax: number, ay: number, size: Size): 
     x: ax - sx * k - (size.w - SHEET.width * k) / 2,
     y: ay - sy * k - (size.h - SHEET.height * k) / 2,
   };
+}
+
+/**
+ * The rendered height of the object `id`, kept current as it changes. Notes
+ * and text grow with their content, so their stored height (a minimum for
+ * notes, none at all for text) isn't where their bottom edge is.
+ */
+function useRenderedHeight(sheetRef: React.RefObject<HTMLDivElement | null>, id: string | null) {
+  const [rendered, setRendered] = useState<{ id: string; h: number } | null>(null);
+  useLayoutEffect(() => {
+    const el = id ? sheetRef.current?.querySelector(`[data-wb-object="${CSS.escape(id)}"]`) : null;
+    if (!id || !(el instanceof HTMLElement)) return;
+    const measure = () =>
+      setRendered((r) => (r?.id === id && r.h === el.offsetHeight ? r : { id, h: el.offsetHeight }));
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [sheetRef, id]);
+  return rendered?.id === id ? rendered.h : null;
 }
 
 function pathOf(points: Point[], ox = 0, oy = 0) {
@@ -199,6 +221,8 @@ export function WhiteboardCanvas({
   const [size, setSize] = useState<Size>({ w: SHEET.width + 2 * FIT_MARGIN, h: SHEET.height + 2 * FIT_MARGIN });
   /** live offset of the object being dragged; written to the store on release */
   const [drag, setDrag] = useState<{ id: string; dx: number; dy: number } | null>(null);
+  /** live box of the object being resized; written to the store on release */
+  const [resize, setResize] = useState<{ id: string; box: Box } | null>(null);
   /** the stroke being drawn, in sheet pixels */
   const [stroke, setStroke] = useState<Point[] | null>(null);
   const [panning, setPanning] = useState(false);
@@ -215,8 +239,21 @@ export function WhiteboardCanvas({
   const { k, left, top } = sheetLayout(view, size);
   const usersById = useMemo(() => new Map(users.map((u) => [u.id, u])), [users]);
   const selected = board.objects.find((o) => o.id === selectedId) ?? null;
-  const moved = (o: WhiteboardObject): WhiteboardObject =>
-    drag?.id === o.id ? { ...o, x: o.x + drag.dx, y: o.y + drag.dy } : o;
+  const renderedHeight = useRenderedHeight(sheetRef, selectedId);
+  /** an object as it stands mid-gesture: dragged, resized, or untouched */
+  const live = (o: WhiteboardObject): WhiteboardObject =>
+    resize?.id === o.id
+      ? withBox(o, resize.box)
+      : drag?.id === o.id
+        ? { ...o, x: o.x + drag.dx, y: o.y + drag.dy }
+        : o;
+  /** the selected object's box as drawn; a note or text measures its own height */
+  const boxOf = (o: WhiteboardObject): Box => ({
+    x: o.x,
+    y: o.y,
+    w: o.w,
+    h: o.kind === "text" ? (renderedHeight ?? 0) : o.kind === "sticky" ? Math.max(o.h, renderedHeight ?? 0) : o.h,
+  });
 
   useEffect(() => {
     const gesture = stopGesture;
@@ -317,6 +354,29 @@ export function WhiteboardCanvas({
     );
   };
 
+  const startResize = (e: React.PointerEvent, obj: WhiteboardObject, handle: Handle) => {
+    if (e.button !== 0) return;
+    e.stopPropagation();
+    e.preventDefault();
+    releaseFocus();
+    const origin = { px: e.clientX, py: e.clientY };
+    const start = boxOf(obj);
+    let box = start;
+    track(
+      (ev) => {
+        box = resizeBox(start, handle, (ev.clientX - origin.px) / k, (ev.clientY - origin.py) / k);
+        setResize({ id: obj.id, box });
+      },
+      () => {
+        setResize(null);
+        if (box === start) return;
+        editObjects(board.id, (os) =>
+          os.some((o) => o.id === obj.id) ? os.map((o) => (o.id === obj.id ? withBox(o, box) : o)) : os,
+        );
+      },
+    );
+  };
+
   /* ── edits ─────────────────────────────────────────────────────── */
 
   const place = (clientX: number, clientY: number) => {
@@ -386,7 +446,16 @@ export function WhiteboardCanvas({
       return;
     }
 
-    const current = obj.kind === "image" ? obj.caption : obj.kind === "sticky" || obj.kind === "text" ? obj.text : null;
+    // a blank label is no label
+    if (obj.kind === "shape" && !value.trim()) value = "";
+    const current =
+      obj.kind === "image"
+        ? obj.caption
+        : obj.kind === "shape"
+          ? (obj.label ?? "")
+          : obj.kind === "sticky" || obj.kind === "text"
+            ? obj.text
+            : null;
     if (current === null || current === value) return;
     editObjects(
       board.id,
@@ -394,6 +463,7 @@ export function WhiteboardCanvas({
         os.map((o) => {
           if (o.id !== id) return o;
           if (o.kind === "image") return { ...o, caption: value };
+          if (o.kind === "shape") return { ...o, label: value || undefined };
           if (o.kind === "sticky" || o.kind === "text") return { ...o, text: value };
           return o;
         }),
@@ -563,7 +633,8 @@ export function WhiteboardCanvas({
       const key = e.key.toLowerCase();
 
       if (e.metaKey || e.ctrlKey) {
-        if (key === "z" && !e.shiftKey && !drag && !stroke) {
+        // no undo mid-gesture: the gesture's own edit lands when it ends
+        if (key === "z" && !e.shiftKey && !drag && !stroke && !resize) {
           e.preventDefault();
           undo(board.id);
         }
@@ -648,7 +719,9 @@ export function WhiteboardCanvas({
     );
   };
 
-  const barTarget = selected ? moved(selected) : null;
+  const barTarget = selected ? live(selected) : null;
+  // handles step aside while the object's text is being edited
+  const handleTarget = barTarget && editingId !== barTarget.id ? barTarget : null;
   const menuObject =
     styleMenu?.kind === "object" ? (board.objects.find((o) => o.id === styleMenu.id) ?? null) : null;
 
@@ -677,7 +750,7 @@ export function WhiteboardCanvas({
           {board.objects.map((o) => (
             <BoardObject
               key={o.id}
-              obj={moved(o)}
+              obj={live(o)}
               selected={o.id === selectedId}
               editing={o.id === editingId}
               grabbable={tool === "select"}
@@ -699,6 +772,15 @@ export function WhiteboardCanvas({
                 strokeWidth={INK_WIDTH[penStyle.size]}
               />
             </svg>
+          )}
+
+          {selected && handleTarget && (
+            <ResizeHandles
+              box={boxOf(handleTarget)}
+              handles={handlesOf(handleTarget)}
+              k={k}
+              onStart={(e, handle) => startResize(e, selected, handle)}
+            />
           )}
 
           {board.objects.length === 0 && !stroke && (
@@ -827,7 +909,7 @@ export function WhiteboardCanvas({
         <Tooltip content="Undo" shortcut={isMac() ? "⌘Z" : "Ctrl+Z"}>
           <button
             onClick={() => undo(board.id)}
-            disabled={!canUndo}
+            disabled={!canUndo || resize !== null}
             aria-label="Undo"
             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] text-primary-fg/65 transition-[background-color,color,transform] duration-150 hover:bg-primary-fg/12 hover:text-primary-fg active:scale-90 disabled:opacity-35"
           >

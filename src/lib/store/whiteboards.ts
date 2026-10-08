@@ -109,7 +109,7 @@ export const useWhiteboards = create<WhiteboardState>()(
     }),
     {
       name: "issuelyst.whiteboards.v1",
-      version: 5,
+      version: 6,
       storage: createJSONStorage(() => localStorage),
       partialize: (s) => ({ boards: s.boards }),
       migrate: migrateBoards,
@@ -174,6 +174,11 @@ function upgradeToV5(o: StoredObject): StoredObject {
   return o.kind === "shape" && o.shape === "triangle" ? { ...o, shape: "rect" } : o;
 }
 
+/** v6 replaces the gray shape fill with no fill: a gray shape becomes an outline. */
+function upgradeToV6(o: StoredObject): StoredObject {
+  return o.kind === "shape" && o.color === "neutral" ? { ...o, color: "none" } : o;
+}
+
 function migrateBoards(persisted: unknown, version: number): { boards: Whiteboard[] } {
   const state = persisted as { boards?: Array<{ objects: StoredObject[] }> };
   if (!Array.isArray(state?.boards)) return state as unknown as { boards: Whiteboard[] };
@@ -185,5 +190,6 @@ function migrateBoards(persisted: unknown, version: number): { boards: Whiteboar
   if (version < 3) upgrade(upgradeToV3);
   if (version < 4) upgrade(upgradeToV4);
   if (version < 5) upgrade(upgradeToV5);
+  if (version < 6) upgrade(upgradeToV6);
   return { boards: boards as unknown as Whiteboard[] };
 }

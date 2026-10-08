@@ -205,8 +205,8 @@ export interface Notification {
 
 /* ── Whiteboards ─────────────────────────────────────────────────── */
 
-/** Soft fills for stickies and shapes; each resolves to a theme token. */
-export type WhiteboardColor = "neutral" | "amber" | "blue" | "green" | "red" | "indigo";
+/** Soft fills for stickies and shapes; each resolves to a theme token. "none" (shapes only) is outline-only. */
+export type WhiteboardColor = "none" | "amber" | "blue" | "green" | "red" | "indigo";
 
 /** Strong colours for text and pen strokes; each resolves to a theme token. */
 export type InkColor = "default" | "gray" | "red" | "orange" | "green" | "blue";
@@ -253,6 +253,8 @@ export interface ShapeObject extends WhiteboardObjectBase {
   shape: ShapeKind;
   h: number;
   color: WhiteboardColor;
+  /** text centred inside the shape; absent until someone types one */
+  label?: string;
 }
 
 /** An outline ring drawn around something to call it out. Not one of the Shape tool's shapes. */
