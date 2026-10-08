@@ -1,5 +1,5 @@
 import type { Page } from "@playwright/test";
-import { ROUTES, UI_KEY, WHITEBOARDS_KEY, expect, menu, sidebar, test, toast } from "./helpers";
+import { ROUTES, UI_KEY, USERS, WHITEBOARDS_KEY, expect, menu, sidebar, test, toast } from "./helpers";
 
 /** Seeded boards (src/lib/data/whiteboards-seed.ts). */
 const BOARDS = {
@@ -74,6 +74,7 @@ interface StoredObject {
   w?: number;
   h?: number;
   label?: string;
+  linkCards?: boolean;
 }
 
 /** A board's objects straight out of localStorage (written on the first edit). */
@@ -727,5 +728,72 @@ test.describe("whiteboards", () => {
     await page.getByRole("main").getByRole("button", { name: "Favorite" }).click();
     await sidebar(page).getByRole("link", { name: BOARDS.roadmap.name }).click();
     await expect(heading(page, BOARDS.roadmap.name)).toBeVisible();
+  });
+
+  test("a private board shows a lock and disappears for everyone but its creator, who alone can change it", async ({
+    page,
+  }) => {
+    await openBoard(page, BOARDS.retro.id);
+    await page.getByRole("button", { name: "Show board list" }).click();
+    const retro = boardList(page).getByRole("link", { name: /Auth rewrite — retro/ });
+    await expect(retro.getByRole("img", { name: "Private" })).toHaveCount(0);
+
+    await page.getByRole("button", { name: "Visibility: Team" }).click();
+    await menu(page).getByRole("button", { name: /^Private/ }).click();
+    await expect(page.getByRole("button", { name: "Visibility: Private" })).toBeVisible();
+    await expect(retro.getByRole("img", { name: "Private" })).toBeVisible();
+    await expect
+      .poll(() =>
+        page.evaluate((key) => JSON.parse(localStorage.getItem(key) ?? "{}").state?.boards?.[1]?.visibility, WHITEBOARDS_KEY),
+      )
+      .toBe("private");
+
+    await page.getByRole("button", { name: `Account: ${USERS.admin.name}` }).click();
+    await menu(page).getByRole("button", { name: /Switch user/ }).click();
+    await menu(page).getByRole("button", { name: new RegExp(USERS.member.name) }).click();
+    await expect(page.getByRole("button", { name: `Account: ${USERS.member.name}` })).toBeVisible();
+    await expect(boardList(page).getByRole("link")).toHaveCount(4);
+    await expect(boardList(page).getByRole("link", { name: /Auth rewrite — retro/ })).toHaveCount(0);
+    await expect(sidebar(page).getByRole("link", { name: /^Whiteboards/ })).toContainText("4");
+    // a deep link to it falls back to the first board
+    await openBoard(page, BOARDS.retro.id);
+    await expect(heading(page, BOARDS.q3.name)).toBeVisible();
+
+    // someone else's team board: the setting shows, but only its creator can change it
+    await page.getByRole("button", { name: "Visibility: Team" }).click();
+    await expect(menu(page).getByRole("button", { name: /^Private/ })).toBeDisabled();
+    await expect(menu(page)).toContainText(`Only ${USERS.admin.name} can change who sees this board.`);
+  });
+
+  test("links in a text can show as cards, from the selection bar or the text's style menu", async ({ page }) => {
+    await openBoard(page, BOARDS.blank.id);
+    await tool(page, "Text").click();
+    await sheet(page).click({ position: { x: 300, y: 300 } });
+    await editor(page).fill("Spec lives at\nhttps://www.example.com/docs/whiteboards?v=2.");
+    await editor(page).press("Escape");
+
+    const text = object(page, "Spec lives at");
+    const card = text.locator("[data-wb-link-card]");
+    await expect(card).toHaveCount(0);
+
+    const bar = page.getByRole("toolbar", { name: "Selection" });
+    await bar.getByRole("button", { name: "Show links as cards" }).click();
+    await expect(card).toContainText("example.com");
+    await expect(card).toContainText("/docs/whiteboards?v=2");
+    // the trailing full stop ends the sentence, not the link
+    await expect(card.getByRole("link", { name: "Open example.com" })).toHaveAttribute(
+      "href",
+      "https://www.example.com/docs/whiteboards?v=2",
+    );
+    await expect
+      .poll(() => storedObjects(page, BOARDS.blank.id))
+      .toEqual([expect.objectContaining({ kind: "text", linkCards: true })]);
+
+    await text.click({ button: "right" });
+    const toggle = page.getByRole("toolbar", { name: "Text style" }).getByRole("button", { name: "Show links as cards" });
+    await expect(toggle).toHaveAttribute("aria-pressed", "true");
+    await toggle.click();
+    await expect(card).toHaveCount(0);
+    await expect(text).toContainText("https://www.example.com/docs/whiteboards?v=2.");
   });
 });

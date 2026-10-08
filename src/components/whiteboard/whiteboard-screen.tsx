@@ -1,13 +1,14 @@
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { Plus, Presentation } from "lucide-react";
-import { useWhiteboards } from "@/lib/store/whiteboards";
+import { useVisibleBoards, useWhiteboards } from "@/lib/store/whiteboards";
 import { BoardRail } from "./board-rail";
 import { WhiteboardCanvas } from "./whiteboard-canvas";
 import { WhiteboardHeader } from "./whiteboard-header";
 
 export function WhiteboardScreen() {
   const search = useSearch({ from: "/app" });
-  const boards = useWhiteboards((s) => s.boards);
+  // Someone else's private board is as good as missing.
+  const boards = useVisibleBoards();
   // A missing or unknown `?board=` falls back to the first board.
   const index = Math.max(0, boards.findIndex((b) => b.id === search.board));
   const board = boards[index];
@@ -26,7 +27,10 @@ export function WhiteboardScreen() {
   );
 }
 
-/** Only reachable if storage was edited by hand: the last board can't be deleted. */
+/**
+ * The last board can't be deleted, so this is reached when every board is
+ * someone else's private one (or storage was edited by hand).
+ */
 function NoBoards() {
   const navigate = useNavigate();
   const createBoard = useWhiteboards((s) => s.createBoard);

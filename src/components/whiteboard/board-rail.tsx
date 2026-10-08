@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { ChevronsLeft, Plus } from "lucide-react";
+import { ChevronsLeft, Lock, Plus } from "lucide-react";
 import { Tooltip } from "@/components/ui/tooltip";
 import { useUI } from "@/lib/store/ui";
 import { useWhiteboards } from "@/lib/store/whiteboards";
@@ -86,13 +86,20 @@ export function BoardRail({ boards, activeId }: { boards: Whiteboard[]; activeId
                   active ? "bg-primary-soft" : "hover:bg-surface-hover/70",
                 )}
               >
-                <span
-                  className={cn(
-                    "w-full truncate px-0.5 font-display text-[14px] tracking-[-0.012em]",
-                    active ? "font-bold text-text" : "font-medium text-text-muted",
+                <span className="flex w-full items-center gap-1.5 px-0.5">
+                  <span
+                    className={cn(
+                      "min-w-0 flex-1 truncate font-display text-[14px] tracking-[-0.012em]",
+                      active ? "font-bold text-text" : "font-medium text-text-muted",
+                    )}
+                  >
+                    {b.name}
+                  </span>
+                  {b.visibility === "private" && (
+                    <span role="img" aria-label="Private" className="shrink-0 text-text-subtle">
+                      <Lock size={13} strokeWidth={2.5} />
+                    </span>
                   )}
-                >
-                  {b.name}
                 </span>
                 <span
                   className={cn(

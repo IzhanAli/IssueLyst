@@ -3,6 +3,7 @@ import { Avatar } from "@/components/ui/avatar";
 import type { ShapeObject, User, WhiteboardObject } from "@/lib/types";
 import { relativeTime } from "@/lib/utils/format";
 import { cn } from "@/lib/utils/cn";
+import { LinkCardText } from "./link-text";
 import { FILL, INK, INK_LINE, INK_WIDTH, SELECTION_RING, STICKY_SHADOW, TEXT_SIZE } from "./constants";
 
 export interface ObjectHandlers {
@@ -95,7 +96,13 @@ export function BoardObject({
             cursor,
           }}
         >
-          {editing ? <TextEditor initial={obj.text} placeholder="Type here" onCommit={commit} /> : obj.text}
+          {editing ? (
+            <TextEditor initial={obj.text} placeholder="Type here" onCommit={commit} />
+          ) : obj.linkCards ? (
+            <LinkCardText text={obj.text} />
+          ) : (
+            obj.text
+          )}
         </div>
       );
 

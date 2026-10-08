@@ -1,0 +1,1 @@
+ALTER TABLE "whiteboards" ADD COLUMN "visibility" text DEFAULT 'team' NOT NULL;

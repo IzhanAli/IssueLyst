@@ -74,6 +74,7 @@ export function seedWhiteboards(): Whiteboard[] {
     id,
     workspaceId: workspace.id,
     name,
+    visibility: "team",
     objects,
     createdById: "u_izhan",
     createdAt: ago(editedAgo + 7 * DAY),

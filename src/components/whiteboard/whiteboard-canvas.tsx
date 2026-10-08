@@ -23,8 +23,9 @@ import { cn } from "@/lib/utils/cn";
 import { isMac, isTypingTarget } from "@/lib/utils/platform";
 import { BoardObject, type ObjectHandlers } from "./board-object";
 import { INK, INK_LINE, INK_WIDTH, SHAPE_SWATCHES, SHEET, STICKY_SWATCHES, ZOOM } from "./constants";
+import { hasLinks } from "./link-text";
 import { type Box, type Handle, ResizeHandles, handlesOf, resizeBox, withBox } from "./resize-handles";
-import { FillPicker, InkStylePicker, SHAPES, ShapePicker, StyleMenu } from "./style-picker";
+import { FillPicker, InkStylePicker, LinkCardsToggle, SHAPES, ShapePicker, StyleMenu } from "./style-picker";
 
 type Tool = "select" | "hand" | "text" | "sticky" | "pen" | "shape" | "image";
 
@@ -497,6 +498,13 @@ export function WhiteboardCanvas({
       { amend: freshId.current === id },
     );
 
+  const relink = (id: string, linkCards: boolean) =>
+    editObjects(
+      board.id,
+      (os) => os.map((o) => (o.id === id && o.kind === "text" ? { ...o, linkCards: linkCards || undefined } : o)),
+      { amend: freshId.current === id },
+    );
+
   const pickTool = (next: Tool) => {
     setTool(next);
     setSelectedId(null);
@@ -699,11 +707,19 @@ export function WhiteboardCanvas({
     const ink = inkStyleOf(o);
     if (ink) {
       return (
-        <InkStylePicker
-          value={ink}
-          sizeName={SIZE_NAME[o.kind === "ink" ? "pen" : "text"]}
-          onChange={(patch) => restyle(o.id, patch)}
-        />
+        <>
+          <InkStylePicker
+            value={ink}
+            sizeName={SIZE_NAME[o.kind === "ink" ? "pen" : "text"]}
+            onChange={(patch) => restyle(o.id, patch)}
+          />
+          {o.kind === "text" && (
+            <>
+              <div className="mx-1 h-5 w-px shrink-0 bg-border" />
+              <LinkCardsToggle value={!!o.linkCards} onChange={(on) => relink(o.id, on)} />
+            </>
+          )}
+        </>
       );
     }
     if (o.kind === "sticky") {
@@ -787,8 +803,10 @@ export function WhiteboardCanvas({
             <div className="pointer-events-none absolute left-0 top-[150px] flex w-[950px] flex-col gap-2 px-[60px]">
               <div className="font-display text-[36px] font-extrabold tracking-[-0.035em] text-text">Blank board</div>
               <div className="max-w-[480px] text-[19px] text-text-muted [text-wrap:pretty]">
-                Pick the sticky or text tool below, then click anywhere. Everyone in {workspaceName} sees this
-                board live.
+                Pick the sticky or text tool below, then click anywhere.{" "}
+                {board.visibility === "private"
+                  ? "This board is private: only you can see it."
+                  : `Everyone in ${workspaceName} sees this board live.`}
               </div>
             </div>
           )}
@@ -805,6 +823,12 @@ export function WhiteboardCanvas({
             top: Math.max(8, Math.round(top + barTarget.y * k) - 44),
           }}
         >
+          {barTarget.kind === "text" && editingId !== barTarget.id && hasLinks(barTarget.text) && (
+            <>
+              <LinkCardsToggle value={!!barTarget.linkCards} onChange={(on) => relink(barTarget.id, on)} />
+              <div className="mx-1 h-5 w-px shrink-0 bg-border" />
+            </>
+          )}
           <Tooltip content="Delete" shortcut="⌫">
             <button
               onClick={() => remove(barTarget.id)}

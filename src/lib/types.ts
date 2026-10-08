@@ -243,6 +243,8 @@ export interface TextObject extends WhiteboardObjectBase, InkStyle {
   kind: "text";
   weight: 400 | 700;
   text: string;
+  /** web links in the text render as cards rather than inline links */
+  linkCards?: boolean;
 }
 
 /** What the Shape tool draws. */
@@ -285,10 +287,15 @@ export type WhiteboardObject =
   | ImageObject
   | InkObject;
 
+/** Team boards are open to the whole workspace; private ones only to their creator. */
+export type WhiteboardVisibility = "private" | "team";
+
 export interface Whiteboard {
   id: ID;
   workspaceId: ID;
   name: string;
+  /** only the creator can change it */
+  visibility: WhiteboardVisibility;
   /** paint order: later objects draw on top */
   objects: WhiteboardObject[];
   createdById: ID;

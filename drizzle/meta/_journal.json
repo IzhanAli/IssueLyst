@@ -15,6 +15,13 @@
       "when": 1789753054358,
       "tag": "0001_hot_the_liberteens",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791456640386,
+      "tag": "0002_regular_the_stranger",
+      "breakpoints": true
     }
   ]
 }

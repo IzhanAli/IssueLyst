@@ -10,7 +10,7 @@ import {
   useInteractions,
   type Placement,
 } from "@floating-ui/react";
-import { Circle, Square } from "lucide-react";
+import { Circle, Link2, Square } from "lucide-react";
 import type { InkStyle, ShapeKind, WhiteboardColor } from "@/lib/types";
 import { cn } from "@/lib/utils/cn";
 import { FILL, INK, INK_SWATCHES, SIZES } from "./constants";
@@ -93,6 +93,24 @@ export function InkStylePicker({
         ))}
       </div>
     </>
+  );
+}
+
+/** Whether a text's links show as cards. */
+export function LinkCardsToggle({ value, onChange }: { value: boolean; onChange: (value: boolean) => void }) {
+  return (
+    <button
+      onClick={() => onChange(!value)}
+      aria-label="Show links as cards"
+      aria-pressed={value}
+      className={cn(
+        "flex h-7 shrink-0 items-center gap-1.5 rounded-[8px] px-2 font-display text-[12.5px] font-bold transition-colors",
+        value ? "bg-primary text-primary-fg" : "text-text-muted hover:bg-surface-2 hover:text-text",
+      )}
+    >
+      <Link2 size={15} strokeWidth={2.4} />
+      Link cards
+    </button>
   );
 }
 
